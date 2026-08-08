@@ -1,0 +1,39 @@
+{
+  "cafeName": "کافه بلوط",
+  "categories": [
+    { "id": "hot-coffee", "title": "قهوه گرم" },
+    { "id": "cold-coffee", "title": "قهوه سرد" },
+    { "id": "cold-drinks", "title": "نوشیدنی سرد" },
+    { "id": "tea", "title": "چای و دمنوش" },
+    { "id": "desserts", "title": "کیک و دسر" }
+  ],
+  "items": [
+    { "id": "espresso", "name": "اسپرسو", "category": "hot-coffee", "price": 55000, "tags": ["تلخ", "پرانرژی", "کافئین‌دار"], "desc": "شات غلیظ و پرقدرت، برای شروع روز.", "pairsWith": ["brownie"] },
+    { "id": "americano", "name": "آمریکانو", "category": "hot-coffee", "price": 60000, "tags": ["تلخ", "سبک", "کافئین‌دار"], "desc": "اسپرسو رقیق‌شده با آب داغ، طعمی تمیز و ساده.", "pairsWith": ["cheesecake"] },
+    { "id": "cappuccino", "name": "کاپوچینو", "category": "hot-coffee", "price": 75000, "tags": ["خامه‌ای", "شیرین ملایم", "کافئین‌دار"], "desc": "اسپرسو با فوم شیر ضخیم و بافت ابری.", "pairsWith": ["chocolate-cake"] },
+    { "id": "latte", "name": "لاته", "category": "hot-coffee", "price": 78000, "tags": ["خامه‌ای", "شیرین ملایم", "کافئین‌دار"], "desc": "قهوه ملایم و شیری، مناسب کسی که تلخی زیاد نمی‌خواهد.", "pairsWith": ["tiramisu"] },
+    { "id": "mocha", "name": "موکا", "category": "hot-coffee", "price": 88000, "tags": ["شکلاتی", "شیرین", "خامه‌ای", "کافئین‌دار"], "desc": "ترکیب اسپرسو، شکلات داغ و شیر.", "pairsWith": ["brownie"] },
+    { "id": "flat-white", "name": "فلت وایت", "category": "hot-coffee", "price": 80000, "tags": ["خامه‌ای", "تلخ ملایم", "کافئین‌دار"], "desc": "قهوه غلیظ‌تر از لاته با فوم نازک‌تر.", "pairsWith": ["cheesecake"] },
+
+    { "id": "iced-latte", "name": "آیس لاته", "category": "cold-coffee", "price": 85000, "tags": ["خامه‌ای", "شیرین ملایم", "کافئین‌دار", "خنک"], "desc": "لاته سرد روی یخ، ملایم و خنک‌کننده.", "pairsWith": ["chocolate-cake"] },
+    { "id": "cold-brew", "name": "کولد برو", "category": "cold-coffee", "price": 90000, "tags": ["تلخ", "سبک", "پرانرژی", "کافئین‌دار", "خنک"], "desc": "دم‌آوری سرد و آهسته، تلخی نرم و کافئین بالا.", "pairsWith": ["brownie"] },
+    { "id": "affogato", "name": "آفوگاتو", "category": "cold-coffee", "price": 95000, "tags": ["شیرین", "خامه‌ای", "شکلاتی", "کافئین‌دار", "خنک"], "desc": "یک شات اسپرسو داغ روی بستنی وانیلی.", "pairsWith": ["tiramisu"] },
+    { "id": "choc-frappe", "name": "فراپه شکلات", "category": "cold-coffee", "price": 98000, "tags": ["شکلاتی", "شیرین", "خامه‌ای", "کافئین‌دار", "خنک"], "desc": "قهوه یخی و شکلاتی با تاپینگ خامه.", "pairsWith": ["chocolate-cake"] },
+    { "id": "iced-americano", "name": "آیس آمریکانو", "category": "cold-coffee", "price": 68000, "tags": ["تلخ", "سبک", "کافئین‌دار", "خنک"], "desc": "آمریکانوی سرد و ساده روی یخ.", "pairsWith": ["cheesecake"] },
+
+    { "id": "mint-lemonade", "name": "لیموناد نعنا", "category": "cold-drinks", "price": 65000, "tags": ["ترش", "میوه‌ای", "بدون‌کافئین", "خنک", "سبک"], "desc": "لیموی تازه، نعنا و کمی گازدار؛ ترش و خنک.", "pairsWith": ["chocolate-cake"] },
+    { "id": "strawberry-mojito", "name": "موهیتو توت‌فرنگی (بدون الکل)", "category": "cold-drinks", "price": 72000, "tags": ["ترش", "میوه‌ای", "شیرین", "بدون‌کافئین", "خنک"], "desc": "توت‌فرنگی، لیمو و نعنا با سودا.", "pairsWith": ["chocolate-cake"] },
+    { "id": "mango-smoothie", "name": "اسموتی انبه", "category": "cold-drinks", "price": 80000, "tags": ["میوه‌ای", "شیرین", "خامه‌ای", "بدون‌کافئین", "خنک"], "desc": "انبه، ماست و یخ؛ غلیظ و شیرین.", "pairsWith": ["cheesecake"] },
+    { "id": "peach-iced-tea", "name": "آیس تی هلو", "category": "cold-drinks", "price": 68000, "tags": ["میوه‌ای", "ترش‌وشیرین", "بدون‌کافئین", "خنک", "سبک"], "desc": "چای سرد با شربت هلو، تازه و کم‌شیرین.", "pairsWith": ["tiramisu"] },
+    { "id": "sour-cherry-soda", "name": "سودای آلبالو", "category": "cold-drinks", "price": 60000, "tags": ["ترش", "میوه‌ای", "بدون‌کافئین", "خنک", "سبک"], "desc": "شربت آلبالوی خانگی با سودا.", "pairsWith": ["chocolate-cake"] },
+
+    { "id": "masala-chai", "name": "چای ماسالا", "category": "tea", "price": 55000, "tags": ["ادویه‌ای", "شیرین ملایم", "کافئین‌دار کم", "گرم"], "desc": "چای هندی با دارچین، هل و زنجبیل.", "pairsWith": ["chocolate-cake"] },
+    { "id": "chamomile", "name": "دمنوش بابونه", "category": "tea", "price": 50000, "tags": ["آرام‌بخش", "بدون‌کافئین", "سبک", "گرم"], "desc": "برای آرامش و پایان یک روز شلوغ.", "pairsWith": ["cheesecake"] },
+    { "id": "jasmine-green-tea", "name": "چای سبز یاسمن", "category": "tea", "price": 52000, "tags": ["گیاهی", "بدون‌کافئین کم", "سبک", "گرم"], "desc": "چای سبز معطر با گل یاسمن.", "pairsWith": ["cheesecake"] },
+
+    { "id": "chocolate-cake", "name": "کیک شکلاتی", "category": "desserts", "price": 85000, "tags": ["شکلاتی", "شیرین", "خامه‌ای"], "desc": "کیک مرطوب شکلاتی با گاناش تلخ.", "pairsWith": ["mint-lemonade", "espresso"] },
+    { "id": "cheesecake", "name": "چیزکیک نیویورکی", "category": "desserts", "price": 95000, "tags": ["خامه‌ای", "شیرین", "کمی‌ترش"], "desc": "چیزکیک کلاسیک با سس توت.", "pairsWith": ["americano"] },
+    { "id": "tiramisu", "name": "تیرامیسو", "category": "desserts", "price": 98000, "tags": ["قهوه‌ای", "شیرین", "خامه‌ای"], "desc": "لایه‌های اسفنجی آغشته به قهوه و کرم ماسکارپونه.", "pairsWith": ["latte"] },
+    { "id": "brownie", "name": "براونی با بستنی", "category": "desserts", "price": 92000, "tags": ["شکلاتی", "شیرین", "گرم‌وسرد"], "desc": "براونی گرم شکلاتی با یک اسکوپ بستنی وانیلی.", "pairsWith": ["espresso"] }
+  ]
+}
