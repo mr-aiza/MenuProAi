@@ -22,7 +22,7 @@
     { "id": "iced-americano", "name": "آیس آمریکانو", "category": "cold-coffee", "price": 68000, "tags": ["تلخ", "سبک", "کافئین‌دار", "خنک"], "desc": "آمریکانوی سرد و ساده روی یخ.", "pairsWith": ["cheesecake"] },
 
     { "id": "mint-lemonade", "name": "لیموناد نعنا", "category": "cold-drinks", "price": 65000, "tags": ["ترش", "میوه‌ای", "بدون‌کافئین", "خنک", "سبک"], "desc": "لیموی تازه، نعنا و کمی گازدار؛ ترش و خنک.", "pairsWith": ["chocolate-cake"] },
-    { "id": "strawberry-mojito", "name": "موهیتو توت‌فرنگی (بدون الکل)", "category": "cold-drinks", "price": 72000, "tags": ["ترش", "میوه‌ای", "شیرین", "بدون‌کافئین", "خنک"], "desc": "توت‌فرنگی، لیمو و نعنا با سودا.", "pairsWith": ["chocolate-cake"] },
+    { "id": "strawberry-mojito", "name": "شربت توت‌فرنگی و نعنا", "category": "cold-drinks", "price": 72000, "tags": ["ترش", "میوه‌ای", "شیرین", "بدون‌کافئین", "خنک"], "desc": "توت‌فرنگی، لیمو و نعنای تازه با سودا.", "pairsWith": ["chocolate-cake"] },
     { "id": "mango-smoothie", "name": "اسموتی انبه", "category": "cold-drinks", "price": 80000, "tags": ["میوه‌ای", "شیرین", "خامه‌ای", "بدون‌کافئین", "خنک"], "desc": "انبه، ماست و یخ؛ غلیظ و شیرین.", "pairsWith": ["cheesecake"] },
     { "id": "peach-iced-tea", "name": "آیس تی هلو", "category": "cold-drinks", "price": 68000, "tags": ["میوه‌ای", "ترش‌وشیرین", "بدون‌کافئین", "خنک", "سبک"], "desc": "چای سرد با شربت هلو، تازه و کم‌شیرین.", "pairsWith": ["tiramisu"] },
     { "id": "sour-cherry-soda", "name": "سودای آلبالو", "category": "cold-drinks", "price": 60000, "tags": ["ترش", "میوه‌ای", "بدون‌کافئین", "خنک", "سبک"], "desc": "شربت آلبالوی خانگی با سودا.", "pairsWith": ["chocolate-cake"] },
