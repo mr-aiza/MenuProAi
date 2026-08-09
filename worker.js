@@ -9,7 +9,7 @@
 //      https://cafe-bolut.pages.dev/menu.json
 // =======================================================================
 
-const MODEL = "@cf/zai-org/glm-4.7-flash";
+const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
 // اجازه دسترسی از دامنه سایتت (بعد از دیپلوی، ستاره رو با دامنه واقعی عوض کن)
 const ALLOWED_ORIGIN = "*";
@@ -117,7 +117,7 @@ export default {
 
     let aiResult;
     try {
-      aiResult = await env.AI.run(MODEL, { messages, max_tokens: 500 });
+      aiResult = await env.AI.run(MODEL, { messages, max_tokens: 600 });
     } catch (e) {
       return json({ reply: "با عرض پوزش، دستیار موقتاً در دسترس نیست. لطفاً دوباره تلاش کنید.", suggestions: [] }, 200);
     }
