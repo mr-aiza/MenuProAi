@@ -602,7 +602,7 @@ async function sendMessage(text){
     history.push({ role: 'assistant', content: data.reply || '' });
   }catch(e){
     typingEl.remove();
-    addMsg('bot', 'اتصال به دستیار برقرار نشد. آدرس Worker رو در تنظیمات چک کن.');
+    addMsg('bot', 'خطای اتصال: ' + (e.message || e));
   }
   chatSend.disabled = false;
 }
