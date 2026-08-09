@@ -602,7 +602,7 @@ async function sendMessage(text){
     history.push({ role: 'assistant', content: data.reply || '' });
   }catch(e){
     typingEl.remove();
-    addMsg('bot', 'خطای اتصال: ' + (e.message || e));
+    addMsg('bot', 'با عرض پوزش، در حال حاضر امکان اتصال نیست. لطفاً کمی بعد دوباره امتحان کنید.');
   }
   chatSend.disabled = false;
 }
