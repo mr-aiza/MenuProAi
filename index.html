@@ -183,6 +183,23 @@
     padding: 2px 8px; border-radius: 999px;
   }
 
+  .recipe{ margin-top:8px; }
+  .recipe summary{
+    cursor:pointer; font-size:12px; color: var(--amber);
+    list-style:none; display:inline-flex; align-items:center; gap:4px;
+  }
+  .recipe summary::-webkit-details-marker{ display:none; }
+  .recipe summary::before{ content:'📋'; font-size:11px; }
+  .recipe[open] summary::before{ content:'📖'; }
+  .recipe-body{
+    margin-top:8px; padding: 10px 12px;
+    background: rgba(0,0,0,0.18); border-radius: 8px;
+    font-size:12px; line-height:1.9; color: var(--chalk-dim);
+  }
+  .recipe-body b{ color: var(--chalk); font-size:12px; }
+  .recipe-body ul, .recipe-body ol{ margin: 4px 0 10px; padding-right: 18px; }
+  .recipe-body ol{ margin-bottom:0; }
+
   .item.highlight{
     animation: glow 1.6s ease;
     border-radius: 10px;
@@ -469,6 +486,16 @@ function renderMenu(){
 }
 
 function renderItem(it){
+  const recipeHtml = it.recipe ? `
+      <details class="recipe">
+        <summary>نمایش رسپی</summary>
+        <div class="recipe-body">
+          <b>مواد لازم:</b>
+          <ul>${it.recipe.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <b>طرز تهیه:</b>
+          <ol>${it.recipe.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        </div>
+      </details>` : '';
   return `
     <div class="item" id="item-${it.id}">
       <div class="item-row">
@@ -479,6 +506,7 @@ function renderItem(it){
       </div>
       <p class="item-desc">${it.desc || ''}</p>
       <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${recipeHtml}
     </div>`;
 }
 
@@ -543,7 +571,7 @@ function addSuggestions(list){
     // چون این آیتم داخل چت تکرار می‌شود، شناسه اصلی را برای اسکرول نگه می‌داریم
     box.querySelector('.item').id = 'sugg-item-' + item.id;
     box.querySelector('.item').addEventListener('click', (e)=>{
-      if(e.target.closest('.add-btn')) return;
+      if(e.target.closest('.add-btn') || e.target.closest('.recipe')) return;
       closeChat(); highlightItem(item.id);
     });
     wrap.appendChild(box);
