@@ -9,7 +9,7 @@
 //      https://cafe-bolut.pages.dev/menu.json
 // =======================================================================
 
-const MODEL = "@cf/meta/llama-3.1-8b-instruct";
+const MODEL = "@cf/zai-org/glm-4.7-flash";
 
 // اجازه دسترسی از دامنه سایتت (بعد از دیپلوی، ستاره رو با دامنه واقعی عوض کن)
 const ALLOWED_ORIGIN = "*";
@@ -45,6 +45,7 @@ function buildSystemPrompt(menu) {
     price: it.price,
     tags: it.tags,
     desc: it.desc,
+    ...(it.recipe ? { ingredients: it.recipe.ingredients } : {}),
   }));
 
   return `تو دستیار سفارش‌گیری «${menu.cafeName}» هستی. فقط و فقط از آیتم‌های زیر که در منوی واقعی کافه هستند پیشنهاد بده و هیچ‌وقت چیزی خارج از این لیست اختراع نکن.
@@ -118,7 +119,7 @@ export default {
     try {
       aiResult = await env.AI.run(MODEL, { messages, max_tokens: 500 });
     } catch (e) {
-      return json({ reply: "دستیار موقتاً در دسترس نیست، دوباره امتحان کن.", suggestions: [] }, 200);
+      return json({ reply: "با عرض پوزش، دستیار موقتاً در دسترس نیست. لطفاً دوباره تلاش کنید.", suggestions: [] }, 200);
     }
 
     const raw = aiResult.response || "";
