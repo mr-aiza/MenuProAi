@@ -434,11 +434,12 @@
 
 <script>
 // =====================================================================
-// تنظیمات — این آدرس رو بعد از دیپلوی Worker با آدرس واقعی جایگزین کن
-// مثال: https://cafe-ai.your-subdomain.workers.dev/api/recommend
+// تنظیمات — چون AI حالا به‌صورت Pages Function در همین پروژه‌ست،
+// آدرسش همیشه همون دامنه‌ی خود سایت + /api/recommend است.
+// نیازی به تغییر دستی نیست.
 // =====================================================================
 const CONFIG = {
-  WORKER_URL: "https://menuproai.tempmail41245.workers.dev/api/recommend"
+  WORKER_URL: "/api/recommend"
 };
 
 let MENU = null;
