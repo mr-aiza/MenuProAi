@@ -122,7 +122,7 @@
     </div>
 
     <div class="card">
-      <h2>افزودن آیتم جدید</h2>
+      <h2 id="itemFormTitle">افزودن آیتم جدید</h2>
       <div class="msg" id="itemMsg"></div>
       <label>نام آیتم</label>
       <input type="text" id="itName" placeholder="مثلاً اسپرسو">
@@ -134,11 +134,18 @@
       <textarea id="itDesc" placeholder="شات غلیظ و پرقدرت..."></textarea>
       <label>برچسب‌ها (با کاما جدا کن)</label>
       <input type="text" id="itTags" placeholder="تلخ, پرانرژی, کافئین‌دار">
-      <button class="btn-primary" id="addItemBtn" style="width:100%;">افزودن آیتم</button>
+      <div class="row">
+        <button class="btn-primary" id="addItemBtn" style="flex:1;">افزودن آیتم</button>
+        <button class="btn-ghost hidden" id="cancelEditBtn" style="flex:0 0 auto;">انصراف از ویرایش</button>
+      </div>
     </div>
 
     <div class="card">
       <h2>آیتم‌های منو</h2>
+      <div class="row" style="margin-bottom:6px;">
+        <input type="text" id="itemSearch" placeholder="جستجو بین آیتم‌ها..." style="margin-bottom:0;">
+      </div>
+      <div class="row" id="filterCatChips" style="margin-bottom:14px;flex-wrap:wrap;"></div>
       <div id="itemsList"></div>
     </div>
 
@@ -149,10 +156,13 @@
 <script>
 /* ⚠️ بعد از دیپلوی menuproai-worker.js (مرحله ۱)، آدرس زیر رو با آدرس
    واقعی Worker جایگزین کن. */
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 const PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS/";
 
 let currentMenu = null;
+let editItemId = null;
+let activeFilterCat = '';
+let searchQuery = '';
 
 function showMsg(id, text, kind){
   const el = document.getElementById(id);
@@ -280,6 +290,26 @@ function renderCategories(){
       }catch(e){ showMsg('catMsg', e.message, 'err'); }
     });
   });
+  renderFilterChips();
+}
+
+function renderFilterChips(){
+  const wrap = document.getElementById('filterCatChips');
+  wrap.innerHTML = '';
+  const all = [{ id: '', title: 'همه' }, ...(currentMenu.categories || [])];
+  all.forEach(c => {
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (activeFilterCat === c.id ? ' active' : '');
+    chip.textContent = c.title;
+    chip.dataset.filtercat = c.id;
+    chip.style.cursor = 'pointer';
+    chip.addEventListener('click', () => {
+      activeFilterCat = c.id;
+      renderFilterChips();
+      renderItems();
+    });
+    wrap.appendChild(chip);
+  });
 }
 
 document.getElementById('addCatBtn').addEventListener('click', async () => {
@@ -303,37 +333,109 @@ document.getElementById('saveInfoBtn').addEventListener('click', async () => {
   }catch(e){ showMsg('infoMsg', e.message, 'err'); }
 });
 
+document.getElementById('itemSearch').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  renderItems();
+});
+
 function renderItems(){
   const wrap = document.getElementById('itemsList');
   wrap.innerHTML = '';
-  if (!currentMenu.items.length){
-    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">هنوز آیتمی اضافه نکردی.</p>';
+
+  let items = currentMenu.items || [];
+  if (activeFilterCat) items = items.filter(it => it.category === activeFilterCat);
+  if (searchQuery) items = items.filter(it =>
+    (it.name || '').toLowerCase().includes(searchQuery) ||
+    (it.desc || '').toLowerCase().includes(searchQuery) ||
+    (it.tags || []).some(t => t.toLowerCase().includes(searchQuery))
+  );
+
+  if (!items.length){
+    wrap.innerHTML = `<p style="color:var(--muted);font-size:13px;">${currentMenu.items.length ? 'چیزی با این فیلتر/جستجو پیدا نشد.' : 'هنوز آیتمی اضافه نکردی.'}</p>`;
     return;
   }
-  currentMenu.items.forEach(it => {
-    const catTitle = (currentMenu.categories.find(c => c.id === it.category) || {}).title || 'بدون دسته';
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    row.innerHTML = `
-      <div class="meta">
-        <div class="name">${escapeHtml(it.name)}</div>
-        <div class="sub">${catTitle} · ${Number(it.price).toLocaleString('fa-IR')} تومان</div>
-      </div>
-      <div class="item-actions">
-        <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
-      </div>`;
-    wrap.appendChild(row);
+
+  // گروه‌بندی زیر هر دسته
+  const groups = new Map(); // catId -> items[]
+  items.forEach(it => {
+    const key = it.category || '';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(it);
   });
+
+  const orderedCatIds = (currentMenu.categories || []).map(c => c.id).filter(id => groups.has(id));
+  if (groups.has('')) orderedCatIds.push('');
+
+  orderedCatIds.forEach(catId => {
+    const catTitle = catId ? ((currentMenu.categories.find(c => c.id === catId) || {}).title || 'بدون دسته') : 'بدون دسته';
+    const groupItems = groups.get(catId);
+
+    const heading = document.createElement('div');
+    heading.style.cssText = 'font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px;';
+    heading.textContent = catTitle + ' (' + groupItems.length + ')';
+    wrap.appendChild(heading);
+
+    groupItems.forEach(it => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
+        <div class="meta">
+          <div class="name">${escapeHtml(it.name)}</div>
+          <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
+          <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
+        </div>`;
+      wrap.appendChild(row);
+    });
+  });
+
   wrap.querySelectorAll('[data-del]').forEach(b => {
     b.addEventListener('click', async () => {
+      if (!confirm('این آیتم حذف بشه؟')) return;
       try{
         const data = await apiCall('/api/menu/items/delete', { id: b.dataset.del });
         currentMenu = data.menu;
+        if (editItemId === b.dataset.del) exitEditMode();
         renderItems();
       }catch(e){ alert(e.message); }
     });
   });
+  wrap.querySelectorAll('[data-edit]').forEach(b => {
+    b.addEventListener('click', () => enterEditMode(b.dataset.edit));
+  });
 }
+
+/* ============ حالت ویرایش آیتم ============ */
+function enterEditMode(id){
+  const it = currentMenu.items.find(x => x.id === id);
+  if (!it) return;
+  editItemId = id;
+  document.getElementById('itName').value = it.name || '';
+  document.getElementById('itCategory').value = it.category || '';
+  document.getElementById('itPrice').value = it.price || '';
+  document.getElementById('itDesc').value = it.desc || '';
+  document.getElementById('itTags').value = (it.tags || []).join(', ');
+  document.getElementById('itemFormTitle').textContent = 'ویرایش آیتم';
+  document.getElementById('addItemBtn').textContent = 'ذخیره تغییرات';
+  document.getElementById('cancelEditBtn').classList.remove('hidden');
+  document.getElementById('itName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function exitEditMode(){
+  editItemId = null;
+  document.getElementById('itName').value = '';
+  document.getElementById('itPrice').value = '';
+  document.getElementById('itDesc').value = '';
+  document.getElementById('itTags').value = '';
+  document.getElementById('itCategory').value = '';
+  document.getElementById('itemFormTitle').textContent = 'افزودن آیتم جدید';
+  document.getElementById('addItemBtn').textContent = 'افزودن آیتم';
+  document.getElementById('cancelEditBtn').classList.add('hidden');
+}
+
+document.getElementById('cancelEditBtn').addEventListener('click', exitEditMode);
 
 document.getElementById('addItemBtn').addEventListener('click', async () => {
   const name = document.getElementById('itName').value.trim();
@@ -345,13 +447,21 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
   if (!name || !category){ showMsg('itemMsg', 'نام آیتم و دسته الزامی‌ان.', 'err'); return; }
 
   try{
-    const data = await apiCall('/api/menu/items', { name, category, price, desc, tags });
-    currentMenu = data.menu;
-    document.getElementById('itName').value = '';
-    document.getElementById('itPrice').value = '';
-    document.getElementById('itDesc').value = '';
-    document.getElementById('itTags').value = '';
-    showMsg('itemMsg', '✓ آیتم اضافه شد.', 'ok');
+    if (editItemId){
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category, price, desc, tags });
+      currentMenu = data.menu;
+      showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
+      exitEditMode();
+    } else {
+      const data = await apiCall('/api/menu/items', { name, category, price, desc, tags });
+      currentMenu = data.menu;
+      document.getElementById('itName').value = '';
+      document.getElementById('itPrice').value = '';
+      document.getElementById('itDesc').value = '';
+      document.getElementById('itTags').value = '';
+      showMsg('itemMsg', '✓ آیتم اضافه شد.', 'ok');
+      document.getElementById('itName').focus();
+    }
     renderItems();
   }catch(e){ showMsg('itemMsg', e.message, 'err'); }
 });
