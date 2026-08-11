@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>کافه بلوط | منو</title>
+<meta name="description" content="منوی کافه بلوط — قهوه، نوشیدنی سرد، چای و دسر. یک دستیار هوش مصنوعی هم کمک می‌کند انتخاب کنید.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1E2420;
+    --bg-panel: #171B18;
+    --bg-panel-2: #232B26;
+    --chalk: #F2EDE4;
+    --chalk-dim: #98A69C;
+    --amber: #D9A566;
+    --amber-dim: #8A6C42;
+    --sage: #8FB89C;
+    --rust: #C1694A;
+    --line: rgba(242,237,228,0.16);
+    --radius: 14px;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--chalk);
+    font-family: 'Vazirmatn', sans-serif;
+    min-height: 100vh;
+    /* subtle chalkboard grain */
+    background-image:
+      radial-gradient(rgba(242,237,228,0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+  ::selection{ background: var(--amber); color:#1E2420; }
+  button{ font-family: inherit; }
+
+  /* ---------- header ---------- */
+  header.top{
+    padding: 34px 20px 18px;
+    text-align: center;
+    position: relative;
+  }
+  .cup-wrap{
+    width: 56px; height:56px; margin: 0 auto 10px;
+    position: relative;
+  }
+  .steam{
+    position:absolute; top:-14px; width:3px; height:16px;
+    background: var(--chalk-dim); border-radius: 2px;
+    opacity:.55;
+    animation: rise 2.6s ease-in-out infinite;
+  }
+  .steam.s1{ right: 18px; animation-delay: 0s;}
+  .steam.s2{ right: 27px; animation-delay: .5s;}
+  .steam.s3{ right: 36px; animation-delay: 1s;}
+  @keyframes rise{
+    0%{ transform: translateY(4px) scaleY(.7); opacity:0; }
+    35%{ opacity:.6; }
+    100%{ transform: translateY(-14px) scaleY(1.1); opacity:0; }
+  }
+  .cup{
+    width:56px; height:40px; margin-top:14px;
+    border: 2.5px solid var(--chalk);
+    border-top:none;
+    border-radius: 0 0 16px 16px;
+    position: relative;
+  }
+  .cup::before{
+    content:'';
+    position:absolute; top:-2.5px; left:-13px;
+    width:14px; height:16px;
+    border:2.5px solid var(--chalk);
+    border-left:none;
+    border-radius: 0 10px 10px 0;
+  }
+  .cup::after{
+    content:'';
+    position:absolute; top:-2.5px; left:0; right:0;
+    height:2.5px; background: var(--chalk); opacity:.9;
+  }
+  h1.cafe-name{
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: .5px;
+    margin: 4px 0 6px;
+  }
+  .tagline{
+    color: var(--chalk-dim);
+    font-size: 13.5px;
+    margin: 0;
+  }
+
+  /* ---------- category nav ---------- */
+  nav.cats{
+    position: sticky; top:0; z-index: 20;
+    display:flex; gap:8px; overflow-x:auto;
+    padding: 12px 16px;
+    background: linear-gradient(var(--bg) 78%, transparent);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav.cats::-webkit-scrollbar{ display:none; }
+  nav.cats a{
+    flex: 0 0 auto;
+    text-decoration:none;
+    color: var(--chalk-dim);
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  nav.cats a.active{
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* ---------- menu sections ---------- */
+  main{ max-width: 640px; margin: 0 auto; padding: 6px 18px 120px; }
+  section.cat{ margin-top: 30px; }
+  h2.cat-title{
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--amber);
+    display:flex; align-items:center; gap:10px;
+    margin: 0 0 14px;
+  }
+  h2.cat-title::after{
+    content:'';
+    flex:1;
+    height:0;
+    border-bottom: 2px dashed var(--amber-dim);
+  }
+
+  .item{
+    padding: 13px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .item:last-child{ border-bottom:none; }
+  .item-row{
+    display:flex; align-items: baseline; gap:8px;
+  }
+  .item-name{ font-weight:600; font-size:15.5px; white-space:nowrap; }
+  .leader{
+    flex:1; border-bottom: 1.5px dotted var(--chalk-dim);
+    opacity:.5; transform: translateY(-3px);
+  }
+  .price{
+    font-weight:600; font-size:14px; color:var(--amber);
+    white-space:nowrap;
+    background: rgba(217,165,102,0.12);
+    padding: 2px 10px; border-radius: 999px;
+  }
+  .add-btn{
+    flex: 0 0 auto;
+    width:26px; height:26px; border-radius:50%;
+    border: 1.5px solid var(--amber);
+    background: transparent; color: var(--amber);
+    font-size:15px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: background .15s, color .15s, transform .15s;
+  }
+  .add-btn.added{
+    background: var(--amber); color: var(--bg);
+    transform: scale(1.1);
+  }
+  .item-desc{
+    color: var(--chalk-dim); font-size:12.5px;
+    margin-top:4px; line-height:1.7;
+  }
+  .tags{ margin-top:6px; display:flex; flex-wrap:wrap; gap:6px; }
+  .tag{
+    font-size:10.5px; color: var(--sage);
+    border:1px solid rgba(143,184,156,0.35);
+    padding: 2px 8px; border-radius: 999px;
+  }
+
+  .recipe{ margin-top:8px; }
+  .recipe summary{
+    cursor:pointer; font-size:12px; color: var(--amber);
+    list-style:none; display:inline-flex; align-items:center; gap:4px;
+  }
+  .recipe summary::-webkit-details-marker{ display:none; }
+  .recipe summary::before{ content:'📋'; font-size:11px; }
+  .recipe[open] summary::before{ content:'📖'; }
+  .recipe-body{
+    margin-top:8px; padding: 10px 12px;
+    background: rgba(0,0,0,0.18); border-radius: 8px;
+    font-size:12px; line-height:1.9; color: var(--chalk-dim);
+  }
+  .recipe-body b{ color: var(--chalk); font-size:12px; }
+  .recipe-body ul, .recipe-body ol{ margin: 4px 0 10px; padding-right: 18px; }
+  .recipe-body ol{ margin-bottom:0; }
+
+  .item.highlight{
+    animation: glow 1.6s ease;
+    border-radius: 10px;
+  }
+  @keyframes glow{
+    0%{ background: rgba(217,165,102,0.28); }
+    100%{ background: transparent; }
+  }
+
+  /* ---------- chat launcher ---------- */
+  .chat-btn{
+    position: fixed; bottom: 20px; left: 20px;
+    width:56px; height:56px; border-radius:50%;
+    background: var(--amber); color: var(--bg);
+    border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    z-index: 40;
+    font-size: 22px;
+  }
+
+  /* ---------- chat panel ---------- */
+  .chat-overlay{
+    position: fixed; inset:0; background: rgba(0,0,0,.5);
+    z-index: 50; opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .chat-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .chat-panel{
+    position: fixed; left:0; right:0; bottom:0;
+    max-width: 640px; margin: 0 auto;
+    background: var(--bg-panel);
+    border-radius: 18px 18px 0 0;
+    border: 1px solid var(--line);
+    z-index: 51;
+    display:flex; flex-direction:column;
+    height: 78vh; max-height: 640px;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+  }
+  .chat-panel.open{ transform: translateY(0); }
+
+  .chat-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 18px; border-bottom:1px solid var(--line);
+  }
+  .chat-head strong{ font-size:15px; }
+  .chat-head span{ display:block; font-size:11.5px; color:var(--chalk-dim); margin-top:2px; }
+  .chat-close{
+    background:none; border:none; color: var(--chalk-dim);
+    font-size:20px; cursor:pointer; padding:4px 8px;
+  }
+
+  .chat-msgs{
+    flex:1; overflow-y:auto; padding: 16px 18px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .msg{
+    max-width: 84%; padding: 10px 14px; border-radius: 14px;
+    font-size: 13.8px; line-height:1.8;
+  }
+  .msg.bot{
+    background: var(--bg-panel-2); align-self:flex-start;
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    background: var(--amber); color: var(--bg); align-self:flex-end;
+    border-bottom-right-radius:4px; font-weight:500;
+  }
+  .msg.typing{ color: var(--chalk-dim); font-style: italic; }
+
+  .sugg-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .sugg-list .item{ background: var(--bg-panel-2); border-radius: 10px; padding: 11px 12px; border-bottom:none; }
+  .sugg-reason{ color: var(--sage); font-size:11.5px; margin-top:6px; }
+
+  .chat-input-row{
+    display:flex; gap:8px; padding: 12px 14px;
+    border-top:1px solid var(--line);
+  }
+  .chat-input-row input{
+    flex:1; background: var(--bg-panel-2); border:1px solid var(--line);
+    color: var(--chalk); border-radius: 999px; padding: 11px 16px;
+    font-size:14px; outline:none;
+  }
+  .chat-input-row button{
+    background: var(--amber); color: var(--bg); border:none;
+    width:44px; height:44px; border-radius:50%; font-size:17px; cursor:pointer;
+  }
+  .chat-input-row button:disabled{ opacity:.5; }
+
+  .hint-chips{ display:flex; flex-wrap:wrap; gap:6px; padding: 0 18px 12px; }
+  .hint-chip{
+    font-size:12px; color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding: 5px 12px; background:none; cursor:pointer;
+  }
+
+  /* ---------- cart launcher ---------- */
+  .cart-btn{
+    position: fixed; bottom: 20px; right: 20px;
+    width:56px; height:56px; border-radius:50%;
+    background: var(--bg-panel-2); color: var(--chalk);
+    border: 1.5px solid var(--amber);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    z-index: 40;
+    font-size: 20px;
+  }
+  .cart-badge{
+    position:absolute; top:-4px; left:-4px;
+    background: var(--rust); color:#fff;
+    font-size:11px; font-weight:700;
+    min-width:20px; height:20px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    padding: 0 4px;
+  }
+
+  /* ---------- cart panel (reuses chat-panel look) ---------- */
+  .cart-msgs{ flex:1; overflow-y:auto; padding: 14px 18px; }
+  .cart-row{
+    display:flex; align-items:center; gap:10px;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .cart-row-name{ flex:1; }
+  .cart-row-name b{ font-size:14px; display:block; }
+  .cart-row-name span{ color:var(--chalk-dim); font-size:12px; }
+  .qty-stepper{
+    display:flex; align-items:center; gap:8px;
+    background: var(--bg-panel-2); border-radius:999px; padding:4px 6px;
+  }
+  .qty-stepper button{
+    width:24px; height:24px; border-radius:50%; border:none;
+    background: var(--amber); color:var(--bg); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qty-stepper .qty-num{ font-size:13.5px; min-width:16px; text-align:center; }
+  .cart-empty{ text-align:center; color:var(--chalk-dim); font-size:13px; padding: 40px 10px; }
+
+  .cart-footer{
+    border-top:1px solid var(--line); padding: 14px 18px;
+  }
+  .cart-total-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:14.5px; font-weight:700; margin-bottom:12px;
+  }
+  .cart-total-row span.amt{ color: var(--amber); }
+  .invoice-btn{
+    width:100%; background: var(--amber); color: var(--bg);
+    border:none; border-radius:999px; padding:12px; font-size:14.5px;
+    font-weight:700; cursor:pointer;
+  }
+  .invoice-btn:disabled{ opacity:.4; }
+
+  /* ---------- invoice / receipt view ---------- */
+  .invoice{
+    background: var(--bg-panel-2); border-radius:12px; padding:18px;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+  .invoice h3{ margin:0 0 4px; font-size:16px; text-align:center; }
+  .invoice .inv-meta{ text-align:center; color:var(--chalk-dim); font-size:11.5px; margin-bottom:14px; }
+  .invoice .inv-divider{ border-top:2px dashed var(--amber-dim); margin:12px 0; }
+  .inv-row{ display:flex; justify-content:space-between; font-size:13px; padding:5px 0; }
+  .inv-row span:first-child{ color:var(--chalk-dim); }
+  .inv-total{ display:flex; justify-content:space-between; font-size:16px; font-weight:800; margin-top:6px; }
+  .inv-total span.amt{ color: var(--amber); }
+  .new-order-btn{
+    margin-top:16px; width:100%; background:none; color:var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px; padding:10px;
+    font-size:13px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="cup-wrap">
+    <div class="steam s1"></div><div class="steam s2"></div><div class="steam s3"></div>
+    <div class="cup"></div>
+  </div>
+  <h1 class="cafe-name" id="cafeName">کافه بلوط</h1>
+  <p class="tagline">منو رو نگاه کن یا از دستیار بپرس چی بهت میاد</p>
+</header>
+
+<nav class="cats" id="catsNav"></nav>
+
+<main id="menuRoot">
+  <p style="text-align:center; color:var(--chalk-dim); padding-top:40px;">در حال بارگذاری منو…</p>
+</main>
+
+<button class="chat-btn" id="chatBtn" aria-label="پرسیدن از دستیار">☕</button>
+<button class="cart-btn" id="cartBtn" aria-label="سبد خرید">
+  🧺<span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+</button>
+
+<div class="chat-overlay" id="chatOverlay"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div>
+      <strong>دستیار کافه بلوط</strong>
+      <span>بگو چی می‌خوای، پیشنهاد می‌دم</span>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="hint-chips" id="hintChips">
+    <button class="hint-chip">قهوه نمی‌خوام، یه چیز خنک و ترش</button>
+    <button class="hint-chip">یه چیز شیرین با کیک شکلاتی</button>
+    <button class="hint-chip">پرانرژی و تلخ می‌خوام</button>
+  </div>
+  <div class="chat-input-row">
+    <input id="chatInput" type="text" placeholder="مثلا: قهوه نه، خنک باشه، ترش باشه...">
+    <button id="chatSend">➤</button>
+  </div>
+</div>
+
+<div class="chat-overlay" id="cartOverlay"></div>
+<div class="chat-panel" id="cartPanel">
+  <div class="chat-head">
+    <div>
+      <strong>سبد خرید</strong>
+      <span id="cartHeadSub">آیتم‌هایی که انتخاب کردی</span>
+    </div>
+    <button class="chat-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-msgs" id="cartMsgs"></div>
+  <div class="cart-footer" id="cartFooter">
+    <div class="cart-total-row"><span>جمع کل</span><span class="amt" id="cartTotal">۰ تومان</span></div>
+    <button class="invoice-btn" id="invoiceBtn">مشاهده فاکتور نهایی</button>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// تنظیمات — آدرس Workerت رو اینجا بذار
+// مثال: https://menuproai.tempmail41245.workers.dev/api/recommend
+// =====================================================================
+const CONFIG = {
+  WORKER_URL: "https://menuproai.tempmail41245.workers.dev/api/recommend"
+};
+
+let MENU = null;
+const itemsById = {};
+
+async function loadMenu(){
+  try{
+    const res = await fetch('./menu.json', { cache: 'no-store' });
+    MENU = await res.json();
+  }catch(e){
+    document.getElementById('menuRoot').innerHTML =
+      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">منو در دسترس نیست. فایل menu.json رو کنار index.html قرار بده.</p>';
+    return;
+  }
+  document.getElementById('cafeName').textContent = MENU.cafeName || 'کافه';
+  MENU.items.forEach(it => itemsById[it.id] = it);
+  renderNav();
+  renderMenu();
+}
+
+function renderNav(){
+  const nav = document.getElementById('catsNav');
+  nav.innerHTML = MENU.categories.map((c,i) =>
+    `<a href="#cat-${c.id}" class="${i===0?'active':''}" data-cat="${c.id}">${c.title}</a>`
+  ).join('');
+  nav.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', ()=>{
+      nav.querySelectorAll('a').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+    });
+  });
+}
+
+function renderMenu(){
+  const root = document.getElementById('menuRoot');
+  root.innerHTML = MENU.categories.map(cat => {
+    const items = MENU.items.filter(it => it.category === cat.id);
+    if(!items.length) return '';
+    return `
+      <section class="cat" id="cat-${cat.id}">
+        <h2 class="cat-title">${cat.title}</h2>
+        ${items.map(renderItem).join('')}
+      </section>`;
+  }).join('');
+}
+
+function renderItem(it){
+  const recipeHtml = it.recipe ? `
+      <details class="recipe">
+        <summary>نمایش رسپی</summary>
+        <div class="recipe-body">
+          <b>مواد لازم:</b>
+          <ul>${it.recipe.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <b>طرز تهیه:</b>
+          <ol>${it.recipe.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        </div>
+      </details>` : '';
+  return `
+    <div class="item" id="item-${it.id}">
+      <div class="item-row">
+        <span class="item-name">${it.name}</span>
+        <span class="leader"></span>
+        <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
+        <button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>
+      </div>
+      <p class="item-desc">${it.desc || ''}</p>
+      <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${recipeHtml}
+    </div>`;
+}
+
+function highlightItem(id){
+  const el = document.getElementById('item-'+id);
+  if(!el) return;
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  el.classList.remove('highlight');
+  void el.offsetWidth;
+  el.classList.add('highlight');
+}
+
+loadMenu();
+
+// ---------------------- chat ----------------------
+const chatBtn = document.getElementById('chatBtn');
+const chatOverlay = document.getElementById('chatOverlay');
+const chatPanel = document.getElementById('chatPanel');
+const chatClose = document.getElementById('chatClose');
+const chatMsgs = document.getElementById('chatMsgs');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const hintChips = document.getElementById('hintChips');
+
+let history = [];
+let greeted = false;
+
+function openChat(){
+  chatOverlay.classList.add('open');
+  chatPanel.classList.add('open');
+  if(!greeted){
+    addMsg('bot', 'سلام، بفرمایید. لطفاً بگویید دنبال چه نوشیدنی یا دسری هستید تا با کمال میل پیشنهاد بدهم.');
+    greeted = true;
+  }
+}
+function closeChat(){
+  chatOverlay.classList.remove('open');
+  chatPanel.classList.remove('open');
+}
+chatBtn.addEventListener('click', openChat);
+chatClose.addEventListener('click', closeChat);
+chatOverlay.addEventListener('click', closeChat);
+
+function addMsg(role, text){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  chatMsgs.appendChild(div);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  return div;
+}
+
+function addSuggestions(list){
+  if(!list || !list.length) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'sugg-list';
+  list.forEach(s=>{
+    const item = itemsById[s.id];
+    if(!item) return;
+    const box = document.createElement('div');
+    box.innerHTML = renderItem(item) + (s.reason ? `<p class="sugg-reason">💬 ${s.reason}</p>` : '');
+    // چون این آیتم داخل چت تکرار می‌شود، شناسه اصلی را برای اسکرول نگه می‌داریم
+    box.querySelector('.item').id = 'sugg-item-' + item.id;
+    box.querySelector('.item').addEventListener('click', (e)=>{
+      if(e.target.closest('.add-btn') || e.target.closest('.recipe')) return;
+      closeChat(); highlightItem(item.id);
+    });
+    wrap.appendChild(box);
+  });
+  chatMsgs.appendChild(wrap);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+async function sendMessage(text){
+  if(!text.trim()) return;
+  addMsg('user', text);
+  chatInput.value = '';
+  chatSend.disabled = true;
+  const typingEl = addMsg('bot typing', 'در حال فکر کردن…');
+
+  history.push({ role: 'user', content: text });
+
+  try{
+    const res = await fetch(CONFIG.WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history })
+    });
+    const data = await res.json();
+    typingEl.remove();
+    addMsg('bot', data.reply || 'ببخشید، نتونستم جواب بدم.');
+    addSuggestions(data.suggestions);
+    history.push({ role: 'assistant', content: data.reply || '' });
+  }catch(e){
+    typingEl.remove();
+    addMsg('bot', 'با عرض پوزش، در حال حاضر امکان اتصال نیست. لطفاً کمی بعد دوباره امتحان کنید.');
+  }
+  chatSend.disabled = false;
+}
+
+chatSend.addEventListener('click', ()=> sendMessage(chatInput.value));
+chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(chatInput.value); });
+hintChips.addEventListener('click', (e)=>{
+  if(e.target.classList.contains('hint-chip')) sendMessage(e.target.textContent);
+});
+
+// ---------------------- سبد خرید ----------------------
+let cart = {}; // { itemId: quantity }
+try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
+
+const cartBtn = document.getElementById('cartBtn');
+const cartBadge = document.getElementById('cartBadge');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartPanel = document.getElementById('cartPanel');
+const cartClose = document.getElementById('cartClose');
+const cartMsgs = document.getElementById('cartMsgs');
+const cartFooter = document.getElementById('cartFooter');
+const cartTotal = document.getElementById('cartTotal');
+const invoiceBtn = document.getElementById('invoiceBtn');
+let showingInvoice = false;
+
+function saveCart(){
+  localStorage.setItem('bolut_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function updateCartBadge(){
+  const count = Object.values(cart).reduce((a,b)=>a+b, 0);
+  if(count > 0){
+    cartBadge.style.display = 'flex';
+    cartBadge.textContent = count;
+  } else {
+    cartBadge.style.display = 'none';
+  }
+}
+
+function addToCart(id){
+  if(!itemsById[id]) return;
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+  if(cartPanel.classList.contains('open')) renderCart();
+}
+
+function changeQty(id, delta){
+  if(!cart[id]) return;
+  cart[id] += delta;
+  if(cart[id] <= 0) delete cart[id];
+  saveCart();
+  renderCart();
+}
+
+// دلگیشن کلیک برای همه دکمه‌های + (چه در منوی اصلی، چه در پیشنهادهای چت)
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.add-btn');
+  if(!btn) return;
+  e.stopPropagation();
+  addToCart(btn.dataset.add);
+  btn.classList.add('added');
+  btn.textContent = '✓';
+  setTimeout(()=>{ btn.classList.remove('added'); btn.textContent = '+'; }, 700);
+});
+
+function cartLines(){
+  return Object.entries(cart).map(([id, qty]) => ({ item: itemsById[id], qty })).filter(l => l.item);
+}
+
+function cartGrandTotal(){
+  return cartLines().reduce((sum, l) => sum + l.item.price * l.qty, 0);
+}
+
+function renderCart(){
+  showingInvoice = false;
+  const lines = cartLines();
+  if(!lines.length){
+    cartMsgs.innerHTML = '<p class="cart-empty">سبد خریدت خالیه. از منو چیزی اضافه کن.</p>';
+    cartFooter.style.display = 'none';
+    return;
+  }
+  cartFooter.style.display = 'block';
+  invoiceBtn.textContent = 'مشاهده فاکتور نهایی';
+  invoiceBtn.disabled = false;
+  cartMsgs.innerHTML = lines.map(l => `
+    <div class="cart-row">
+      <div class="cart-row-name">
+        <b>${l.item.name}</b>
+        <span>${(l.item.price * l.qty).toLocaleString('fa-IR')} تومان</span>
+      </div>
+      <div class="qty-stepper">
+        <button data-qty="${l.item.id}" data-delta="1">+</button>
+        <span class="qty-num">${l.qty}</span>
+        <button data-qty="${l.item.id}" data-delta="-1">−</button>
+      </div>
+    </div>`).join('');
+  cartTotal.textContent = cartGrandTotal().toLocaleString('fa-IR') + ' تومان';
+}
+
+cartMsgs.addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-qty]');
+  if(!btn) return;
+  changeQty(btn.dataset.qty, parseInt(btn.dataset.delta, 10));
+});
+
+function renderInvoice(){
+  showingInvoice = true;
+  const lines = cartLines();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fa-IR');
+  const timeStr = now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' });
+  cartMsgs.innerHTML = `
+    <div class="invoice">
+      <h3>فاکتور ${MENU.cafeName || 'کافه'}</h3>
+      <div class="inv-meta">${dateStr} — ${timeStr}</div>
+      <div class="inv-divider"></div>
+      ${lines.map(l => `
+        <div class="inv-row">
+          <span>${l.item.name} × ${l.qty}</span>
+          <span>${(l.item.price * l.qty).toLocaleString('fa-IR')}</span>
+        </div>`).join('')}
+      <div class="inv-divider"></div>
+      <div class="inv-total"><span>جمع کل</span><span class="amt">${cartGrandTotal().toLocaleString('fa-IR')} تومان</span></div>
+      <button class="new-order-btn" id="newOrderBtn">شروع سفارش جدید</button>
+    </div>`;
+  cartFooter.style.display = 'none';
+  document.getElementById('newOrderBtn').addEventListener('click', ()=>{
+    cart = {};
+    saveCart();
+    renderCart();
+  });
+}
+
+invoiceBtn.addEventListener('click', renderInvoice);
+
+function openCart(){
+  cartOverlay.classList.add('open');
+  cartPanel.classList.add('open');
+  renderCart();
+}
+function closeCart(){
+  cartOverlay.classList.remove('open');
+  cartPanel.classList.remove('open');
+}
+cartBtn.addEventListener('click', openCart);
+cartClose.addEventListener('click', closeCart);
+cartOverlay.addEventListener('click', closeCart);
+
+updateCartBadge();
+</script>
+</body>
+</html>
