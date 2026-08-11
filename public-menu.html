@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root{
     --bg: #1E2420;
@@ -371,6 +372,30 @@
     border:1px solid var(--line); border-radius:999px; padding:10px;
     font-size:13px; cursor:pointer;
   }
+  .pdf-btn{
+    margin-top:8px; width:100%; background:var(--amber); color:#1E2420;
+    border:none; border-radius:999px; padding:10px; font-weight:800;
+    font-size:13px; cursor:pointer;
+  }
+  .pdf-btn:disabled{ opacity:.5; cursor:default; }
+  /* ---------- قالب چاپی فاکتور PDF (خارج از دید، فقط برای html2pdf) ---------- */
+  #pdfInvoiceHolder{ position:absolute; top:0; left:-9999px; }
+  #pdfInvoice{
+    width:480px; background:#fff; color:#1a1a1a; direction:rtl;
+    font-family:'Vazirmatn', sans-serif; padding:26px; box-sizing:border-box;
+  }
+  #pdfInvoice .pv-head{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px; }
+  #pdfInvoice .pv-head .brand{ font-size:19px; font-weight:800; }
+  #pdfInvoice .pv-head .brand small{ display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px; }
+  #pdfInvoice .pv-badge{ background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px; }
+  #pdfInvoice .pv-meta{ display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px; }
+  #pdfInvoice table{ width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px; }
+  #pdfInvoice th{ background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600; }
+  #pdfInvoice td{ padding:8px; border-bottom:1px solid #e5e7eb; }
+  #pdfInvoice .pv-summary{ width:220px; margin-inline-start:auto; font-size:12px; }
+  #pdfInvoice .pv-summary .line{ display:flex; justify-content:space-between; padding:4px 0; color:#4b5563; }
+  #pdfInvoice .pv-summary .line.total{ font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px; }
+  #pdfInvoice .pv-footer{ margin-top:18px; padding-top:10px; border-top:1px solid #e5e7eb; font-size:10.5px; color:#6b7280; text-align:center; }
 </style>
 </head>
 <body>
@@ -444,9 +469,9 @@
 // ⚠️ بعد از دیپلوی menuproai-worker.js، آدرس MENUPROAI_API رو با آدرس
 // واقعی Workerت جایگزین کن (همون که تو dashboard.html هم گذاشتی).
 // =====================================================================
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 // آدرس همون Worker هوش مصنوعی که از قبل داشتی (ai-worker.js نسخه‌ی جدید رو توش دیپلوی کن)
-const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
+const AI_WORKER_URL = "https://menuproai.tempmail41245.workers.dev";
 
 function detectSlug(){
   // ۱) از مسیر /USERS/{slug}/menu.html
@@ -764,6 +789,7 @@ function renderInvoice(){
         </div>`).join('')}
       <div class="inv-divider"></div>
       <div class="inv-total"><span>جمع کل</span><span class="amt">${cartGrandTotal().toLocaleString('fa-IR')} تومان</span></div>
+      <button class="pdf-btn" id="pdfInvoiceBtn">دانلود PDF فاکتور</button>
       <button class="new-order-btn" id="newOrderBtn">شروع سفارش جدید</button>
     </div>`;
   cartFooter.style.display = 'none';
@@ -771,6 +797,46 @@ function renderInvoice(){
     cart = {};
     saveCart();
     renderCart();
+  });
+  document.getElementById('pdfInvoiceBtn').addEventListener('click', downloadPdfInvoice);
+}
+
+/* ---------------------- خروجی PDF فاکتور ---------------------- */
+function downloadPdfInvoice(){
+  const lines = cartLines();
+  if(!lines.length) return;
+
+  const btn = document.getElementById('pdfInvoiceBtn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ساخت PDF…';
+
+  const now = new Date();
+  document.getElementById('pvBrand').firstChild.textContent = MENU.cafeName || 'کافه';
+  document.getElementById('pvBrandSub').textContent = 'menuproai.bytelabpro.xyz';
+  document.getElementById('pvDate').textContent = now.toLocaleDateString('fa-IR') + ' — ' + now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('pvOrderNo').textContent = 'سفارش #' + now.getTime().toString().slice(-6);
+  document.getElementById('pvItemsBody').innerHTML = lines.map(l => `
+    <tr>
+      <td>${l.item.name}</td>
+      <td>${l.qty}</td>
+      <td>${l.item.price.toLocaleString('fa-IR')}</td>
+      <td>${(l.item.price * l.qty).toLocaleString('fa-IR')}</td>
+    </tr>`).join('');
+  document.getElementById('pvTotal').textContent = cartGrandTotal().toLocaleString('fa-IR') + ' تومان';
+
+  const el = document.getElementById('pdfInvoice');
+  html2pdf().set({
+    margin: 8,
+    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).from(el).save().then(() => {
+    btn.disabled = false;
+    btn.textContent = 'دانلود PDF فاکتور';
+  }).catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'دانلود PDF فاکتور';
   });
 }
 
@@ -791,5 +857,26 @@ cartOverlay.addEventListener('click', closeCart);
 
 updateCartBadge();
 </script>
+<div id="pdfInvoiceHolder">
+  <div id="pdfInvoice">
+    <div class="pv-head">
+      <div class="brand" id="pvBrand">کافه<small id="pvBrandSub">bytelabpro.xyz</small></div>
+      <div class="pv-badge">فاکتور</div>
+    </div>
+    <div class="pv-meta">
+      <span id="pvDate">—</span>
+      <span id="pvOrderNo">—</span>
+    </div>
+    <table>
+      <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
+      <tbody id="pvItemsBody"></tbody>
+    </table>
+    <div class="pv-summary">
+      <div class="line total"><span>جمع کل</span><span id="pvTotal">۰</span></div>
+    </div>
+    <div class="pv-footer">این فاکتور به‌صورت خودکار از منوی آنلاین صادر شده است.</div>
+  </div>
+</div>
+
 </body>
 </html>
