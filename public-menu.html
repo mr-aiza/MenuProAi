@@ -872,7 +872,7 @@ function renderCart(){
     return;
   }
   cartFooter.style.display = 'block';
-  invoiceBtn.textContent = 'مشاهده فاکتور نهایی';
+  invoiceBtn.textContent = '✓ سفارش تو فاکتور ببین (و ثبت کن)';
   invoiceBtn.disabled = false;
   cartMsgs.innerHTML = lines.map(l => `
     <div class="cart-row">
@@ -1066,7 +1066,7 @@ updateCartBadge();
     <div class="pv-summary">
       <div class="line total"><span>جمع کل</span><span id="pvTotal">۰</span></div>
     </div>
-    <div class="pv-footer">این فاکتور به‌صورت خودکار از منوی آنلاین صادر شده است.</div>
+    <div class="pv-footer"></div>
   </div>
 </div>
 
