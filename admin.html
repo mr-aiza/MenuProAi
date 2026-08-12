@@ -348,8 +348,7 @@
 
       body.innerHTML = cafes.map(cafe => {
         const date = new Date(cafe.updatedAt || cafe.createdAt).toLocaleDateString("fa-IR");
-        const publicUrl = `${window.location.origin}/${cafe.slug}/menu.html`;
-        
+        const publicUrl = `${window.location.origin}/USERS/${cafe.slug}/menu.html`;
         return `
         <tr>
           <td>
