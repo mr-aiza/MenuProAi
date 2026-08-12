@@ -95,7 +95,7 @@ async function addToSlugIndex(env, slug) {
 
 // ============================================================
 // POST /api/menu/create
-// body: { slug, cafeName, tagline? }
+// body: { slug, cafeName, tagline?, template? }
 // اگه کاربر از قبل منو داشته باشه، خطا می‌ده (مرحله ویرایش بعداً اضافه می‌شه)
 // ============================================================
 async function handleCreateMenu(request, env) {
@@ -117,6 +117,9 @@ async function handleCreateMenu(request, env) {
   const slug = slugify(body.slug || body.cafeName);
   const cafeName = String(body.cafeName || "").trim().slice(0, 60);
   const tagline = String(body.tagline || "").trim().slice(0, 160);
+  // فعلاً فقط یه قالب داریم ("classic-menu")؛ فیلد رو همینجا ذخیره می‌کنیم
+  // که وقتی قالب‌های بیشتری اضافه شد، هر کافه بدونه قالبش کدومه.
+  const template = String(body.template || "classic-menu").trim().slice(0, 60);
 
   if (!cafeName) return json({ error: "نام کافه/کسب‌وکار الزامی است." }, 400);
   if (!isValidSlug(slug)) {
@@ -133,6 +136,7 @@ async function handleCreateMenu(request, env) {
     ownerPhone: phone,
     cafeName,
     tagline,
+    template,
     theme: {},
     categories: [],
     items: [],
