@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>در حال ورود...</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e27; color: #eaf0f4;
+    font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 20px;
+  }
+  .box { max-width: 360px; }
+  .spinner {
+    width: 34px; height: 34px; border: 3px solid #1e2a38; border-top-color: #4df0c9;
+    border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .msg { color: #7c8b9c; font-size: 13px; }
+  .err { color: #ff6b6b; font-size: 13px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <div class="msg" id="msg">در حال ورود به پنل کاربر...</div>
+    <div class="err" id="err"></div>
+  </div>
+
+<script>
+(function () {
+  // این صفحه فقط برای استفاده‌ی داخلی پنل ادمینه: یه توکن نشست موقت
+  // (که ادمین از طریق /api/admin/impersonate ساخته) رو دقیقاً مثل
+  // ورود واقعی کاربر تو localStorage ذخیره می‌کنه، بعد به پنل خود
+  // کاربر ریدایرکت می‌کنه. این توکن دقیقاً همون سطح دسترسی خود کاربر
+  // رو داره (نه بیشتر، نه کمتر).
+  const API_URL = "https://bytelab-users.bytelab.workers.dev";
+  const TOKEN_KEY = "bytelab_auth_token";
+  const USER_KEY = "bytelab_auth_user";
+
+  const params = new URLSearchParams(location.search);
+  const token = params.get("token");
+  const redirect = params.get("redirect") || "my-projects.html";
+
+  function fail(text) {
+    document.getElementById("msg").textContent = "ورود ناموفق بود.";
+    document.getElementById("err").textContent = text;
+  }
+
+  if (!token) { fail("توکن ورود پیدا نشد."); return; }
+
+  fetch(API_URL + "/api/auth/me", { headers: { Authorization: "Bearer " + token } })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "توکن نامعتبر است.");
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USER_KEY, JSON.stringify({ phone: data.phone, name: data.name, email: data.email }));
+      // آدرس رو پاک می‌کنیم تا توکن تو تاریخچه‌ی مرورگر نمونه
+      history.replaceState(null, "", location.pathname);
+      location.href = /^[a-zA-Z0-9_-]+\.html$/.test(redirect) ? redirect : "my-projects.html";
+    })
+    .catch((err) => fail(err.message));
+})();
+</script>
+</body>
+</html>
