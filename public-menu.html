@@ -184,6 +184,17 @@
     border:1px solid rgba(143,184,156,0.35);
     padding: 2px 8px; border-radius: 999px;
   }
+  .cal-badge{
+    font-weight:600; font-size:11px; color: var(--rust);
+    white-space:nowrap;
+    background: rgba(193,105,74,0.12);
+    padding: 2px 9px; border-radius: 999px;
+  }
+  .ingredients-line{
+    color: var(--chalk-dim); font-size:11.5px;
+    margin-top:6px; line-height:1.7;
+  }
+  .ingredients-line b{ color: var(--chalk); font-weight:600; }
 
   .recipe{ margin-top:8px; }
   .recipe summary{
@@ -378,6 +389,22 @@
     border:none; border-radius:999px; padding:12px; font-weight:800;
     font-size:14px; cursor:pointer;
   }
+  .disc-row{ display:flex; gap:8px; margin-top:14px; }
+  .disc-row input{
+    flex:1; background: var(--bg-panel); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:10px 12px; font-size:13px;
+    font-family:'JetBrains Mono',monospace; direction:ltr; text-align:left; outline:none; box-sizing:border-box;
+  }
+  .disc-row button{
+    flex:0 0 auto; background: var(--amber); color:#1E2420; border:none;
+    border-radius:999px; padding:0 16px; font-weight:800; font-size:12.5px; cursor:pointer;
+  }
+  .disc-row button:disabled{ opacity:.5; cursor:default; }
+  .disc-msg{ font-size:12px; margin-top:6px; min-height:14px; }
+  .disc-msg.ok{ color: var(--sage); }
+  .disc-msg.err{ color: var(--rust); }
+  .inv-row.disc-line span:first-child{ color: var(--sage); }
+  .inv-row.disc-line span:last-child{ color: var(--sage); }
   .order-note-label{ display:block; font-size:11.5px; color:var(--chalk-dim); margin:14px 0 6px; }
   .order-note-input{
     width:100%; background: var(--bg-panel); border:1px solid var(--line);
@@ -617,16 +644,20 @@ function renderItem(it){
           <ol>${it.recipe.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
         </div>
       </details>` : '';
+  const ingredientsHtml = (it.ingredients && it.ingredients.length)
+    ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.join('، ')}</div>` : '';
   return `
     <div class="item" id="item-${it.id}">
       <div class="item-row">
         <span class="item-name">${it.name}</span>
         <span class="leader"></span>
+        ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
         <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
         <button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>
       </div>
       <p class="item-desc">${it.desc || ''}</p>
       <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${ingredientsHtml}
       ${recipeHtml}
     </div>`;
 }
@@ -801,6 +832,7 @@ hintChips.addEventListener('click', (e)=>{
 
 // ---------------------- سبد خرید ----------------------
 let cart = {}; // { itemId: quantity }
+let appliedDiscount = null; // { code, discountAmount, total } یا null
 try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
 
 const cartBtn = document.getElementById('cartBtn');
@@ -895,8 +927,23 @@ cartMsgs.addEventListener('click', (e)=>{
   changeQty(btn.dataset.qty, parseInt(btn.dataset.delta, 10));
 });
 
+function invoiceTotalsHtml(){
+  const subtotal = cartGrandTotal();
+  const discRow = appliedDiscount
+    ? `<div class="inv-row disc-line"><span>تخفیف (${escapeHtmlLocal(appliedDiscount.code)})</span><span>− ${appliedDiscount.discountAmount.toLocaleString('fa-IR')}</span></div>`
+    : '';
+  const finalTotal = appliedDiscount ? appliedDiscount.total : subtotal;
+  return `
+    <div class="inv-row"><span>جمع سبد</span><span>${subtotal.toLocaleString('fa-IR')}</span></div>
+    ${discRow}
+    <div class="inv-total"><span>جمع کل</span><span class="amt">${finalTotal.toLocaleString('fa-IR')} تومان</span></div>`;
+}
+
+function escapeHtmlLocal(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 function renderInvoice(){
   showingInvoice = true;
+  appliedDiscount = null;
   const lines = cartLines();
   const now = new Date();
   const dateStr = now.toLocaleDateString('fa-IR');
@@ -912,7 +959,12 @@ function renderInvoice(){
           <span>${(l.item.price * l.qty).toLocaleString('fa-IR')}</span>
         </div>`).join('')}
       <div class="inv-divider"></div>
-      <div class="inv-total"><span>جمع کل</span><span class="amt">${cartGrandTotal().toLocaleString('fa-IR')} تومان</span></div>
+      <div class="disc-row">
+        <input type="text" id="discCodeInput" placeholder="کد تخفیف (اختیاری)" maxlength="20">
+        <button id="applyDiscBtn">اعمال</button>
+      </div>
+      <div class="disc-msg" id="discMsgBox"></div>
+      <div id="invTotalsBox">${invoiceTotalsHtml()}</div>
       <label class="order-note-label" for="orderNote">توضیحات سفارش (اختیاری) — مثلاً کم‌شکر باشه، شماره میز ۴</label>
       <textarea id="orderNote" class="order-note-input" placeholder="توضیح خاصی داری بنویس..." maxlength="200"></textarea>
       <button class="submit-order-btn" id="submitOrderBtn">ثبت سفارش برای کافه</button>
@@ -924,13 +976,51 @@ function renderInvoice(){
   document.getElementById('newOrderBtn').addEventListener('click', ()=>{
     if (orderTrackTimer) clearInterval(orderTrackTimer);
     cart = {};
+    appliedDiscount = null;
     saveCart();
     renderCart();
+  });
+  document.getElementById('applyDiscBtn').addEventListener('click', applyDiscountCode);
+  document.getElementById('discCodeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){ e.preventDefault(); applyDiscountCode(); }
   });
   document.getElementById('pdfInvoiceBtn').addEventListener('click', downloadPdfInvoice);
   document.getElementById('submitOrderBtn').addEventListener('click', () => {
     requireIdentity('order', () => submitOrder());
   });
+}
+
+async function applyDiscountCode(){
+  const input = document.getElementById('discCodeInput');
+  const msgBox = document.getElementById('discMsgBox');
+  const btn = document.getElementById('applyDiscBtn');
+  const code = input.value.trim().toUpperCase();
+  if (!code){ msgBox.textContent = 'یه کد وارد کن.'; msgBox.className = 'disc-msg err'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'در حال بررسی…';
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/discount/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: MENU.slug, code, subtotal: cartGrandTotal() }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'کد تخفیف نامعتبر است.');
+
+    appliedDiscount = { code: data.code, discountAmount: data.discountAmount, total: data.total };
+    msgBox.textContent = '✓ کد تخفیف اعمال شد.';
+    msgBox.className = 'disc-msg ok';
+    input.disabled = true;
+    btn.textContent = 'اعمال شد';
+  }catch(e){
+    appliedDiscount = null;
+    msgBox.textContent = e.message;
+    msgBox.className = 'disc-msg err';
+    btn.disabled = false;
+    btn.textContent = 'اعمال';
+  }
+  document.getElementById('invTotalsBox').innerHTML = invoiceTotalsHtml();
 }
 
 /* ---------------------- ثبت سفارش (تیکت برای صاحب کافه) ---------------------- */
@@ -947,6 +1037,7 @@ async function submitOrder(){
     customerName: identity.name || '',
     customerPhone: identity.phone || '',
     note: noteEl ? noteEl.value.trim() : '',
+    discountCode: appliedDiscount ? appliedDiscount.code : undefined,
   };
 
   try{
@@ -958,6 +1049,8 @@ async function submitOrder(){
     const data = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
     if (noteEl) noteEl.disabled = true;
+    const discBtn = document.getElementById('applyDiscBtn');
+    if (discBtn) discBtn.disabled = true;
 
     btn.style.display = 'none';
     document.getElementById('orderConfirmBox').innerHTML =
@@ -1043,9 +1136,17 @@ function downloadPdfInvoice(){
       <tbody>${itemsHtml}</tbody>
     </table>
     <div style="width:220px; margin-inline-start:auto; font-size:12px;">
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span>جمع سبد</span>
+        <span>${cartGrandTotal().toLocaleString('fa-IR')}</span>
+      </div>
+      ${appliedDiscount ? `<div style="display:flex; justify-content:space-between; padding:3px 0; color:#0a7a4a;">
+        <span>تخفیف (${appliedDiscount.code})</span>
+        <span>− ${appliedDiscount.discountAmount.toLocaleString('fa-IR')}</span>
+      </div>` : ''}
       <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
         <span>جمع کل</span>
-        <span>${cartGrandTotal().toLocaleString('fa-IR')} تومان</span>
+        <span>${(appliedDiscount ? appliedDiscount.total : cartGrandTotal()).toLocaleString('fa-IR')} تومان</span>
       </div>
     </div>
   `;

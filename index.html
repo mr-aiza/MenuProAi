@@ -61,6 +61,32 @@
   .order-lines b{color:var(--paper);font-weight:600;}
   .order-total{font-size:13.5px;font-weight:800;color:var(--cyan);margin-bottom:10px;}
   .order-actions{display:flex;gap:6px;}
+  .disc-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+  .disc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .disc-code{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;color:var(--cyan);direction:ltr;display:inline-block;}
+  .disc-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
+  .disc-status.on{background:rgba(77,240,201,.15);color:var(--cyan);}
+  .disc-status.off{background:rgba(124,139,156,.15);color:var(--muted);}
+  .disc-meta{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.9;}
+  .disc-actions{display:flex;gap:6px;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+  .stat-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+  .stat-box .num{font-size:19px;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
+  .stat-box .lbl{font-size:11px;color:var(--muted);margin-top:4px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .bar-row .bar-label{flex:0 0 96px;font-size:12px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-row .bar-track{flex:1;background:var(--panel-2);border-radius:999px;height:10px;overflow:hidden;}
+  .bar-row .bar-fill{height:100%;background:var(--cyan);border-radius:999px;}
+  .bar-row .bar-val{flex:0 0 auto;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .hours-chart{display:flex;align-items:flex-end;gap:2px;height:70px;margin-bottom:6px;}
+  .hours-chart .hbar{flex:1;background:var(--violet);border-radius:3px 3px 0 0;min-height:2px;position:relative;}
+  .hours-chart .hbar.peak{background:var(--cyan);}
+  .hours-labels{display:flex;gap:2px;margin-bottom:14px;}
+  .hours-labels span{flex:1;text-align:center;font-size:8.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .cust-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .cust-row .meta .name{font-weight:700;font-size:13.5px;}
+  .cust-row .meta .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .cust-row .count{font-size:12px;color:var(--cyan);font-weight:800;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -113,6 +139,8 @@
     <div class="tabs">
       <div class="tab active" data-maintab="products">محصولات</div>
       <div class="tab" data-maintab="orders">سفارش‌ها<span class="badge hidden" id="ordersBadge">0</span></div>
+      <div class="tab" data-maintab="discounts">کد تخفیف</div>
+      <div class="tab" data-maintab="analytics">آمار</div>
     </div>
 
     <div id="productsPane">
@@ -153,6 +181,10 @@
       <textarea id="itDesc" placeholder="شات غلیظ و پرقدرت..."></textarea>
       <label>برچسب‌ها (با کاما جدا کن)</label>
       <input type="text" id="itTags" placeholder="تلخ, پرانرژی, کافئین‌دار">
+      <label>کالری (تقریبی، اختیاری)</label>
+      <input type="text" id="itCalories" dir="ltr" inputmode="numeric" placeholder="مثلاً 250">
+      <label>اجزای تشکیل‌دهنده (با کاما جدا کن، اختیاری)</label>
+      <input type="text" id="itIngredients" placeholder="تخم‌مرغ, گوجه‌فرنگی, پنیر">
       <div class="row">
         <button class="btn-primary" id="addItemBtn" style="flex:1;">افزودن آیتم</button>
         <button class="btn-ghost hidden" id="cancelEditBtn" style="flex:0 0 auto;">انصراف از ویرایش</button>
@@ -180,6 +212,61 @@
         </div>
         <div class="msg" id="ordersMsg"></div>
         <div id="ordersList"></div>
+      </div>
+    </div>
+
+    <div class="hidden" id="discountsPane">
+      <div class="card">
+        <h2>ساخت کد تخفیف جدید</h2>
+        <div class="msg" id="discMsg"></div>
+        <label>کد (فقط حروف انگلیسی و عدد، مثلاً SUMMER20)</label>
+        <input type="text" id="discCode" dir="ltr" style="text-transform:uppercase;" placeholder="SUMMER20">
+        <label>نوع تخفیف</label>
+        <select id="discType">
+          <option value="percent">درصدی (%)</option>
+          <option value="fixed">مبلغ ثابت (تومان)</option>
+        </select>
+        <label id="discValueLabel">مقدار (درصد، مثلاً ۲۰)</label>
+        <input type="text" id="discValue" dir="ltr" inputmode="numeric" placeholder="20">
+        <label>حداکثر تعداد استفاده (خالی = نامحدود)</label>
+        <input type="text" id="discMaxUses" dir="ltr" inputmode="numeric" placeholder="مثلاً 50">
+        <label>تاریخ انقضا (اختیاری)</label>
+        <input type="date" id="discExpires" dir="ltr">
+        <button class="btn-primary" id="addDiscBtn" style="width:100%;">ساخت کد تخفیف</button>
+      </div>
+
+      <div class="card">
+        <h2>کدهای تخفیف فعلی</h2>
+        <div id="discountsList"></div>
+      </div>
+    </div>
+
+    <div class="hidden" id="analyticsPane">
+      <div class="card">
+        <h2>خلاصه درآمد</h2>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num" id="statToday">۰</div><div class="lbl">امروز (تومان)</div></div>
+          <div class="stat-box"><div class="num" id="statWeek">۰</div><div class="lbl">۷ روز اخیر (تومان)</div></div>
+          <div class="stat-box"><div class="num" id="statMonth">۰</div><div class="lbl">۳۰ روز اخیر (تومان)</div></div>
+          <div class="stat-box"><div class="num" id="statOrders">۰</div><div class="lbl">تعداد کل سفارش‌ها</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>محصولات پرطرفدار</h2>
+        <div id="popularProductsBox"><p class="sub">هنوز سفارشی ثبت نشده.</p></div>
+      </div>
+
+      <div class="card">
+        <h2>ساعات پرتقاضا</h2>
+        <div class="hours-chart" id="hoursChart"></div>
+        <div class="hours-labels" id="hoursLabels"></div>
+        <div id="peakHoursSummary" class="sub"></div>
+      </div>
+
+      <div class="card">
+        <h2>مشتری‌های تکراری</h2>
+        <div id="repeatCustomersBox"><p class="sub">هنوز مشتری تکراری‌ای ثبت نشده.</p></div>
       </div>
     </div>
 
@@ -242,15 +329,168 @@ document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    const isOrders = tab.dataset.maintab === 'orders';
-    document.getElementById('productsPane').classList.toggle('hidden', isOrders);
-    document.getElementById('ordersPane').classList.toggle('hidden', !isOrders);
-    if (isOrders){
+    const which = tab.dataset.maintab; // 'products' | 'orders' | 'discounts' | 'analytics'
+    document.getElementById('productsPane').classList.toggle('hidden', which !== 'products');
+    document.getElementById('ordersPane').classList.toggle('hidden', which !== 'orders');
+    document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
+    document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
+    if (which === 'orders'){
       document.getElementById('ordersBadge').classList.add('hidden');
       loadOrders();
     }
+    if (which === 'discounts'){
+      loadDiscounts();
+    }
+    if (which === 'analytics'){
+      loadAnalytics();
+    }
   });
 });
+
+/* ============ کدهای تخفیف ============ */
+const discTypeEl = document.getElementById('discType');
+discTypeEl.addEventListener('change', () => {
+  document.getElementById('discValueLabel').textContent =
+    discTypeEl.value === 'fixed' ? 'مقدار (تومان، مثلاً 50000)' : 'مقدار (درصد، مثلاً ۲۰)';
+});
+
+async function loadDiscounts(){
+  try{
+    const data = await apiCall('/api/menu/discounts');
+    renderDiscounts(data.discounts || []);
+  }catch(e){
+    document.getElementById('discountsList').innerHTML =
+      '<p class="sub">هنوز کد تخفیفی نساخته‌اید.</p>';
+  }
+}
+
+function renderDiscounts(list){
+  const box = document.getElementById('discountsList');
+  if (!list.length){
+    box.innerHTML = '<p class="sub">هنوز کد تخفیفی نساخته‌اید.</p>';
+    return;
+  }
+  box.innerHTML = list.map(d => {
+    const valueLabel = d.type === 'percent' ? (d.value + '%') : (d.value.toLocaleString('fa-IR') + ' تومان');
+    const usesLabel = d.maxUses > 0 ? (d.usedCount + ' از ' + d.maxUses + ' استفاده') : (d.usedCount + ' بار استفاده شده (نامحدود)');
+    const expLabel = d.expiresAt ? ('انقضا: ' + new Date(d.expiresAt).toLocaleDateString('fa-IR')) : 'بدون تاریخ انقضا';
+    return `
+      <div class="disc-card">
+        <div class="disc-head">
+          <span class="disc-code">${escapeHtml(d.code)}</span>
+          <span class="disc-status ${d.active ? 'on' : 'off'}">${d.active ? 'فعال' : 'غیرفعال'}</span>
+        </div>
+        <div class="disc-meta">${valueLabel} تخفیف — ${usesLabel} — ${expLabel}</div>
+        <div class="disc-actions">
+          <button class="btn-ghost btn-sm" data-disc-toggle="${escapeHtml(d.code)}" data-active="${!d.active}">${d.active ? 'غیرفعال کردن' : 'فعال کردن'}</button>
+          <button class="btn-danger btn-sm" data-disc-del="${escapeHtml(d.code)}">حذف</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-disc-toggle]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try{
+        await apiCall('/api/menu/discounts/toggle', { code: btn.dataset.discToggle, active: btn.dataset.active === 'true' });
+        loadDiscounts();
+      }catch(e){ showMsg('discMsg', e.message, 'err'); }
+    });
+  });
+  box.querySelectorAll('[data-disc-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('این کد تخفیف حذف بشه؟')) return;
+      try{
+        await apiCall('/api/menu/discounts/delete', { code: btn.dataset.discDel });
+        loadDiscounts();
+      }catch(e){ showMsg('discMsg', e.message, 'err'); }
+    });
+  });
+}
+
+document.getElementById('addDiscBtn').addEventListener('click', async () => {
+  const code = document.getElementById('discCode').value.trim().toUpperCase();
+  const type = discTypeEl.value;
+  const value = Number(document.getElementById('discValue').value);
+  const maxUsesRaw = document.getElementById('discMaxUses').value.trim();
+  const maxUses = maxUsesRaw ? Number(maxUsesRaw) : 0;
+  const expiresRaw = document.getElementById('discExpires').value;
+  const expiresAt = expiresRaw ? new Date(expiresRaw + 'T23:59:59').toISOString() : null;
+
+  if (!code){ showMsg('discMsg', 'کد تخفیف رو وارد کن.', 'err'); return; }
+  if (!value || value <= 0){ showMsg('discMsg', 'مقدار تخفیف رو درست وارد کن.', 'err'); return; }
+
+  try{
+    await apiCall('/api/menu/discounts', { code, type, value, maxUses, expiresAt });
+    document.getElementById('discCode').value = '';
+    document.getElementById('discValue').value = '';
+    document.getElementById('discMaxUses').value = '';
+    document.getElementById('discExpires').value = '';
+    hideMsg('discMsg');
+    loadDiscounts();
+  }catch(e){ showMsg('discMsg', e.message, 'err'); }
+});
+
+/* ============ آمار و تحلیل ============ */
+async function loadAnalytics(){
+  try{
+    const data = await apiCall('/api/menu/analytics');
+    renderAnalytics(data.analytics);
+  }catch(e){
+    document.getElementById('popularProductsBox').innerHTML = '<p class="sub">خطا در دریافت آمار: ' + e.message + '</p>';
+  }
+}
+
+function renderAnalytics(a){
+  document.getElementById('statToday').textContent = (a.revenueToday || 0).toLocaleString('fa-IR');
+  document.getElementById('statWeek').textContent = (a.revenueWeek || 0).toLocaleString('fa-IR');
+  document.getElementById('statMonth').textContent = (a.revenueMonth || 0).toLocaleString('fa-IR');
+  document.getElementById('statOrders').textContent = (a.totalOrders || 0).toLocaleString('fa-IR');
+
+  // محصولات پرطرفدار
+  const prodBox = document.getElementById('popularProductsBox');
+  if (!a.popularProducts || !a.popularProducts.length){
+    prodBox.innerHTML = '<p class="sub">هنوز سفارشی ثبت نشده.</p>';
+  } else {
+    const maxQty = Math.max(...a.popularProducts.map(p => p.qty));
+    prodBox.innerHTML = a.popularProducts.map(p => `
+      <div class="bar-row">
+        <div class="bar-label">${escapeHtml(p.name)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round((p.qty / maxQty) * 100)}%;"></div></div>
+        <div class="bar-val">${p.qty} عدد</div>
+      </div>`).join('');
+  }
+
+  // ساعات پرتقاضا
+  const byHour = [...(a.peakHours || [])].sort((x, y) => x.hour - y.hour);
+  const maxCount = Math.max(1, ...byHour.map(h => h.count));
+  document.getElementById('hoursChart').innerHTML = byHour.map(h => {
+    const pct = Math.max(3, Math.round((h.count / maxCount) * 100));
+    const isPeak = h.count === maxCount && h.count > 0;
+    return `<div class="hbar ${isPeak ? 'peak' : ''}" style="height:${pct}%;" title="ساعت ${h.hour} — ${h.count} سفارش"></div>`;
+  }).join('');
+  document.getElementById('hoursLabels').innerHTML = byHour.map((h, i) =>
+    `<span>${i % 3 === 0 ? h.hour : ''}</span>`).join('');
+
+  const topHours = [...(a.peakHours || [])].sort((x, y) => y.count - x.count).slice(0, 3).filter(h => h.count > 0);
+  document.getElementById('peakHoursSummary').textContent = topHours.length
+    ? 'پرترددترین ساعت‌ها: ' + topHours.map(h => `${h.hour}:۰۰ (${h.count} سفارش)`).join('، ')
+    : 'هنوز داده‌ای برای نمایش نیست.';
+
+  // مشتری‌های تکراری
+  const custBox = document.getElementById('repeatCustomersBox');
+  if (!a.repeatCustomers || !a.repeatCustomers.length){
+    custBox.innerHTML = '<p class="sub">هنوز مشتری تکراری‌ای ثبت نشده.</p>';
+  } else {
+    custBox.innerHTML = a.repeatCustomers.map(c => `
+      <div class="cust-row">
+        <div class="meta">
+          <div class="name">${escapeHtml(c.name || 'بدون نام')}</div>
+          <div class="sub">${escapeHtml(c.phone || '')} — معمولاً ساعت ${c.commonHour}:۰۰ — آخرین مراجعه: ${timeAgo(c.lastVisit)}</div>
+        </div>
+        <div class="count">${c.orderCount}× سفارش</div>
+      </div>`).join('');
+  }
+}
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const phone = document.getElementById('loginPhone').value.trim();
@@ -438,7 +678,7 @@ function renderItems(){
       row.innerHTML = `
         <div class="meta">
           <div class="name">${escapeHtml(it.name)}</div>
-          <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
+          <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
         </div>
         <div class="item-actions">
           <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
@@ -474,6 +714,8 @@ function enterEditMode(id){
   document.getElementById('itPrice').value = it.price || '';
   document.getElementById('itDesc').value = it.desc || '';
   document.getElementById('itTags').value = (it.tags || []).join(', ');
+  document.getElementById('itCalories').value = it.calories != null ? it.calories : '';
+  document.getElementById('itIngredients').value = (it.ingredients || []).join(', ');
   document.getElementById('itemFormTitle').textContent = 'ویرایش آیتم';
   document.getElementById('addItemBtn').textContent = 'ذخیره تغییرات';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -486,6 +728,8 @@ function exitEditMode(){
   document.getElementById('itPrice').value = '';
   document.getElementById('itDesc').value = '';
   document.getElementById('itTags').value = '';
+  document.getElementById('itCalories').value = '';
+  document.getElementById('itIngredients').value = '';
   document.getElementById('itCategory').value = '';
   document.getElementById('itemFormTitle').textContent = 'افزودن آیتم جدید';
   document.getElementById('addItemBtn').textContent = 'افزودن آیتم';
@@ -500,22 +744,27 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
   const price = document.getElementById('itPrice').value.trim();
   const desc = document.getElementById('itDesc').value.trim();
   const tags = document.getElementById('itTags').value.split(',').map(t => t.trim()).filter(Boolean);
+  const caloriesRaw = document.getElementById('itCalories').value.trim();
+  const calories = caloriesRaw ? Number(caloriesRaw) : null;
+  const ingredients = document.getElementById('itIngredients').value.split(',').map(t => t.trim()).filter(Boolean);
 
   if (!name || !category){ showMsg('itemMsg', 'نام آیتم و دسته الزامی‌ان.', 'err'); return; }
 
   try{
     if (editItemId){
-      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category, price, desc, tags });
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category, price, desc, tags, calories, ingredients });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
       exitEditMode();
     } else {
-      const data = await apiCall('/api/menu/items', { name, category, price, desc, tags });
+      const data = await apiCall('/api/menu/items', { name, category, price, desc, tags, calories, ingredients });
       currentMenu = data.menu;
       document.getElementById('itName').value = '';
       document.getElementById('itPrice').value = '';
       document.getElementById('itDesc').value = '';
       document.getElementById('itTags').value = '';
+      document.getElementById('itCalories').value = '';
+      document.getElementById('itIngredients').value = '';
       showMsg('itemMsg', '✓ آیتم اضافه شد.', 'ok');
       document.getElementById('itName').focus();
     }

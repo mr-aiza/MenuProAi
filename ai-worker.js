@@ -44,7 +44,8 @@ function buildSystemPrompt(menu) {
     price: it.price,
     tags: it.tags,
     desc: it.desc,
-    ...(it.recipe ? { ingredients: it.recipe.ingredients } : {}),
+    ...(it.calories ? { calories: it.calories } : {}),
+    ...(it.ingredients && it.ingredients.length ? { ingredients: it.ingredients } : (it.recipe ? { ingredients: it.recipe.ingredients } : {})),
   }));
 
   return `تو دستیار سفارش‌گیری «${menu.cafeName}» هستی. فقط و فقط از آیتم‌های زیر که در منوی واقعی کافه هستند پیشنهاد بده و هیچ‌وقت چیزی خارج از این لیست اختراع نکن.

@@ -272,6 +272,7 @@ async function handleDeleteCategory(request, env) {
 // ============================================================
 function sanitizeItemInput(body) {
   const price = Number(body.price);
+  const calories = Number(body.calories);
   return {
     name: String(body.name || "").trim().slice(0, 60),
     category: String(body.category || "").trim().slice(0, 40),
@@ -279,6 +280,8 @@ function sanitizeItemInput(body) {
     desc: String(body.desc || "").trim().slice(0, 240),
     tags: Array.isArray(body.tags) ? body.tags.map((t) => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 8) : [],
     pairsWith: Array.isArray(body.pairsWith) ? body.pairsWith.map((p) => String(p).trim()).filter(Boolean).slice(0, 5) : [],
+    calories: Number.isFinite(calories) && calories >= 0 ? Math.round(Math.min(calories, 5000)) : null,
+    ingredients: Array.isArray(body.ingredients) ? body.ingredients.map((i) => String(i).trim().slice(0, 40)).filter(Boolean).slice(0, 15) : [],
   };
 }
 
@@ -341,6 +344,155 @@ async function handleDeleteItem(request, env) {
 }
 
 // ============================================================
+// کدهای تخفیف
+// KV: discounts:{slug} -> آرایه [{ code, type: 'percent'|'fixed', value,
+//     maxUses (0=نامحدود), usedCount, expiresAt (ISO یا null), active, createdAt }]
+// POST /api/menu/discounts          body: { code, type, value, maxUses?, expiresAt? }  ← صاحب کافه
+// GET  /api/menu/discounts                                                             ← صاحب کافه
+// POST /api/menu/discounts/toggle   body: { code, active }                             ← صاحب کافه
+// POST /api/menu/discounts/delete   body: { code }                                     ← صاحب کافه
+// POST /api/menu/discount/validate  body: { slug, code, subtotal }                      ← عمومی
+// ============================================================
+function normalizeCode(raw) {
+  return String(raw || "").trim().toUpperCase().replace(/\s+/g, "").slice(0, 20);
+}
+
+async function loadDiscounts(slug, env) {
+  const raw = await env.MENU_KV.get("discounts:" + slug);
+  return raw ? JSON.parse(raw) : [];
+}
+
+async function saveDiscounts(slug, list, env) {
+  await env.MENU_KV.put("discounts:" + slug, JSON.stringify(list));
+}
+
+function isDiscountUsable(d, now) {
+  if (!d.active) return false;
+  if (d.maxUses > 0 && d.usedCount >= d.maxUses) return false;
+  if (d.expiresAt && new Date(d.expiresAt).getTime() < now) return false;
+  return true;
+}
+
+function computeDiscountAmount(d, subtotal) {
+  if (d.type === "percent") {
+    return Math.round((subtotal * Math.min(d.value, 100)) / 100);
+  }
+  // fixed
+  return Math.min(d.value, subtotal);
+}
+
+async function handleAddDiscount(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const code = normalizeCode(body.code);
+  const type = body.type === "fixed" ? "fixed" : "percent";
+  const value = Number(body.value);
+  const maxUses = Math.max(0, Math.round(Number(body.maxUses) || 0));
+  const expiresAt = body.expiresAt ? new Date(body.expiresAt).toISOString() : null;
+
+  if (!code || code.length < 2) return json({ error: "کد تخفیف باید حداقل ۲ کاراکتر باشد." }, 400);
+  if (!/^[A-Z0-9-]+$/.test(code)) return json({ error: "کد تخفیف فقط می‌تواند شامل حروف انگلیسی، عدد و خط تیره باشد." }, 400);
+  if (!Number.isFinite(value) || value <= 0) return json({ error: "مقدار تخفیف نامعتبر است." }, 400);
+  if (type === "percent" && value > 100) return json({ error: "درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد." }, 400);
+
+  const discounts = await loadDiscounts(own.slug, env);
+  if (discounts.some((d) => d.code === code)) {
+    return json({ error: "این کد تخفیف قبلاً ساخته شده است." }, 409);
+  }
+
+  const discount = {
+    code, type, value, maxUses, usedCount: 0,
+    expiresAt, active: true, createdAt: new Date().toISOString(),
+  };
+  discounts.push(discount);
+  await saveDiscounts(own.slug, discounts, env);
+  return json({ ok: true, discount, discounts }, 200);
+}
+
+async function handleGetDiscounts(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  const discounts = await loadDiscounts(own.slug, env);
+  discounts.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ ok: true, discounts }, 200);
+}
+
+async function handleToggleDiscount(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const code = normalizeCode(body.code);
+  const discounts = await loadDiscounts(own.slug, env);
+  const idx = discounts.findIndex((d) => d.code === code);
+  if (idx === -1) return json({ error: "کد تخفیف پیدا نشد." }, 404);
+
+  discounts[idx].active = !!body.active;
+  await saveDiscounts(own.slug, discounts, env);
+  return json({ ok: true, discount: discounts[idx], discounts }, 200);
+}
+
+async function handleDeleteDiscount(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const code = normalizeCode(body.code);
+  const discounts = await loadDiscounts(own.slug, env);
+  const next = discounts.filter((d) => d.code !== code);
+  await saveDiscounts(own.slug, next, env);
+  return json({ ok: true, discounts: next }, 200);
+}
+
+// عمومی — قبل از ثبت سفارش، برای نمایش پیش‌نمایش تخفیف تو سبد خرید
+async function handleValidateDiscount(request, env) {
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  const code = normalizeCode(body.code);
+  const subtotal = Math.max(0, Math.round(Number(body.subtotal) || 0));
+  if (!slug || !code) return json({ error: "اطلاعات ناقص است." }, 400);
+
+  const discounts = await loadDiscounts(slug, env);
+  const d = discounts.find((x) => x.code === code);
+  if (!d || !isDiscountUsable(d, Date.now())) {
+    return json({ error: "کد تخفیف نامعتبر یا منقضی‌شده است." }, 404);
+  }
+
+  const discountAmount = computeDiscountAmount(d, subtotal);
+  return json({
+    ok: true,
+    code: d.code,
+    type: d.type,
+    value: d.value,
+    discountAmount,
+    total: Math.max(0, subtotal - discountAmount),
+  }, 200);
+}
+
+// ============================================================
 // سفارش‌ها (تیکت مشتری برای صاحب کافه)
 // POST /api/menu/order            body: { slug, items: [{ id, qty }], customerName, customerPhone, note? }   ← عمومی، بدون لاگین
 // GET  /api/menu/orders           ← فقط صاحب کافه، سفارش‌های خودش
@@ -392,9 +544,30 @@ async function handleCreateOrder(request, env) {
   if (!customerName) return json({ error: "نام مشتری الزامی است." }, 400);
   if (!customerPhone) return json({ error: "شماره تلفن مشتری الزامی است." }, 400);
 
+  // اعمال کد تخفیف — همیشه سمت سرور محاسبه می‌شه، به قیمت/تخفیفی که کلاینت فرستاده اعتماد نمی‌کنیم
+  const subtotal = total;
+  let discountCode = null;
+  let discountAmount = 0;
+  let discountIdx = -1;
+  let discounts = null;
+  const rawCode = normalizeCode(body.discountCode);
+  if (rawCode) {
+    discounts = await loadDiscounts(slug, env);
+    discountIdx = discounts.findIndex((d) => d.code === rawCode);
+    if (discountIdx === -1 || !isDiscountUsable(discounts[discountIdx], Date.now())) {
+      return json({ error: "کد تخفیف نامعتبر یا منقضی‌شده است." }, 400);
+    }
+    discountCode = discounts[discountIdx].code;
+    discountAmount = computeDiscountAmount(discounts[discountIdx], subtotal);
+  }
+  total = Math.max(0, subtotal - discountAmount);
+
   const order = {
     id: randomId("order"),
     items: lines,
+    subtotal,
+    discountCode,
+    discountAmount,
     total,
     note: String(body.note || "").trim().slice(0, 200),
     customerName,
@@ -407,6 +580,11 @@ async function handleCreateOrder(request, env) {
   const orders = await loadOrders(slug, env);
   orders.push(order);
   await saveOrders(slug, orders, env);
+
+  if (discountIdx !== -1) {
+    discounts[discountIdx].usedCount += 1;
+    await saveDiscounts(slug, discounts, env);
+  }
 
   return json({ ok: true, order }, 200);
 }
@@ -422,6 +600,128 @@ async function handleGetOrders(request, env) {
   // جدیدترین اول
   orders.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   return json({ ok: true, orders }, 200);
+}
+
+// ============================================================
+// GET /api/menu/analytics — آمار محصولات پرفروش، درآمد، ساعات پرتقاضا،
+// مشتری‌های تکراری. بر اساس همون آرایه‌ی سفارش‌های ذخیره‌شده محاسبه
+// می‌شه (حداکثر آخرین ۲۰۰ سفارش، مطابق MAX_ORDERS_STORED)، ذخیره‌سازی
+// جدایی لازم نداره.
+// ============================================================
+const TEHRAN_OFFSET_MS = 3.5 * 60 * 60 * 1000; // UTC+03:30، بدون تغییر ساعت تابستانی (از ۱۴۰۱ لغو شده)
+
+function tehranParts(iso) {
+  const shifted = new Date(new Date(iso).getTime() + TEHRAN_OFFSET_MS);
+  return {
+    dayKey: shifted.toISOString().slice(0, 10), // YYYY-MM-DD (تقویم میلادی، فقط برای گروه‌بندی)
+    hour: shifted.getUTCHours(),
+    ts: shifted.getTime(),
+  };
+}
+
+function buildAnalytics(orders) {
+  const now = Date.now();
+  const todayKey = tehranParts(new Date(now).toISOString()).dayKey;
+  const DAY = 24 * 60 * 60 * 1000;
+
+  // ۱۴ روز اخیر برای نمودار روزانه
+  const dailyMap = {};
+  for (let i = 13; i >= 0; i--) {
+    const key = tehranParts(new Date(now - i * DAY).toISOString()).dayKey;
+    dailyMap[key] = { date: key, revenue: 0, orders: 0 };
+  }
+
+  const productMap = {}; // id -> { name, qty, revenue }
+  const hourBuckets = Array.from({ length: 24 }, () => 0);
+  const customerMap = {}; // phone -> { name, phone, hours:[], visits:[] }
+
+  let totalRevenue = 0;
+  let revenueToday = 0;
+  let revenueWeek = 0; // ۷ روز اخیر (rolling)
+  let revenueMonth = 0; // ۳۰ روز اخیر (rolling)
+
+  for (const o of orders) {
+    const parts = tehranParts(o.createdAt);
+    const orderTotal = Number(o.total) || 0;
+    const createdTs = new Date(o.createdAt).getTime();
+
+    totalRevenue += orderTotal;
+    if (parts.dayKey === todayKey) revenueToday += orderTotal;
+    if (now - createdTs <= 7 * DAY) revenueWeek += orderTotal;
+    if (now - createdTs <= 30 * DAY) revenueMonth += orderTotal;
+
+    if (dailyMap[parts.dayKey]) {
+      dailyMap[parts.dayKey].revenue += orderTotal;
+      dailyMap[parts.dayKey].orders += 1;
+    }
+
+    hourBuckets[parts.hour] += 1;
+
+    for (const line of o.items || []) {
+      if (!productMap[line.id]) productMap[line.id] = { id: line.id, name: line.name, qty: 0, revenue: 0 };
+      productMap[line.id].qty += line.qty;
+      productMap[line.id].revenue += line.lineTotal || (line.price * line.qty);
+    }
+
+    const custKey = o.customerPhone || ("نام:" + o.customerName);
+    if (!customerMap[custKey]) customerMap[custKey] = { phone: o.customerPhone, name: o.customerName, hours: [], visits: [] };
+    customerMap[custKey].hours.push(parts.hour);
+    customerMap[custKey].visits.push(o.createdAt);
+    customerMap[custKey].name = o.customerName || customerMap[custKey].name;
+  }
+
+  const popularProducts = Object.values(productMap)
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 10);
+
+  const peakHours = hourBuckets
+    .map((count, hour) => ({ hour, count }))
+    .sort((a, b) => b.count - a.count);
+
+  function modeHour(hours) {
+    const freq = {};
+    let best = hours[0], bestCount = 0;
+    for (const h of hours) {
+      freq[h] = (freq[h] || 0) + 1;
+      if (freq[h] > bestCount) { bestCount = freq[h]; best = h; }
+    }
+    return best;
+  }
+
+  const repeatCustomers = Object.values(customerMap)
+    .filter((c) => c.visits.length >= 2)
+    .map((c) => ({
+      phone: c.phone,
+      name: c.name,
+      orderCount: c.visits.length,
+      commonHour: modeHour(c.hours),
+      lastVisit: c.visits.sort().slice(-1)[0],
+    }))
+    .sort((a, b) => b.orderCount - a.orderCount)
+    .slice(0, 30);
+
+  return {
+    totalOrders: orders.length,
+    totalRevenue,
+    revenueToday,
+    revenueWeek,
+    revenueMonth,
+    dailyRevenue: Object.values(dailyMap),
+    popularProducts,
+    peakHours,
+    repeatCustomers,
+  };
+}
+
+async function handleGetAnalytics(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  const orders = await loadOrders(own.slug, env);
+  return json({ ok: true, analytics: buildAnalytics(orders) }, 200);
 }
 
 async function handleUpdateOrderStatus(request, env) {
@@ -501,11 +801,29 @@ export default {
       if (url.pathname === "/api/menu/items/delete" && request.method === "POST") {
         return await handleDeleteItem(request, env);
       }
+      if (url.pathname === "/api/menu/discounts" && request.method === "POST") {
+        return await handleAddDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/discounts" && request.method === "GET") {
+        return await handleGetDiscounts(request, env);
+      }
+      if (url.pathname === "/api/menu/discounts/toggle" && request.method === "POST") {
+        return await handleToggleDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/discounts/delete" && request.method === "POST") {
+        return await handleDeleteDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/discount/validate" && request.method === "POST") {
+        return await handleValidateDiscount(request, env);
+      }
       if (url.pathname === "/api/menu/order" && request.method === "POST") {
         return await handleCreateOrder(request, env);
       }
       if (url.pathname === "/api/menu/orders" && request.method === "GET") {
         return await handleGetOrders(request, env);
+      }
+      if (url.pathname === "/api/menu/analytics" && request.method === "GET") {
+        return await handleGetAnalytics(request, env);
       }
       if (url.pathname === "/api/menu/orders/status" && request.method === "POST") {
         return await handleUpdateOrderStatus(request, env);
