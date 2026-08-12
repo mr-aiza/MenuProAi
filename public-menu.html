@@ -1003,30 +1003,66 @@ function downloadPdfInvoice(){
   btn.textContent = 'در حال ساخت PDF…';
 
   const now = new Date();
-  document.getElementById('pvBrand').firstChild.textContent = MENU.cafeName || 'کافه';
-  document.getElementById('pvBrandSub').textContent = 'menuproai.bytelabpro.xyz';
-  document.getElementById('pvDate').textContent = now.toLocaleDateString('fa-IR') + ' — ' + now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' });
-  document.getElementById('pvOrderNo').textContent = 'سفارش #' + now.getTime().toString().slice(-6);
-  document.getElementById('pvItemsBody').innerHTML = lines.map(l => `
-    <tr>
-      <td>${l.item.name}</td>
-      <td>${l.qty}</td>
-      <td>${l.item.price.toLocaleString('fa-IR')}</td>
-      <td>${(l.item.price * l.qty).toLocaleString('fa-IR')}</td>
-    </tr>`).join('');
-  document.getElementById('pvTotal').textContent = cartGrandTotal().toLocaleString('fa-IR') + ' تومان';
-
-  const el = document.getElementById('pdfInvoice');
+  
+  // ایجاد template PDF به صورت dynamic
+  const pdfHtml = document.createElement('div');
+  pdfHtml.id = 'pdfInvoiceDynamic';
+  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:-9999px; left:-9999px;';
+  
+  pdfHtml.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
+      <div>
+        <div style="font-size:19px; font-weight:800;">${MENU.cafeName || 'کافه'}
+          <div style="display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px;">menuproai.bytelabpro.xyz</div>
+        </div>
+      </div>
+      <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">فاکتور</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px;">
+      <span>${now.toLocaleDateString('fa-IR')} — ${now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
+      <span>سفارش #${now.getTime().toString().slice(-6)}</span>
+    </div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px;">
+      <thead>
+        <tr>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">شرح</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">تعداد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">قیمت واحد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">جمع</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${lines.map(l => `
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.name}</td>
+          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${l.qty}</td>
+          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:left;">${l.item.price.toLocaleString('fa-IR')}</td>
+          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:left;">${(l.item.price * l.qty).toLocaleString('fa-IR')}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="width:220px; margin-inline-start:auto; font-size:12px;">
+      <div style="display:flex; justify-content:space-between; padding:4px 0; color:#4b5563; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
+        <span>جمع کل</span>
+        <span>${cartGrandTotal().toLocaleString('fa-IR')} تومان</span>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(pdfHtml);
+  
   html2pdf().set({
     margin: 8,
     filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).from(el).save().then(() => {
+  }).from(pdfHtml).save().then(() => {
+    document.body.removeChild(pdfHtml);
     btn.disabled = false;
     btn.textContent = 'دانلود PDF فاکتور';
   }).catch(() => {
+    document.body.removeChild(pdfHtml);
     btn.disabled = false;
     btn.textContent = 'دانلود PDF فاکتور';
   });
@@ -1035,40 +1071,6 @@ function downloadPdfInvoice(){
 invoiceBtn.addEventListener('click', renderInvoice);
 
 function openCart(){
-  cartOverlay.classList.add('open');
-  cartPanel.classList.add('open');
-  renderCart();
-}
-function closeCart(){
-  cartOverlay.classList.remove('open');
-  cartPanel.classList.remove('open');
-}
-cartBtn.addEventListener('click', openCart);
-cartClose.addEventListener('click', closeCart);
-cartOverlay.addEventListener('click', closeCart);
-
-updateCartBadge();
-</script>
-<div id="pdfInvoiceHolder">
-  <div id="pdfInvoice">
-    <div class="pv-head">
-      <div class="brand" id="pvBrand">کافه<small id="pvBrandSub">bytelabpro.xyz</small></div>
-      <div class="pv-badge">فاکتور</div>
-    </div>
-    <div class="pv-meta">
-      <span id="pvDate">—</span>
-      <span id="pvOrderNo">—</span>
-    </div>
-    <table>
-      <thead><tr><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
-      <tbody id="pvItemsBody"></tbody>
-    </table>
-    <div class="pv-summary">
-      <div class="line total"><span>جمع کل</span><span id="pvTotal">۰</span></div>
-    </div>
-    <div class="pv-footer"></div>
-  </div>
-</div>
 
 </body>
 </html>
