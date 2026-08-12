@@ -56,12 +56,9 @@
   .section-head h2{font-size:22px;font-weight:800;margin-bottom:8px;}
   .section-head p{color:var(--muted);font-size:13.5px;}
 
-  .template-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:520px;margin:0 auto;}
-  .template-preview{background:linear-gradient(160deg,var(--panel-2),var(--ink));padding:26px;border-bottom:1px solid var(--line);}
-  .tp-phone{background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:16px;max-width:260px;margin:0 auto;}
-  .tp-phone .tp-title{font-weight:800;font-size:13px;margin-bottom:10px;}
-  .tp-phone .tp-item{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:11px;}
-  .tp-phone .tp-item b{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .template-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:340px;margin:0 auto;}
+  .template-preview{background:linear-gradient(160deg,var(--panel-2),var(--ink));padding:0;border-bottom:1px solid var(--line);}
+  .template-preview img{display:block;width:100%;height:auto;}
   .template-body{padding:22px;}
   .template-body .badge{display:inline-block;background:rgba(77,240,201,.12);color:var(--cyan);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px;}
   .template-body h3{font-size:16px;font-weight:800;margin-bottom:8px;}
@@ -110,7 +107,7 @@
     <div class="icon">👁️</div>
     <h3>پیش‌نمایش نمونه‌کار</h3>
     <p>یه نمونه واقعی از منوی آنلاین رو ببین — دقیقاً همون چیزی که مشتری‌های تو می‌بینن.</p>
-    <a href="portfolio/menu.html" class="go">مشاهده نمونه</a>
+    <a href="portfolio/templates/classic-menu/menu.html" class="go">مشاهده نمونه</a>
   </div>
 </div>
 
@@ -122,12 +119,9 @@
 
   <div class="template-card">
     <div class="template-preview">
-      <div class="tp-phone">
-        <div class="tp-title">☕ کافه بایت لب</div>
-        <div class="tp-item">اسپرسو <b>۵۵,۰۰۰</b></div>
-        <div class="tp-item">لاته وانیل <b>۸۵,۰۰۰</b></div>
-        <div class="tp-item">چیزکیک <b>۹۸,۰۰۰</b></div>
-      </div>
+      <a href="portfolio/templates/classic-menu/menu.html">
+        <img src="portfolio/templates/classic-menu/classic-menu.png" alt="پیش‌نمایش قالب کلاسیک منوپروای" loading="lazy">
+      </a>
     </div>
     <div class="template-body">
       <span class="badge">قالب پیش‌فرض</span>
@@ -141,7 +135,7 @@
         <li>کد تخفیف اختصاصی هر کافه</li>
       </ul>
       <div class="row">
-        <a href="portfolio/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
+        <a href="portfolio/templates/classic-menu/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
         <a href="dashboard.html" class="btn btn-ghost">شروع با این قالب</a>
       </div>
     </div>
