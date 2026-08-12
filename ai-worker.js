@@ -168,20 +168,38 @@ async function handleRequest(request, env) {
     }, 200);
   }
 
-  const raw = aiResult.response || "";
-  const parsed = safeParseModelJson(raw);
+  let raw, parsed, validIds, suggestions;
+  try {
+    raw = aiResult && aiResult.response;
 
-  if (!parsed || !parsed.reply) {
+    // Workers AI برای این مدل، وقتی خروجی مدل خودش JSON معتبر باشه، از قبل
+    // به‌صورت object پارس‌شده تو response می‌ذاره؛ در غیر این صورت رشته خام برمی‌گردونه.
+    if (raw && typeof raw === "object" && typeof raw.reply !== "undefined") {
+      parsed = raw;
+    } else if (typeof raw === "string") {
+      parsed = safeParseModelJson(raw);
+    } else {
+      parsed = null;
+    }
+
+    if (!parsed || !parsed.reply) {
+      const fallbackText = typeof raw === "string" ? raw.slice(0, 300) : "";
+      return json({
+        reply: fallbackText || "متوجه نشدم، می‌شه یه‌جور دیگه بگی چی می‌خوای؟",
+        suggestions: [],
+      });
+    }
+
+    validIds = new Set(menu.items.map((it) => it.id));
+    suggestions = Array.isArray(parsed.suggestions)
+      ? parsed.suggestions.filter((s) => s && validIds.has(s.id)).slice(0, 3)
+      : [];
+  } catch (e) {
     return json({
-      reply: raw.slice(0, 300) || "متوجه نشدم، می‌شه یه‌جور دیگه بگی چی می‌خوای؟",
+      reply: "با عرض پوزش، در پردازش پاسخ خطایی رخ داد. لطفاً دوباره تلاش کنید.",
       suggestions: [],
-    });
+    }, 200);
   }
-
-  const validIds = new Set(menu.items.map((it) => it.id));
-  const suggestions = Array.isArray(parsed.suggestions)
-    ? parsed.suggestions.filter((s) => s && validIds.has(s.id)).slice(0, 3)
-    : [];
 
   return json({ reply: parsed.reply, suggestions });
 }
