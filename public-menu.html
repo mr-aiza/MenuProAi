@@ -996,7 +996,12 @@ function trackOrderStatus(orderId){
 /* ---------------------- خروجی PDF فاکتور ---------------------- */
 function downloadPdfInvoice(){
   const lines = cartLines();
-  if(!lines.length) return;
+  console.log('📋 cartLines:', lines); // DEBUG
+  
+  if(!lines.length){
+    alert('سبد خریدت خالیه!');
+    return;
+  }
 
   const btn = document.getElementById('pdfInvoiceBtn');
   btn.disabled = true;
@@ -1007,6 +1012,11 @@ function downloadPdfInvoice(){
   // ایجاد template PDF به صورت dynamic
   const pdfHtml = document.createElement('div');
   pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:-9999px; left:-9999px;';
+  
+  const itemsHtml = lines.map(l => {
+    console.log('🧾 آیتم:', { name: l.item.name, qty: l.qty, price: l.item.price }); // DEBUG
+    return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.name}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${l.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${(l.item.price * l.qty).toLocaleString('fa-IR')}</td></tr>`;
+  }).join('');
   
   pdfHtml.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
@@ -1030,40 +1040,39 @@ function downloadPdfInvoice(){
           <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">جمع</th>
         </tr>
       </thead>
-      <tbody>
-        ${lines.map(l => `
-        <tr>
-          <td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.name}</td>
-          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${l.qty}</td>
-          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:left;">${l.item.price.toLocaleString('fa-IR')}</td>
-          <td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:left;">${(l.item.price * l.qty).toLocaleString('fa-IR')}</td>
-        </tr>`).join('')}
-      </tbody>
+      <tbody>${itemsHtml}</tbody>
     </table>
     <div style="width:220px; margin-inline-start:auto; font-size:12px;">
-      <div style="display:flex; justify-content:space-between; padding:4px 0; color:#4b5563; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
+      <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
         <span>جمع کل</span>
         <span>${cartGrandTotal().toLocaleString('fa-IR')} تومان</span>
       </div>
     </div>
   `;
-  document.body.appendChild(pdfHtml);
   
-  html2pdf().set({
-    margin: 8,
-    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).from(pdfHtml).save().then(() => {
-    document.body.removeChild(pdfHtml);
-    btn.disabled = false;
-    btn.textContent = 'دانلود PDF فاکتور';
-  }).catch(() => {
-    document.body.removeChild(pdfHtml);
-    btn.disabled = false;
-    btn.textContent = 'دانلود PDF فاکتور';
-  });
+  document.body.appendChild(pdfHtml);
+  console.log('✅ pdfHtml به DOM اضافه شد'); // DEBUG
+  
+  // تأخیر برای اجازه دادن به browser برای رندر کردن
+  setTimeout(() => {
+    html2pdf().set({
+      margin: 8,
+      filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(pdfHtml).save().then(() => {
+      console.log('✅ PDF دانلود شد');
+      document.body.removeChild(pdfHtml);
+      btn.disabled = false;
+      btn.textContent = 'دانلود PDF فاکتور';
+    }).catch((err) => {
+      console.error('❌ خطا در دانلود PDF:', err);
+      if(document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
+      btn.disabled = false;
+      btn.textContent = 'دانلود PDF فاکتور';
+    });
+  }, 500);
 }
 
 invoiceBtn.addEventListener('click', renderInvoice);
