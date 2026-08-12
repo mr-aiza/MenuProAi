@@ -345,6 +345,7 @@ async function handleDeleteItem(request, env) {
 // POST /api/menu/order            body: { slug, items: [{ id, qty }], customerName, customerPhone, note? }   ← عمومی، بدون لاگین
 // GET  /api/menu/orders           ← فقط صاحب کافه، سفارش‌های خودش
 // POST /api/menu/orders/status    body: { id, status }                          ← فقط صاحب کافه
+// GET  /api/menu/order/status/:slug/:id                                         ← عمومی، پیگیری وضعیت توسط مشتری
 // ============================================================
 const MAX_ORDERS_STORED = 200;
 
@@ -400,6 +401,7 @@ async function handleCreateOrder(request, env) {
     customerPhone,
     status: "new", // new | seen | done
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const orders = await loadOrders(slug, env);
@@ -441,8 +443,22 @@ async function handleUpdateOrderStatus(request, env) {
   if (idx === -1) return json({ error: "سفارش پیدا نشد." }, 404);
 
   orders[idx].status = status;
+  orders[idx].updatedAt = new Date().toISOString();
   await saveOrders(own.slug, orders, env);
   return json({ ok: true, order: orders[idx] }, 200);
+}
+
+// ============================================================
+// GET /api/menu/order/status/:slug/:id — عمومی، بدون لاگین
+// مشتری با این، وضعیت سفارش خودش رو بعد از ثبت پیگیری می‌کنه
+// ============================================================
+async function handleGetOrderStatus(slug, id, env) {
+  const cleanSlug = slugify(slug);
+  if (!cleanSlug || !id) return json({ error: "پارامتر نامعتبر است." }, 400);
+  const orders = await loadOrders(cleanSlug, env);
+  const order = orders.find((o) => o.id === id);
+  if (!order) return json({ error: "سفارش پیدا نشد." }, 404);
+  return json({ ok: true, status: order.status, updatedAt: order.updatedAt || order.createdAt }, 200);
 }
 
 // ============================================================
@@ -493,6 +509,10 @@ export default {
       }
       if (url.pathname === "/api/menu/orders/status" && request.method === "POST") {
         return await handleUpdateOrderStatus(request, env);
+      }
+      if (url.pathname.startsWith("/api/menu/order/status/") && request.method === "GET") {
+        const parts = url.pathname.replace("/api/menu/order/status/", "").split("/");
+        return await handleGetOrderStatus(parts[0], parts[1], env);
       }
 
       return json({ error: "not found" }, 404);
