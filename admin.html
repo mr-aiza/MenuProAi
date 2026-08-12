@@ -339,7 +339,11 @@
   const MENU_API = "https://menuproai-api.bytelab.workers.dev";
   const USERS_API = "https://bytelab-users.bytelab.workers.dev";
   const TOKEN_KEY = "menuproai_admin_token_v2";
-  const IMPERSONATE_URL = "https://bytelabpro.xyz/impersonate.html"; // فایل impersonate.html رو باید روی ریشه‌ی bytelabpro.xyz آپلود کنی
+  // impersonate.html باید روی ریشه‌ی خودِ menuproai.bytelabpro.xyz آپلود بشه
+  // (نسخه‌ی جداگانه از اونی که تو bytelabpro.xyz هست، چون localStorage بین
+  // دامنه‌ها مشترک نیست). صفحه‌ی داشبورد رو اگه اسمش چیز دیگه‌ایه عوض کن.
+  const IMPERSONATE_URL = "https://menuproai.bytelabpro.xyz/impersonate.html";
+  const MENUPROAI_DASHBOARD_PAGE = "dashboard.html"; // ← اگه اسم واقعی فرق داره، عوضش کن
 
   let allCafes = [];
   let currentCafe = null; // { menu, discounts, ordersCount, analytics }
@@ -564,9 +568,9 @@
     if (!phone) { toast("شماره مالک ثبت نشده.", true); return; }
     try {
       const data = await usersApi("/api/admin/impersonate", { method: "POST", body: JSON.stringify({ phone }) });
-      const url = `${IMPERSONATE_URL}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent("my-projects.html")}`;
+      const url = `${IMPERSONATE_URL}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent(MENUPROAI_DASHBOARD_PAGE)}`;
       window.open(url, "_blank");
-      toast("پنل کاربر تو تب جدید باز شد");
+      toast("داشبورد منوساز کاربر تو تب جدید باز شد");
     } catch (err) { toast(err.message, true); }
   });
 
