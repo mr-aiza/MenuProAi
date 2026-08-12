@@ -17,6 +17,7 @@
 // ساختار داده تو MENU_KV:
 //   owner:{phone}      -> "{slug}"           (هر مالک فقط یک اسلاگ/منو)
 //   menu:{slug}        -> JSON کامل منو (پایین توضیح داده شده)
+//   orders:{slug}      -> آرایه‌ی سفارش‌های ثبت‌شده برای همون کافه (حداکثر ۲۰۰ تای آخر)
 //   slug_index         -> آرایه‌ی همه‌ی اسلاگ‌های ثبت‌شده (برای چک یکتا بودن)
 //
 // ساختار JSON هر منو:
@@ -340,6 +341,111 @@ async function handleDeleteItem(request, env) {
 }
 
 // ============================================================
+// سفارش‌ها (تیکت مشتری برای صاحب کافه)
+// POST /api/menu/order            body: { slug, items: [{ id, qty }], customerName, customerPhone, note? }   ← عمومی، بدون لاگین
+// GET  /api/menu/orders           ← فقط صاحب کافه، سفارش‌های خودش
+// POST /api/menu/orders/status    body: { id, status }                          ← فقط صاحب کافه
+// ============================================================
+const MAX_ORDERS_STORED = 200;
+
+async function loadOrders(slug, env) {
+  const raw = await env.MENU_KV.get("orders:" + slug);
+  return raw ? JSON.parse(raw) : [];
+}
+
+async function saveOrders(slug, orders, env) {
+  // فقط آخرین‌ها رو نگه می‌داریم که KV پر نشه
+  const trimmed = orders.slice(-MAX_ORDERS_STORED);
+  await env.MENU_KV.put("orders:" + slug, JSON.stringify(trimmed));
+}
+
+async function handleCreateOrder(request, env) {
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  if (!slug) return json({ error: "اسلاگ کافه مشخص نیست." }, 400);
+
+  const raw = await env.MENU_KV.get("menu:" + slug);
+  if (!raw) return json({ error: "منویی با این آدرس پیدا نشد." }, 404);
+  const menu = JSON.parse(raw);
+
+  const reqItems = Array.isArray(body.items) ? body.items : [];
+  if (!reqItems.length) return json({ error: "سبد خرید خالی است." }, 400);
+
+  // قیمت‌ها رو از روی خود منو (سمت سرور) محاسبه می‌کنیم، نه چیزی که کلاینت فرستاده
+  const lines = [];
+  let total = 0;
+  for (const ri of reqItems) {
+    const menuItem = menu.items.find((it) => it.id === String(ri.id || ""));
+    if (!menuItem) continue;
+    const qty = Math.max(1, Math.min(50, Math.round(Number(ri.qty) || 1)));
+    const lineTotal = menuItem.price * qty;
+    total += lineTotal;
+    lines.push({ id: menuItem.id, name: menuItem.name, price: menuItem.price, qty, lineTotal });
+  }
+  if (!lines.length) return json({ error: "هیچ‌کدام از آیتم‌های سبد خرید معتبر نیست." }, 400);
+
+  const customerName = String(body.customerName || "").trim().slice(0, 60);
+  const customerPhone = String(body.customerPhone || "").trim().slice(0, 20);
+  if (!customerName) return json({ error: "نام مشتری الزامی است." }, 400);
+  if (!customerPhone) return json({ error: "شماره تلفن مشتری الزامی است." }, 400);
+
+  const order = {
+    id: randomId("order"),
+    items: lines,
+    total,
+    note: String(body.note || "").trim().slice(0, 200),
+    customerName,
+    customerPhone,
+    status: "new", // new | seen | done
+    createdAt: new Date().toISOString(),
+  };
+
+  const orders = await loadOrders(slug, env);
+  orders.push(order);
+  await saveOrders(slug, orders, env);
+
+  return json({ ok: true, order }, 200);
+}
+
+async function handleGetOrders(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  const orders = await loadOrders(own.slug, env);
+  // جدیدترین اول
+  orders.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ ok: true, orders }, 200);
+}
+
+async function handleUpdateOrderStatus(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const id = String(body.id || "");
+  const status = String(body.status || "");
+  if (!["new", "seen", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
+
+  const orders = await loadOrders(own.slug, env);
+  const idx = orders.findIndex((o) => o.id === id);
+  if (idx === -1) return json({ error: "سفارش پیدا نشد." }, 404);
+
+  orders[idx].status = status;
+  await saveOrders(own.slug, orders, env);
+  return json({ ok: true, order: orders[idx] }, 200);
+}
+
+// ============================================================
 // روتر اصلی
 // ============================================================
 export default {
@@ -378,6 +484,15 @@ export default {
       }
       if (url.pathname === "/api/menu/items/delete" && request.method === "POST") {
         return await handleDeleteItem(request, env);
+      }
+      if (url.pathname === "/api/menu/order" && request.method === "POST") {
+        return await handleCreateOrder(request, env);
+      }
+      if (url.pathname === "/api/menu/orders" && request.method === "GET") {
+        return await handleGetOrders(request, env);
+      }
+      if (url.pathname === "/api/menu/orders/status" && request.method === "POST") {
+        return await handleUpdateOrderStatus(request, env);
       }
 
       return json({ error: "not found" }, 404);
