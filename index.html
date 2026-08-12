@@ -173,7 +173,10 @@
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px;">
           <h2 style="margin:0;">سفارش‌های رسیده</h2>
-          <button class="btn-ghost btn-sm" id="refreshOrdersBtn">تازه‌سازی</button>
+          <div class="row" style="gap:6px;">
+            <button class="btn-ghost btn-sm" id="enableNotifBtn">🔔 فعال‌سازی اعلان</button>
+            <button class="btn-ghost btn-sm" id="refreshOrdersBtn">تازه‌سازی</button>
+          </div>
         </div>
         <div class="msg" id="ordersMsg"></div>
         <div id="ordersList"></div>
@@ -187,7 +190,7 @@
 <script>
 /* ⚠️ بعد از دیپلوی menuproai-worker.js (مرحله ۱)، آدرس زیر رو با آدرس
    واقعی Worker جایگزین کن. */
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 const PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS/";
 
 let currentMenu = null;
@@ -196,6 +199,8 @@ let activeFilterCat = '';
 let searchQuery = '';
 let orders = [];
 let ordersPollTimer = null;
+let knownOrderIds = null; // null یعنی هنوز اولین بار لود نشده
+let notifEnabled = false;
 
 function showMsg(id, text, kind){
   const el = document.getElementById(id);
@@ -315,7 +320,7 @@ function renderDashboard(){
   renderItems();
   loadOrders(true);
   if (ordersPollTimer) clearInterval(ordersPollTimer);
-  ordersPollTimer = setInterval(() => loadOrders(true), 30000);
+  ordersPollTimer = setInterval(() => loadOrders(true), 20000);
 }
 
 function renderCategories(){
@@ -538,6 +543,14 @@ async function loadOrders(silent){
   try{
     const data = await apiCall('/api/menu/orders');
     orders = data.orders || [];
+
+    const currentIds = new Set(orders.map(o => o.id));
+    if (knownOrderIds !== null){
+      const arrivedNew = orders.filter(o => o.status === 'new' && !knownOrderIds.has(o.id));
+      if (arrivedNew.length) notifyNewOrders(arrivedNew);
+    }
+    knownOrderIds = currentIds;
+
     hideMsg('ordersMsg');
     const newCount = orders.filter(o => o.status === 'new').length;
     const badge = document.getElementById('ordersBadge');
@@ -553,6 +566,47 @@ async function loadOrders(silent){
     if (!silent) showMsg('ordersMsg', e.message, 'err');
   }
 }
+
+/* ------------ زنگ/اعلان مرورگر برای سفارش جدید ------------ */
+function beep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.16);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.18);
+    });
+  }catch(e){ /* بی‌صدا رد شو، مهم نیست */ }
+}
+
+function notifyNewOrders(arrivedNew){
+  beep();
+  if (notifEnabled && 'Notification' in window && Notification.permission === 'granted'){
+    arrivedNew.forEach(o => {
+      new Notification('سفارش جدید 🧾', {
+        body: (o.customerName || 'مشتری') + ' — ' + o.total.toLocaleString('fa-IR') + ' تومان',
+        tag: o.id,
+      });
+    });
+  }
+}
+
+document.getElementById('enableNotifBtn').addEventListener('click', async () => {
+  if (!('Notification' in window)){
+    showMsg('ordersMsg', 'مرورگرت از اعلان پشتیبانی نمی‌کنه.', 'err');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  notifEnabled = perm === 'granted';
+  showMsg('ordersMsg', notifEnabled ? '✓ اعلان‌ها فعال شد.' : 'اجازه‌ی اعلان داده نشد؛ فقط زنگ فعال می‌مونه.', notifEnabled ? 'ok' : 'err');
+});
 
 function renderOrders(){
   const wrap = document.getElementById('ordersList');
