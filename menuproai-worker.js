@@ -12,7 +12,12 @@
 //   2) USERS_KV  → همون namespace موجود bytelab-users-worker رو
 //                  انتخاب کن (از دراپ‌داون Cloudflare، namespace
 //                  فعلی رو پیدا کن، دوباره نسازش). این Worker فقط
-//                  ازش می‌خونه، هیچ‌وقت چیزی توش نمی‌نویسه.
+//                  ازش می‌خونه، هیچ‌وقت چیزی توش نمی‌نویسه. از همین
+//                  KV برای تایید توکن ادمین (adminsession:...) هم
+//                  استفاده می‌شه — دیگه لازم نیست ADMIN_PANEL_PASSWORD
+//                  رو جدا روی این Worker تنظیم کنی؛ ورود ادمین فقط از
+//                  طریق users-worker (POST /api/admin/login) انجام
+//                  می‌شه و همون توکن اینجا هم معتبره.
 //
 // ساختار داده تو MENU_KV:
 //   owner:{phone}      -> "{slug}"           (هر مالک فقط یک اسلاگ/منو)
@@ -65,17 +70,19 @@ async function getAuthedPhone(request, env) {
 }
 
 // ------------------------------------------------------------
-// تایید هویت ادمین — برای پنل مدیریت اصلی (نظارت روی کافه‌های ساخته‌شده
-// با منوساز). این یه احراز هویت جدا و ساده‌ست (بدون نشست/توکن): همون
-// رمز پنل ادمینت رو به‌عنوان مقدار متغیر محیطی ADMIN_PANEL_PASSWORD
-// روی همین Worker (منوی Settings → Variables & Secrets) تنظیم کن —
-// پیشنهاد می‌شه دقیقاً همون رمزی باشه که تو پنل ادمین اصلیت استفاده
-// می‌کنی، تا لازم نباشه جای دیگه‌ای دوباره لاگین کنی.
+// تایید هویت ادمین — به‌جای رمز خام تو هدر، از همون توکن نشست ادمینی
+// استفاده می‌کنه که bytelab-users-worker.js موقع ورود به پنل ادمین
+// (POST /api/admin/login) می‌سازه و تو USERS_KV به شکل
+// "adminsession:{token}" ذخیره می‌کنه. این Worker همون USERS_KV رو
+// (read-only) داره، پس فقط چک می‌کنه که توکن معتبره یا نه — نیازی به
+// تنظیم مجدد رمز روی این Worker نیست.
 // ------------------------------------------------------------
-function isAdminAuthorized(request, env) {
-  const provided = request.headers.get("X-Admin-Password") || "";
-  if (!env.ADMIN_PANEL_PASSWORD) return false;
-  return provided && provided === env.ADMIN_PANEL_PASSWORD;
+async function isAdminAuthorized(request, env) {
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+  if (!token) return false;
+  const ok = await env.USERS_KV.get("adminsession:" + token);
+  return !!ok;
 }
 
 function slugify(raw) {
@@ -154,6 +161,7 @@ async function handleCreateMenu(request, env) {
     theme: {},
     categories: [],
     items: [],
+    active: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -188,7 +196,11 @@ async function handleGetMine(request, env) {
 async function handleGetPublicMenu(slug, env) {
   const raw = await env.MENU_KV.get("menu:" + slug);
   if (!raw) return json({ error: "منویی با این آدرس پیدا نشد." }, 404);
-  return json({ menu: JSON.parse(raw) }, 200);
+  const menu = JSON.parse(raw);
+  if (menu.active === false) {
+    return json({ error: "این منو موقتاً توسط مدیریت غیرفعال شده است." }, 403);
+  }
+  return json({ menu }, 200);
 }
 
 // ------------------------------------------------------------
@@ -540,6 +552,7 @@ async function handleCreateOrder(request, env) {
   const raw = await env.MENU_KV.get("menu:" + slug);
   if (!raw) return json({ error: "منویی با این آدرس پیدا نشد." }, 404);
   const menu = JSON.parse(raw);
+  if (menu.active === false) return json({ error: "این کافه موقتاً سفارش نمی‌پذیرد." }, 403);
 
   const reqItems = Array.isArray(body.items) ? body.items : [];
   if (!reqItems.length) return json({ error: "سبد خرید خالی است." }, 400);
@@ -780,14 +793,25 @@ async function handleGetOrderStatus(slug, id, env) {
 }
 
 // ============================================================
-// GET /api/menu/admin/list — فقط ادمین (هدر X-Admin-Password)
-// خروجی: لیست خلاصه‌ی همه‌ی کافه‌هایی که منوساز رو فعال کردن، برای
-// نظارت از پنل ادمین اصلی (لینک مستقیم به منوی عمومی هرکدوم).
+// پنل مدیریت کامل — همه‌ی endpoint های زیر با توکن Bearer ادمین
+// (همون adminsession مشترک با users-worker) محافظت می‌شن و روی
+// «هر» کافه‌ای (نه فقط منوی خود ادمین) کار می‌کنن، چون هدف نظارت و
+// پشتیبانیه، نه مالکیت.
 // ============================================================
+async function requireAdminOr401(request, env) {
+  const ok = await isAdminAuthorized(request, env);
+  return ok ? null : json({ error: "دسترسی نامعتبر است." }, 401);
+}
+
+async function loadMenuBySlugOrNull(slug, env) {
+  const raw = await env.MENU_KV.get("menu:" + slugify(slug));
+  return raw ? JSON.parse(raw) : null;
+}
+
+// ---- GET /api/menu/admin/list — لیست خلاصه‌ی همه‌ی کافه‌ها ----
 async function handleAdminListCafes(request, env) {
-  if (!isAdminAuthorized(request, env)) {
-    return json({ error: "دسترسی نامعتبر است." }, 401);
-  }
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
 
   const raw = await env.MENU_KV.get("slug_index");
   const slugs = raw ? JSON.parse(raw) : [];
@@ -803,6 +827,7 @@ async function handleAdminListCafes(request, env) {
       tagline: menu.tagline || "",
       ownerPhone: menu.ownerPhone || "",
       template: menu.template || "classic-menu",
+      active: menu.active !== false,
       itemsCount: Array.isArray(menu.items) ? menu.items.length : 0,
       categoriesCount: Array.isArray(menu.categories) ? menu.categories.length : 0,
       createdAt: menu.createdAt || null,
@@ -813,6 +838,291 @@ async function handleAdminListCafes(request, env) {
   cafes.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
 
   return json({ ok: true, cafes }, 200);
+}
+
+// ---- GET /api/menu/admin/get?slug= — جزئیات کامل یک کافه ----
+async function handleAdminGetCafe(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+
+  const url = new URL(request.url);
+  const slug = slugify(url.searchParams.get("slug"));
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+
+  const discounts = await loadDiscounts(slug, env);
+  const orders = await loadOrders(slug, env);
+
+  return json({
+    ok: true,
+    menu,
+    discounts,
+    ordersCount: orders.length,
+    analytics: buildAnalytics(orders),
+  }, 200);
+}
+
+// ---- POST /api/menu/admin/update — ویرایش نام/توضیح/رنگ/وضعیت کافه ----
+async function handleAdminUpdateCafe(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+
+  if (typeof body.cafeName === "string" && body.cafeName.trim()) {
+    menu.cafeName = body.cafeName.trim().slice(0, 60);
+  }
+  if (typeof body.tagline === "string") {
+    menu.tagline = body.tagline.trim().slice(0, 160);
+  }
+  if (typeof body.ownerPhone === "string" && body.ownerPhone.trim()) {
+    menu.ownerPhone = body.ownerPhone.trim().slice(0, 20);
+  }
+  if (body.theme && typeof body.theme === "object") {
+    menu.theme = { ...menu.theme, ...body.theme };
+  }
+  if (typeof body.active === "boolean") {
+    menu.active = body.active;
+  }
+
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, menu }, 200);
+}
+
+// ---- POST /api/menu/admin/toggle-active — فعال/غیرفعال سریع ----
+async function handleAdminToggleActive(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+
+  menu.active = typeof body.active === "boolean" ? body.active : !(menu.active !== false);
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, active: menu.active }, 200);
+}
+
+// ---- POST /api/menu/admin/delete — حذف کامل کافه (منو + سفارش‌ها + تخفیف‌ها) ----
+async function handleAdminDeleteCafe(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+
+  await env.MENU_KV.delete("menu:" + slug);
+  await env.MENU_KV.delete("orders:" + slug);
+  await env.MENU_KV.delete("discounts:" + slug);
+  if (menu.ownerPhone) {
+    const ownerSlug = await env.MENU_KV.get("owner:" + menu.ownerPhone);
+    if (ownerSlug === slug) await env.MENU_KV.delete("owner:" + menu.ownerPhone);
+  }
+
+  const rawIndex = await env.MENU_KV.get("slug_index");
+  const list = rawIndex ? JSON.parse(rawIndex) : [];
+  await env.MENU_KV.put("slug_index", JSON.stringify(list.filter((s) => s !== slug)));
+
+  return json({ ok: true }, 200);
+}
+
+// ---- دسته‌بندی‌ها (ادمین، روی هر کافه) ----
+async function handleAdminAddCategory(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+  const title = String(body.title || "").trim().slice(0, 40);
+  if (!title) return json({ error: "عنوان دسته الزامی است." }, 400);
+  const id = randomId("cat");
+  menu.categories.push({ id, title });
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, menu }, 200);
+}
+
+async function handleAdminDeleteCategory(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+  const id = String(body.id || "");
+  menu.categories = menu.categories.filter((c) => c.id !== id);
+  menu.items.forEach((it) => { if (it.category === id) it.category = ""; });
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, menu }, 200);
+}
+
+// ---- آیتم‌ها (ادمین، روی هر کافه) ----
+async function handleAdminAddItem(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+  const data = sanitizeItemInput(body);
+  if (!data.name) return json({ error: "نام آیتم الزامی است." }, 400);
+  const id = randomId("item");
+  const item = { id, ...data };
+  menu.items.push(item);
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, item, menu }, 200);
+}
+
+async function handleAdminUpdateItem(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+  const id = String(body.id || "");
+  const idx = menu.items.findIndex((it) => it.id === id);
+  if (idx === -1) return json({ error: "آیتم پیدا نشد." }, 404);
+  const data = sanitizeItemInput(body);
+  if (!data.name) return json({ error: "نام آیتم الزامی است." }, 400);
+  menu.items[idx] = { id, ...data };
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, item: menu.items[idx], menu }, 200);
+}
+
+async function handleAdminDeleteItem(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+  const id = String(body.id || "");
+  menu.items = menu.items.filter((it) => it.id !== id);
+  await saveMenu(slug, menu, env);
+  return json({ ok: true, menu }, 200);
+}
+
+// ---- تخفیف‌ها (ادمین، روی هر کافه) ----
+async function handleAdminGetDiscounts(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  const url = new URL(request.url);
+  const slug = slugify(url.searchParams.get("slug"));
+  const discounts = await loadDiscounts(slug, env);
+  return json({ ok: true, discounts }, 200);
+}
+
+async function handleAdminAddDiscount(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const menu = await loadMenuBySlugOrNull(slug, env);
+  if (!menu) return json({ error: "کافه پیدا نشد." }, 404);
+
+  const code = normalizeCode(body.code);
+  const type = body.type === "fixed" ? "fixed" : "percent";
+  const value = Number(body.value);
+  const maxUses = Math.max(0, Math.round(Number(body.maxUses) || 0));
+  const expiresAt = body.expiresAt ? new Date(body.expiresAt).toISOString() : null;
+
+  if (!code || code.length < 2) return json({ error: "کد تخفیف باید حداقل ۲ کاراکتر باشد." }, 400);
+  if (!/^[A-Z0-9-]+$/.test(code)) return json({ error: "کد تخفیف فقط می‌تواند شامل حروف انگلیسی، عدد و خط تیره باشد." }, 400);
+  if (!Number.isFinite(value) || value <= 0) return json({ error: "مقدار تخفیف نامعتبر است." }, 400);
+  if (type === "percent" && value > 100) return json({ error: "درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد." }, 400);
+
+  const discounts = await loadDiscounts(slug, env);
+  if (discounts.some((d) => d.code === code)) return json({ error: "این کد تخفیف قبلاً ساخته شده است." }, 409);
+
+  const discount = { code, type, value, maxUses, usedCount: 0, expiresAt, active: true, createdAt: new Date().toISOString() };
+  discounts.push(discount);
+  await saveDiscounts(slug, discounts, env);
+  return json({ ok: true, discount, discounts }, 200);
+}
+
+async function handleAdminToggleDiscount(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const code = normalizeCode(body.code);
+  const discounts = await loadDiscounts(slug, env);
+  const idx = discounts.findIndex((d) => d.code === code);
+  if (idx === -1) return json({ error: "کد تخفیف پیدا نشد." }, 404);
+  discounts[idx].active = !!body.active;
+  await saveDiscounts(slug, discounts, env);
+  return json({ ok: true, discount: discounts[idx], discounts }, 200);
+}
+
+async function handleAdminDeleteDiscount(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const code = normalizeCode(body.code);
+  const discounts = await loadDiscounts(slug, env);
+  const next = discounts.filter((d) => d.code !== code);
+  await saveDiscounts(slug, next, env);
+  return json({ ok: true, discounts: next }, 200);
+}
+
+// ---- سفارش‌ها و آنالیتیکس (ادمین، روی هر کافه) ----
+async function handleAdminGetOrders(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  const url = new URL(request.url);
+  const slug = slugify(url.searchParams.get("slug"));
+  const orders = await loadOrders(slug, env);
+  orders.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ ok: true, orders }, 200);
+}
+
+async function handleAdminUpdateOrderStatus(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const slug = slugify(body.slug);
+  const id = String(body.id || "");
+  const status = String(body.status || "");
+  if (!["new", "seen", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
+  const orders = await loadOrders(slug, env);
+  const idx = orders.findIndex((o) => o.id === id);
+  if (idx === -1) return json({ error: "سفارش پیدا نشد." }, 404);
+  orders[idx].status = status;
+  orders[idx].updatedAt = new Date().toISOString();
+  await saveOrders(slug, orders, env);
+  return json({ ok: true, order: orders[idx] }, 200);
+}
+
+async function handleAdminGetAnalytics(request, env) {
+  const denied = await requireAdminOr401(request, env);
+  if (denied) return denied;
+  const url = new URL(request.url);
+  const slug = slugify(url.searchParams.get("slug"));
+  const orders = await loadOrders(slug, env);
+  return json({ ok: true, analytics: buildAnalytics(orders) }, 200);
 }
 
 // ============================================================
@@ -888,6 +1198,54 @@ export default {
       }
       if (url.pathname === "/api/menu/admin/list" && request.method === "GET") {
         return await handleAdminListCafes(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/get" && request.method === "GET") {
+        return await handleAdminGetCafe(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/update" && request.method === "POST") {
+        return await handleAdminUpdateCafe(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/toggle-active" && request.method === "POST") {
+        return await handleAdminToggleActive(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/delete" && request.method === "POST") {
+        return await handleAdminDeleteCafe(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/categories" && request.method === "POST") {
+        return await handleAdminAddCategory(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/categories/delete" && request.method === "POST") {
+        return await handleAdminDeleteCategory(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/items" && request.method === "POST") {
+        return await handleAdminAddItem(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/items/update" && request.method === "POST") {
+        return await handleAdminUpdateItem(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/items/delete" && request.method === "POST") {
+        return await handleAdminDeleteItem(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/discounts" && request.method === "GET") {
+        return await handleAdminGetDiscounts(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/discounts" && request.method === "POST") {
+        return await handleAdminAddDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/discounts/toggle" && request.method === "POST") {
+        return await handleAdminToggleDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/discounts/delete" && request.method === "POST") {
+        return await handleAdminDeleteDiscount(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/orders" && request.method === "GET") {
+        return await handleAdminGetOrders(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/analytics" && request.method === "GET") {
+        return await handleAdminGetAnalytics(request, env);
+      }
+      if (url.pathname === "/api/menu/admin/orders/status" && request.method === "POST") {
+        return await handleAdminUpdateOrderStatus(request, env);
       }
 
       return json({ error: "not found" }, 404);
