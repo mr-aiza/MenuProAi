@@ -470,7 +470,7 @@
 <div class="chat-panel" id="chatPanel">
   <div class="chat-head">
     <div>
-      <strong id="chatTitle">دستیار کافه</strong>
+      <strong>دستیار کافه بلوط</strong>
       <span>بگو چی می‌خوای، پیشنهاد می‌دم</span>
     </div>
     <button class="chat-close" id="chatClose">✕</button>
@@ -554,62 +554,30 @@ async function loadMenu(){
   const slug = detectSlug();
   if (!slug){
     document.getElementById('menuRoot').innerHTML =
-      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">❌ آدرس منو مشخص نیست. لینک کاملش رو استفاده کن (…/USERS/اسلاگ/menu.html).</p>';
+      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">آدرس منو مشخص نیست. لینک کاملش رو استفاده کن (…/USERS/اسلاگ/menu.html).</p>';
     return;
   }
 
   try{
-    console.log('🔄 درحال بارگزاری منو برای slug:', slug);
-    const url = MENUPROAI_API + '/api/menu/public/' + encodeURIComponent(slug);
-    console.log('📡 درخواست از:', url);
-    
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(MENUPROAI_API + '/api/menu/public/' + encodeURIComponent(slug), { cache: 'no-store' });
     const data = await res.json();
-    
-    console.log('📦 پاسخ API:', { status: res.status, data });
-    
-    if (!res.ok || !data.menu) {
-      throw new Error(data.error || 'منو پیدا نشد (HTTP ' + res.status + ')');
-    }
-    
-    if (!data.menu.items || !data.menu.categories) {
-      throw new Error('منو ناقص است - items یا categories وجود ندارد');
-    }
-    
+    if (!res.ok || !data.menu) throw new Error(data.error || 'منو پیدا نشد');
     MENU = data.menu;
-    console.log('✅ منو بارگذاری شد:', { 
-      cafeName: MENU.cafeName, 
-      itemCount: MENU.items?.length || 0, 
-      categoryCount: MENU.categories?.length || 0 
-    });
   }catch(e){
-    console.error('❌ خطا در بارگزاری منو:', e.message, e);
     document.getElementById('menuRoot').innerHTML =
-      '<p style="text-align:center;color:var(--rust);padding-top:40px;"><b>❌ خطا:</b> ' + e.message + '<br><br><small style="color:var(--chalk-dim);">اگر مشکل ادامه دارد، صاحب کافه را مطلع کنید.</small></p>';
+      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">این منو پیدا نشد یا فعلاً در دسترس نیست.</p>';
     return;
   }
 
-  try{
-    document.title = (MENU.cafeName || 'کافه') + ' | منو';
-    document.getElementById('cafeName').textContent = MENU.cafeName || 'کافه';
-    document.getElementById('chatTitle').textContent = 'دستیار ' + (MENU.cafeName || 'کافه');
-    AI_ENDPOINT = AI_WORKER_URL; // حالا که MENU.slug معتبره، دستیار رو فعال می‌کنیم
-    const taglineEl = document.getElementById('tagline');
-    if (taglineEl && MENU.tagline) taglineEl.textContent = MENU.tagline;
+  document.title = (MENU.cafeName || 'کافه') + ' | منو';
+  document.getElementById('cafeName').textContent = MENU.cafeName || 'کافه';
+  AI_ENDPOINT = AI_WORKER_URL; // حالا که MENU.slug معتبره، دستیار رو فعال می‌کنیم
+  const taglineEl = document.getElementById('tagline');
+  if (taglineEl && MENU.tagline) taglineEl.textContent = MENU.tagline;
 
-    MENU.items.forEach(it => itemsById[it.id] = it);
-    console.log('📋 تعداد آیتم‌های itemsById:', Object.keys(itemsById).length);
-    
-    renderNav();
-    console.log('✅ nav رندر شد');
-    
-    renderMenu();
-    console.log('✅ menu رندر شد');
-  }catch(e){
-    console.error('❌ خطا در رندر:', e.message, e);
-    document.getElementById('menuRoot').innerHTML =
-      '<p style="text-align:center;color:var(--rust);padding-top:40px;"><b>❌ خطای رندر:</b> ' + e.message + '</p>';
-  }
+  MENU.items.forEach(it => itemsById[it.id] = it);
+  renderNav();
+  renderMenu();
 }
 
 function renderNav(){
@@ -904,7 +872,7 @@ function renderCart(){
     return;
   }
   cartFooter.style.display = 'block';
-  invoiceBtn.textContent = '✓ سفارش تو فاکتور ببین (و ثبت کن)';
+  invoiceBtn.textContent = 'مشاهده فاکتور نهایی';
   invoiceBtn.disabled = false;
   cartMsgs.innerHTML = lines.map(l => `
     <div class="cart-row">
@@ -1038,7 +1006,6 @@ function downloadPdfInvoice(){
   
   // ایجاد template PDF به صورت dynamic
   const pdfHtml = document.createElement('div');
-  pdfHtml.id = 'pdfInvoiceDynamic';
   pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:-9999px; left:-9999px;';
   
   pdfHtml.innerHTML = `
@@ -1080,7 +1047,6 @@ function downloadPdfInvoice(){
       </div>
     </div>
   `;
-  
   document.body.appendChild(pdfHtml);
   
   html2pdf().set({
@@ -1103,6 +1069,20 @@ function downloadPdfInvoice(){
 invoiceBtn.addEventListener('click', renderInvoice);
 
 function openCart(){
+  cartOverlay.classList.add('open');
+  cartPanel.classList.add('open');
+  renderCart();
+}
+function closeCart(){
+  cartOverlay.classList.remove('open');
+  cartPanel.classList.remove('open');
+}
+cartBtn.addEventListener('click', openCart);
+cartClose.addEventListener('click', closeCart);
+cartOverlay.addEventListener('click', closeCart);
+
+updateCartBadge();
+</script>
 
 </body>
 </html>
