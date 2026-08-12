@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MenuProAI — منوی هوشمند کافه و رستوران</title>
+<meta name="description" content="منوی آنلاین با دستیار هوش مصنوعی برای کافه و رستوران‌ها — ساخت در چند دقیقه.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.8;min-height:100vh;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- background glow ---------- */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(600px 300px at 15% -5%, rgba(77,240,201,.12), transparent 60%),
+      radial-gradient(500px 280px at 100% 10%, rgba(156,123,255,.12), transparent 60%);
+  }
+
+  /* ---------- nav ---------- */
+  nav{max-width:1040px;margin:0 auto;padding:22px 20px;display:flex;justify-content:space-between;align-items:center;}
+  .logo{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;}
+  .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);}
+  .nav-cta{background:transparent;border:1px solid var(--line);border-radius:999px;padding:9px 18px;font-size:13px;font-weight:700;color:var(--paper);}
+  .nav-cta:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  /* ---------- hero ---------- */
+  .hero{max-width:720px;margin:40px auto 10px;padding:0 20px;text-align:center;}
+  .eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--cyan);background:rgba(77,240,201,.1);border:1px solid rgba(77,240,201,.25);border-radius:999px;padding:6px 14px;margin-bottom:20px;}
+  h1{font-size:32px;font-weight:800;line-height:1.5;margin-bottom:14px;}
+  h1 span{color:var(--cyan);}
+  .hero p{color:var(--muted);font-size:15px;max-width:520px;margin:0 auto 30px;}
+
+  /* ---------- 3 option cards ---------- */
+  .options{max-width:960px;margin:0 auto;padding:0 20px 60px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.options{grid-template-columns:1fr;}}
+  .opt-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s, transform .2s;}
+  .opt-card:hover{border-color:var(--cyan);transform:translateY(-3px);}
+  .opt-card .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--panel-2);border:1px solid var(--line);margin-bottom:6px;}
+  .opt-card h3{font-size:16px;font-weight:800;}
+  .opt-card p{font-size:12.5px;color:var(--muted);flex:1;}
+  .opt-card .go{font-size:12.5px;font-weight:700;color:var(--cyan);display:flex;align-items:center;gap:5px;margin-top:6px;}
+  .opt-card .go::after{content:"←";transition:transform .2s;}
+  .opt-card:hover .go::after{transform:translateX(-4px);}
+
+  /* ---------- templates section ---------- */
+  .section{max-width:960px;margin:0 auto;padding:20px 20px 70px;}
+  .section-head{text-align:center;margin-bottom:26px;}
+  .section-head h2{font-size:22px;font-weight:800;margin-bottom:8px;}
+  .section-head p{color:var(--muted);font-size:13.5px;}
+
+  .template-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:520px;margin:0 auto;}
+  .template-preview{background:linear-gradient(160deg,var(--panel-2),var(--ink));padding:26px;border-bottom:1px solid var(--line);}
+  .tp-phone{background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:16px;max-width:260px;margin:0 auto;}
+  .tp-phone .tp-title{font-weight:800;font-size:13px;margin-bottom:10px;}
+  .tp-phone .tp-item{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:11px;}
+  .tp-phone .tp-item b{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .template-body{padding:22px;}
+  .template-body .badge{display:inline-block;background:rgba(77,240,201,.12);color:var(--cyan);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px;}
+  .template-body h3{font-size:16px;font-weight:800;margin-bottom:8px;}
+  .template-body p{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .feature-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+  .feature-list li{list-style:none;font-size:12.5px;color:var(--paper);display:flex;align-items:center;gap:8px;}
+  .feature-list li::before{content:"✓";color:var(--cyan);font-weight:800;}
+  .btn{display:inline-block;border:none;border-radius:999px;padding:12px 22px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:center;}
+  .btn-primary{background:var(--cyan);color:#06120f;}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--paper);}
+  .template-body .row{display:flex;gap:10px;flex-wrap:wrap;}
+
+  footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;color:var(--muted);font-size:12px;}
+  footer a{color:var(--cyan);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="dot"></span>MenuProAI</div>
+  <a href="dashboard.html" class="nav-cta">ورود / ثبت‌نام</a>
+</nav>
+
+<section class="hero">
+  <span class="eyebrow">⚡ منوی آنلاین با دستیار هوش مصنوعی</span>
+  <h1>منوی کافه یا رستورانت رو <span>هوشمند</span> کن</h1>
+  <p>در چند دقیقه یه منوی آنلاین بساز که هم زیبا نمایش داده می‌شه، هم با هوش مصنوعی به مشتری‌هات پیشنهاد می‌ده و سفارش می‌گیره.</p>
+</section>
+
+<div class="options">
+  <div class="opt-card">
+    <div class="icon">🔐</div>
+    <h3>ورود و ثبت‌نام</h3>
+    <p>وارد حساب کافه‌ت شو یا یه حساب جدید بساز و مدیریت منو، سفارش‌ها و تخفیف‌ها رو شروع کن.</p>
+    <a href="dashboard.html" class="go">ورود به داشبورد</a>
+  </div>
+
+  <div class="opt-card">
+    <div class="icon">🎨</div>
+    <h3>قالب‌ها</h3>
+    <p>یه قالب اختصاصی و مدرن برای منوی آنلاین، آماده برای هر کافه یا رستوران.</p>
+    <a href="#templates" class="go">مشاهده قالب</a>
+  </div>
+
+  <div class="opt-card">
+    <div class="icon">👁️</div>
+    <h3>پیش‌نمایش نمونه‌کار</h3>
+    <p>یه نمونه واقعی از منوی آنلاین رو ببین — دقیقاً همون چیزی که مشتری‌های تو می‌بینن.</p>
+    <a href="USERS/demo/menu.html" class="go">مشاهده نمونه</a>
+  </div>
+</div>
+
+<section class="section" id="templates">
+  <div class="section-head">
+    <h2>قالب منو</h2>
+    <p>در حال حاضر یک قالب — طراحی‌شده برای سرعت، خوانایی و تجربه سفارش‌دهی راحت روی موبایل.</p>
+  </div>
+
+  <div class="template-card">
+    <div class="template-preview">
+      <div class="tp-phone">
+        <div class="tp-title">☕ کافه بایت لب</div>
+        <div class="tp-item">اسپرسو <b>۵۵,۰۰۰</b></div>
+        <div class="tp-item">لاته وانیل <b>۸۵,۰۰۰</b></div>
+        <div class="tp-item">چیزکیک <b>۹۸,۰۰۰</b></div>
+      </div>
+    </div>
+    <div class="template-body">
+      <span class="badge">قالب پیش‌فرض</span>
+      <h3>قالب کلاسیک منوپروای</h3>
+      <p>طراحی تیره و مدرن، مرتب‌شده بر اساس دسته‌بندی، با دستیار هوش مصنوعی برای پیشنهاد و ثبت سفارش.</p>
+      <ul class="feature-list">
+        <li>نمایش دسته‌بندی‌شده آیتم‌ها با قیمت و توضیحات</li>
+        <li>دستیار هوش مصنوعی برای پیشنهاد و پاسخ به سوال مشتری</li>
+        <li>سبد خرید، ثبت سفارش و فاکتور PDF</li>
+        <li>پیگیری زنده وضعیت سفارش برای مشتری</li>
+        <li>کد تخفیف اختصاصی هر کافه</li>
+      </ul>
+      <div class="row">
+        <a href="USERS/demo/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
+        <a href="dashboard.html" class="btn btn-ghost">شروع با این قالب</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  MenuProAI — ساخته‌شده توسط <a href="https://bytelabpro.xyz" target="_blank" rel="noopener">ByteLab</a>
+</footer>
+
+</body>
+</html>
