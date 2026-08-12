@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت منوساز | MenuProAI</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0a0e27;
+    --card: #141d2b;
+    --border: #1e2a38;
+    --text: #eaf0f4;
+    --muted: #7c8b9c;
+    --cyan: #4df0c9;
+    --danger: #ff6b6b;
+  }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  
+  .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+  
+  .login-box {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+  }
+  
+  .login-box h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .login-box .subtitle {
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 13px;
+  }
+  
+  input[type="password"], input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  
+  input:focus {
+    border-color: var(--cyan);
+  }
+  
+  button {
+    width: 100%;
+    background: var(--cyan);
+    color: #060a0f;
+    border: none;
+    border-radius: 999px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  .error {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+  }
+  
+  .error.show { display: block; }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .header h1 { font-size: 28px; }
+  .header button { width: 120px; }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .stat-card .number {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+  
+  .stat-card .label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  .table-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  td {
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  tr:last-child td { border-bottom: none; }
+  
+  .cafe-name {
+    font-weight: 600;
+    color: var(--cyan);
+  }
+  
+  .cafe-tagline {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;
+  }
+  
+  .btn-sm:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  
+  .btn-danger {
+    border-color: rgba(255,107,107,0.3);
+    color: var(--danger);
+  }
+  
+  .btn-danger:hover {
+    border-color: var(--danger);
+    background: rgba(255,107,107,0.1);
+  }
+  
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+  }
+  
+  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: 1fr; }
+    th, td { padding: 10px; font-size: 12px; }
+    .actions { flex-direction: column; }
+    .btn-sm { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Login Box -->
+  <div class="login-box" id="loginBox">
+    <h1>🔐 MenuProAI</h1>
+    <p class="subtitle">پنل مدیریت منوها</p>
+    <input type="password" id="adminPass" placeholder="رمز ورود">
+    <button id="loginBtn">ورود</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="panelBox" style="display: none;">
+    <div class="header">
+      <div>
+        <h1>📋 پنل مدیریت MenuProAI</h1>
+      </div>
+      <button id="logoutBtn">خروج</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="number" id="totalCafes">0</div>
+        <div class="label">کل منوها</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="totalItems">0</div>
+        <div class="label">کل محصولات</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="totalCategories">0</div>
+        <div class="label">کل دسته‌بندی‌ها</div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>نام کافه</th>
+            <th>مالک</th>
+            <th>محصولات</th>
+            <th>تاریخ</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="cafesBody">
+          <tr><td colspan="5" class="empty">در حال بارگذاری...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const API_URL = "https://menuproai-api.bytelab.workers.dev";
+  const PASS_KEY = "menuproai_admin_pass";
+  const TOKEN_KEY = "menuproai_admin_token";
+
+  function getPassword() { try { return sessionStorage.getItem(PASS_KEY); } catch(e) { return null; } }
+  function setPassword(p) { try { sessionStorage.setItem(PASS_KEY, p); } catch(e) {} }
+  function getToken() { try { return sessionStorage.getItem(TOKEN_KEY); } catch(e) { return null; } }
+  function setToken(t) { try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e) {} }
+
+  // ورود
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const pass = document.getElementById("adminPass").value.trim();
+    const errorEl = document.getElementById("errorMsg");
+    
+    if (!pass) {
+      errorEl.textContent = "رمز را وارد کن";
+      errorEl.classList.add("show");
+      return;
+    }
+
+    try {
+      const res = await fetch(API_URL + "/api/menu/admin/list", {
+        headers: { "X-Admin-Password": pass }
+      });
+      
+      if (!res.ok) throw new Error("رمز نادرست است");
+      
+      const data = await res.json();
+      setPassword(pass);
+      setToken("authenticated");
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("panelBox").style.display = "block";
+      loadCafes(pass);
+    } catch(err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.add("show");
+    }
+  });
+
+  // خروج
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem(PASS_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    location.reload();
+  });
+
+  // بارگذاری لیست کافه‌ها
+  async function loadCafes(pass) {
+    const body = document.getElementById("cafesBody");
+    body.innerHTML = `<tr><td colspan="5" class="empty">در حال بارگذاری...</td></tr>`;
+
+    try {
+      const res = await fetch(API_URL + "/api/menu/admin/list", {
+        headers: { "X-Admin-Password": pass }
+      });
+
+      if (!res.ok) throw new Error("دسترسی نامعتبر");
+
+      const data = await res.json();
+      const cafes = data.cafes || [];
+
+      // آمار
+      document.getElementById("totalCafes").textContent = cafes.length;
+      document.getElementById("totalItems").textContent = cafes.reduce((sum, c) => sum + (c.itemsCount || 0), 0);
+      document.getElementById("totalCategories").textContent = cafes.reduce((sum, c) => sum + (c.categoriesCount || 0), 0);
+
+      if (!cafes.length) {
+        body.innerHTML = `<tr><td colspan="5" class="empty">هنوز منویی ثبت نشده</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = cafes.map(cafe => {
+        const date = new Date(cafe.updatedAt || cafe.createdAt).toLocaleDateString("fa-IR");
+        const publicUrl = `${window.location.origin}/${cafe.slug}/menu.html`;
+        
+        return `
+        <tr>
+          <td>
+            <div class="cafe-name">${escape(cafe.cafeName)}</div>
+            <div class="cafe-tagline">${escape(cafe.tagline || "-")}</div>
+          </td>
+          <td>${escape(cafe.ownerPhone)}</td>
+          <td>${cafe.itemsCount || 0}</td>
+          <td>${date}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-sm" onclick="window.open('${escape(publicUrl)}', '_blank')">👁️ مشاهده</button>
+              <button class="btn-sm btn-danger" onclick="deleteCafe('${escape(cafe.slug)}', '${escape(pass)}')">🗑️ حذف</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+    } catch(err) {
+      body.innerHTML = `<tr><td colspan="5" class="empty">❌ ${escape(err.message)}</td></tr>`;
+    }
+  }
+
+  // حذف کافه
+  window.deleteCafe = async function(slug, pass) {
+    if (!confirm(`مطمئن؟ منو "${slug}" حذف شود؟`)) return;
+    
+    try {
+      const res = await fetch(API_URL + "/api/menu/delete", {
+        method: "POST",
+        headers: { 
+          "X-Admin-Password": pass,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ slug })
+      });
+
+      if (!res.ok) throw new Error("خطا در حذف");
+      loadCafes(pass);
+    } catch(err) {
+      alert("❌ " + err.message);
+    }
+  };
+
+  // چک ورود قبلی
+  function escape(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  const savedPass = getPassword();
+  if (savedPass) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("panelBox").style.display = "block";
+    loadCafes(savedPass);
+  }
+})();
+</script>
+
+</body>
+</html>
