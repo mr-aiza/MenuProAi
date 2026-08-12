@@ -48,6 +48,19 @@
   .chip.active{color:var(--cyan);border-color:var(--cyan);}
   .public-link{font-family:'JetBrains Mono',monospace;font-size:12.5px;direction:ltr;text-align:left;background:var(--panel-2);border-radius:10px;padding:12px;word-break:break-all;color:var(--cyan);}
   select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--paper);font-family:inherit;font-size:14px;margin-bottom:14px;}
+  .badge{display:inline-block;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:999px;padding:0 5px;margin-inline-start:6px;}
+  .order-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
+  .order-card.new{border-color:var(--cyan);}
+  .order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .order-head .time{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .order-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
+  .order-status.new{background:rgba(77,240,201,.15);color:var(--cyan);}
+  .order-status.seen{background:rgba(156,123,255,.15);color:var(--violet);}
+  .order-status.done{background:rgba(124,139,156,.15);color:var(--muted);}
+  .order-lines{font-size:12.5px;color:var(--muted);margin-bottom:8px;line-height:1.9;}
+  .order-lines b{color:var(--paper);font-weight:600;}
+  .order-total{font-size:13.5px;font-weight:800;color:var(--cyan);margin-bottom:10px;}
+  .order-actions{display:flex;gap:6px;}
 </style>
 </head>
 <body>
@@ -97,6 +110,12 @@
 
   <!-- ============ داشبورد اصلی (بعد از ساخت منو) ============ -->
   <div class="hidden" id="dashboardWrap">
+    <div class="tabs">
+      <div class="tab active" data-maintab="products">محصولات</div>
+      <div class="tab" data-maintab="orders">سفارش‌ها<span class="badge hidden" id="ordersBadge">0</span></div>
+    </div>
+
+    <div id="productsPane">
     <div class="card">
       <h2>اطلاعات کافه</h2>
       <div class="msg" id="infoMsg"></div>
@@ -148,6 +167,18 @@
       <div class="row" id="filterCatChips" style="margin-bottom:14px;flex-wrap:wrap;"></div>
       <div id="itemsList"></div>
     </div>
+    </div>
+
+    <div class="hidden" id="ordersPane">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h2 style="margin:0;">سفارش‌های رسیده</h2>
+          <button class="btn-ghost btn-sm" id="refreshOrdersBtn">تازه‌سازی</button>
+        </div>
+        <div class="msg" id="ordersMsg"></div>
+        <div id="ordersList"></div>
+      </div>
+    </div>
 
     <button class="btn-ghost" id="logoutBtn" style="width:100%;">خروج از حساب</button>
   </div>
@@ -156,13 +187,15 @@
 <script>
 /* ⚠️ بعد از دیپلوی menuproai-worker.js (مرحله ۱)، آدرس زیر رو با آدرس
    واقعی Worker جایگزین کن. */
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 const PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS/";
 
 let currentMenu = null;
 let editItemId = null;
 let activeFilterCat = '';
 let searchQuery = '';
+let orders = [];
+let ordersPollTimer = null;
 
 function showMsg(id, text, kind){
   const el = document.getElementById(id);
@@ -189,13 +222,28 @@ async function apiCall(path, body){
 }
 
 /* ============ تب‌های ورود/ثبت‌نام ============ */
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('#authCard .tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#authCard .tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('loginPane').classList.toggle('hidden', tab.dataset.tab !== 'login');
     document.getElementById('registerPane').classList.toggle('hidden', tab.dataset.tab !== 'register');
     hideMsg('authMsg');
+  });
+});
+
+/* ============ تب‌های محصولات/سفارش‌ها ============ */
+document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const isOrders = tab.dataset.maintab === 'orders';
+    document.getElementById('productsPane').classList.toggle('hidden', isOrders);
+    document.getElementById('ordersPane').classList.toggle('hidden', !isOrders);
+    if (isOrders){
+      document.getElementById('ordersBadge').classList.add('hidden');
+      loadOrders();
+    }
   });
 });
 
@@ -221,6 +269,7 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
+  if (ordersPollTimer) clearInterval(ordersPollTimer);
   await BytelabAuth.logout();
   location.reload();
 });
@@ -264,6 +313,9 @@ function renderDashboard(){
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
   renderCategories();
   renderItems();
+  loadOrders(true);
+  if (ordersPollTimer) clearInterval(ordersPollTimer);
+  ordersPollTimer = setInterval(() => loadOrders(true), 30000);
 }
 
 function renderCategories(){
@@ -467,6 +519,76 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
 });
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ============ سفارش‌ها ============ */
+const STATUS_LABEL = { new: 'جدید', seen: 'دیده‌شد', done: 'انجام‌شد' };
+
+function timeAgo(iso){
+  const diffSec = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (diffSec < 60) return 'چند لحظه پیش';
+  const diffMin = Math.round(diffSec / 60);
+  if (diffMin < 60) return diffMin + ' دقیقه پیش';
+  const diffH = Math.round(diffMin / 60);
+  if (diffH < 24) return diffH + ' ساعت پیش';
+  return new Date(iso).toLocaleDateString('fa-IR');
+}
+
+async function loadOrders(silent){
+  if (!silent) showMsg('ordersMsg', 'در حال دریافت سفارش‌ها…', 'ok');
+  try{
+    const data = await apiCall('/api/menu/orders');
+    orders = data.orders || [];
+    hideMsg('ordersMsg');
+    const newCount = orders.filter(o => o.status === 'new').length;
+    const badge = document.getElementById('ordersBadge');
+    const onOrdersTab = !document.getElementById('ordersPane').classList.contains('hidden');
+    if (newCount > 0 && !onOrdersTab){
+      badge.textContent = newCount;
+      badge.classList.remove('hidden');
+    } else if (onOrdersTab){
+      badge.classList.add('hidden');
+    }
+    if (onOrdersTab) renderOrders();
+  }catch(e){
+    if (!silent) showMsg('ordersMsg', e.message, 'err');
+  }
+}
+
+function renderOrders(){
+  const wrap = document.getElementById('ordersList');
+  if (!orders.length){
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">هنوز سفارشی نرسیده.</p>';
+    return;
+  }
+  wrap.innerHTML = orders.map(o => `
+    <div class="order-card ${o.status === 'new' ? 'new' : ''}" data-order="${o.id}">
+      <div class="order-head">
+        <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+        <span class="time">${timeAgo(o.createdAt)}</span>
+      </div>
+      <div class="order-lines">
+        ${o.items.map(l => `<div><b>${escapeHtml(l.name)}</b> × ${l.qty} — ${l.lineTotal.toLocaleString('fa-IR')} تومان</div>`).join('')}
+        ${o.note ? `<div>یادداشت: ${escapeHtml(o.note)}</div>` : ''}
+      </div>
+      <div class="order-total">جمع: ${o.total.toLocaleString('fa-IR')} تومان</div>
+      <div class="order-actions">
+        ${o.status !== 'seen' && o.status !== 'done' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
+        ${o.status !== 'done' ? `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="done">انجام شد</button>` : ''}
+      </div>
+    </div>`).join('');
+
+  wrap.querySelectorAll('[data-setstatus]').forEach(b => {
+    b.addEventListener('click', async () => {
+      try{
+        await apiCall('/api/menu/orders/status', { id: b.dataset.setstatus, status: b.dataset.status });
+        await loadOrders(true);
+        renderOrders();
+      }catch(e){ showMsg('ordersMsg', e.message, 'err'); }
+    });
+  });
+}
+
+document.getElementById('refreshOrdersBtn').addEventListener('click', () => loadOrders());
 
 /* ============ شروع ============ */
 (async function init(){
