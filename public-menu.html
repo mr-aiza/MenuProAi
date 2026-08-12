@@ -372,6 +372,16 @@
     border:1px solid var(--line); border-radius:999px; padding:10px;
     font-size:13px; cursor:pointer;
   }
+  .submit-order-btn{
+    margin-top:10px; width:100%; background: var(--sage); color:#1E2420;
+    border:none; border-radius:999px; padding:12px; font-weight:800;
+    font-size:14px; cursor:pointer;
+  }
+  .submit-order-btn:disabled{ opacity:.5; cursor:default; }
+  .order-confirmed{
+    margin-top:10px; text-align:center; color:var(--sage);
+    font-size:13px; font-weight:700;
+  }
   .pdf-btn{
     margin-top:8px; width:100%; background:var(--amber); color:#1E2420;
     border:none; border-radius:999px; padding:10px; font-weight:800;
@@ -469,9 +479,9 @@
 // ⚠️ بعد از دیپلوی menuproai-worker.js، آدرس MENUPROAI_API رو با آدرس
 // واقعی Workerت جایگزین کن (همون که تو dashboard.html هم گذاشتی).
 // =====================================================================
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 // آدرس همون Worker هوش مصنوعی که از قبل داشتی (ai-worker.js نسخه‌ی جدید رو توش دیپلوی کن)
-const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
+const AI_WORKER_URL = "https://menuproai.tempmail41245.workers.dev";
 
 function detectSlug(){
   // ۱) از مسیر /USERS/{slug}/menu.html
@@ -789,6 +799,8 @@ function renderInvoice(){
         </div>`).join('')}
       <div class="inv-divider"></div>
       <div class="inv-total"><span>جمع کل</span><span class="amt">${cartGrandTotal().toLocaleString('fa-IR')} تومان</span></div>
+      <button class="submit-order-btn" id="submitOrderBtn">ثبت سفارش برای کافه</button>
+      <div id="orderConfirmBox"></div>
       <button class="pdf-btn" id="pdfInvoiceBtn">دانلود PDF فاکتور</button>
       <button class="new-order-btn" id="newOrderBtn">شروع سفارش جدید</button>
     </div>`;
@@ -799,6 +811,38 @@ function renderInvoice(){
     renderCart();
   });
   document.getElementById('pdfInvoiceBtn').addEventListener('click', downloadPdfInvoice);
+  document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+}
+
+/* ---------------------- ثبت سفارش (تیکت برای صاحب کافه) ---------------------- */
+async function submitOrder(){
+  const btn = document.getElementById('submitOrderBtn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال…';
+
+  const payload = {
+    slug: MENU.slug,
+    items: cartLines().map(l => ({ id: l.item.id, qty: l.qty })),
+  };
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
+
+    btn.style.display = 'none';
+    document.getElementById('orderConfirmBox').innerHTML =
+      '<p class="order-confirmed">✓ سفارش برای کافه ثبت شد.</p>';
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = 'ثبت سفارش برای کافه';
+    document.getElementById('orderConfirmBox').innerHTML =
+      `<p class="order-confirmed" style="color:var(--rust);">✕ ${e.message}</p>`;
+  }
 }
 
 /* ---------------------- خروجی PDF فاکتور ---------------------- */
