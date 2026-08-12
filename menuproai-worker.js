@@ -40,7 +40,7 @@ function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Password",
   };
 }
 
@@ -62,6 +62,20 @@ async function getAuthedPhone(request, env) {
   if (!token) return null;
   const phone = await env.USERS_KV.get("session:" + token);
   return phone || null;
+}
+
+// ------------------------------------------------------------
+// تایید هویت ادمین — برای پنل مدیریت اصلی (نظارت روی کافه‌های ساخته‌شده
+// با منوساز). این یه احراز هویت جدا و ساده‌ست (بدون نشست/توکن): همون
+// رمز پنل ادمینت رو به‌عنوان مقدار متغیر محیطی ADMIN_PANEL_PASSWORD
+// روی همین Worker (منوی Settings → Variables & Secrets) تنظیم کن —
+// پیشنهاد می‌شه دقیقاً همون رمزی باشه که تو پنل ادمین اصلیت استفاده
+// می‌کنی، تا لازم نباشه جای دیگه‌ای دوباره لاگین کنی.
+// ------------------------------------------------------------
+function isAdminAuthorized(request, env) {
+  const provided = request.headers.get("X-Admin-Password") || "";
+  if (!env.ADMIN_PANEL_PASSWORD) return false;
+  return provided && provided === env.ADMIN_PANEL_PASSWORD;
 }
 
 function slugify(raw) {
@@ -766,6 +780,42 @@ async function handleGetOrderStatus(slug, id, env) {
 }
 
 // ============================================================
+// GET /api/menu/admin/list — فقط ادمین (هدر X-Admin-Password)
+// خروجی: لیست خلاصه‌ی همه‌ی کافه‌هایی که منوساز رو فعال کردن، برای
+// نظارت از پنل ادمین اصلی (لینک مستقیم به منوی عمومی هرکدوم).
+// ============================================================
+async function handleAdminListCafes(request, env) {
+  if (!isAdminAuthorized(request, env)) {
+    return json({ error: "دسترسی نامعتبر است." }, 401);
+  }
+
+  const raw = await env.MENU_KV.get("slug_index");
+  const slugs = raw ? JSON.parse(raw) : [];
+
+  const cafes = [];
+  for (const slug of slugs) {
+    const menuRaw = await env.MENU_KV.get("menu:" + slug);
+    if (!menuRaw) continue; // اسلاگی که پاک شده ولی هنوز تو ایندکسه
+    const menu = JSON.parse(menuRaw);
+    cafes.push({
+      slug: menu.slug,
+      cafeName: menu.cafeName || "",
+      tagline: menu.tagline || "",
+      ownerPhone: menu.ownerPhone || "",
+      template: menu.template || "classic-menu",
+      itemsCount: Array.isArray(menu.items) ? menu.items.length : 0,
+      categoriesCount: Array.isArray(menu.categories) ? menu.categories.length : 0,
+      createdAt: menu.createdAt || null,
+      updatedAt: menu.updatedAt || null,
+    });
+  }
+
+  cafes.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+
+  return json({ ok: true, cafes }, 200);
+}
+
+// ============================================================
 // روتر اصلی
 // ============================================================
 export default {
@@ -835,6 +885,9 @@ export default {
       if (url.pathname.startsWith("/api/menu/order/status/") && request.method === "GET") {
         const parts = url.pathname.replace("/api/menu/order/status/", "").split("/");
         return await handleGetOrderStatus(parts[0], parts[1], env);
+      }
+      if (url.pathname === "/api/menu/admin/list" && request.method === "GET") {
+        return await handleAdminListCafes(request, env);
       }
 
       return json({ error: "not found" }, 404);
