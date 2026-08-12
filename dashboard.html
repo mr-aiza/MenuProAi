@@ -87,6 +87,17 @@
   .cust-row .meta .name{font-weight:700;font-size:13.5px;}
   .cust-row .meta .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
   .cust-row .count{font-size:12px;color:var(--cyan);font-weight:800;white-space:nowrap;}
+  .tmpl-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:6px;}
+  .tmpl-card{background:var(--panel-2);border:2px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
+  .tmpl-card:hover{border-color:var(--violet);}
+  .tmpl-card.selected{border-color:var(--cyan);}
+  .tmpl-card img{display:block;width:100%;height:180px;object-fit:cover;object-position:top;}
+  .tmpl-card .tmpl-body{padding:12px 14px;}
+  .tmpl-card .tmpl-name{font-weight:800;font-size:14px;margin-bottom:4px;}
+  .tmpl-card .tmpl-desc{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .tmpl-card .tmpl-pick{width:100%;}
+  .tmpl-selected-note{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:12.5px;}
+  .tmpl-selected-note .tmpl-change{color:var(--cyan);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;font-size:12px;}
 </style>
 </head>
 <body>
@@ -127,13 +138,25 @@
   <div class="card hidden" id="createCard">
     <h2>کسب‌وکارت رو بساز</h2>
     <div class="msg" id="createMsg"></div>
-    <label>نام کافه/کسب‌وکار</label>
-    <input type="text" id="cCafeName" placeholder="مثلاً کافه بلوط">
-    <label>آدرس اختصاصی (فقط انگلیسی، بدون فاصله)</label>
-    <input type="text" id="cSlug" dir="ltr" placeholder="kafe-boloot">
-    <label>توضیح کوتاه (اختیاری)</label>
-    <input type="text" id="cTagline" placeholder="مثلاً کافه‌ای با فضای گرم و صمیمی">
-    <button class="btn-primary" id="createBtn" style="width:100%;">ساخت منو</button>
+
+    <div id="templatePickPane">
+      <p class="sub" style="margin-bottom:14px;">اول یه قالب برای منوت انتخاب کن.</p>
+      <div class="tmpl-grid" id="tmplGrid"></div>
+    </div>
+
+    <div id="createFormPane" class="hidden">
+      <div class="tmpl-selected-note">
+        <span>قالب انتخابی: <b id="tmplSelectedName"></b></span>
+        <button type="button" class="tmpl-change" id="tmplChangeBtn">تغییر قالب</button>
+      </div>
+      <label>نام کافه/کسب‌وکار</label>
+      <input type="text" id="cCafeName" placeholder="مثلاً کافه بلوط">
+      <label>آدرس اختصاصی (فقط انگلیسی، بدون فاصله)</label>
+      <input type="text" id="cSlug" dir="ltr" placeholder="kafe-boloot">
+      <label>توضیح کوتاه (اختیاری)</label>
+      <input type="text" id="cTagline" placeholder="مثلاً کافه‌ای با فضای گرم و صمیمی">
+      <button class="btn-primary" id="createBtn" style="width:100%;">ساخت منو</button>
+    </div>
   </div>
 
   <!-- ============ داشبورد اصلی (بعد از ساخت منو) ============ -->
@@ -522,6 +545,55 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   location.reload();
 });
 
+/* ============ انتخاب قالب ============ */
+// هرچی بعداً قالب جدید اضافه شد، فقط یه آیتم به همین آرایه اضافه کن —
+// بقیه‌ی UI (گرید انتخاب، لینک تغییر قالب و...) خودکار باهاش کار می‌کنه.
+const TEMPLATES = [
+  {
+    id: 'classic-menu',
+    name: 'قالب کلاسیک',
+    desc: 'طراحی تیره و مدرن، با دستیار هوش مصنوعی و سبد خرید.',
+    img: 'portfolio/templates/classic-menu/classic-menu.png',
+  },
+];
+
+let selectedTemplateId = null;
+const pendingTemplateFromUrl = new URLSearchParams(location.search).get('template');
+
+function renderTemplatePicker(){
+  const grid = document.getElementById('tmplGrid');
+  grid.innerHTML = TEMPLATES.map(t => `
+    <div class="tmpl-card${t.id === selectedTemplateId ? ' selected' : ''}" data-tmpl="${t.id}">
+      <img src="${t.img}" alt="${t.name}" loading="lazy">
+      <div class="tmpl-body">
+        <div class="tmpl-name">${t.name}</div>
+        <div class="tmpl-desc">${t.desc}</div>
+        <button type="button" class="btn-primary btn-sm tmpl-pick" data-tmpl-pick="${t.id}">انتخاب این قالب</button>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('[data-tmpl-pick]').forEach(btn => {
+    btn.addEventListener('click', () => selectTemplate(btn.dataset.tmplPick));
+  });
+}
+
+function selectTemplate(id){
+  const tmpl = TEMPLATES.find(t => t.id === id);
+  if (!tmpl) return;
+  selectedTemplateId = id;
+  document.getElementById('tmplSelectedName').textContent = tmpl.name;
+  document.getElementById('templatePickPane').classList.add('hidden');
+  document.getElementById('createFormPane').classList.remove('hidden');
+}
+
+document.getElementById('tmplChangeBtn').addEventListener('click', () => {
+  document.getElementById('createFormPane').classList.add('hidden');
+  document.getElementById('templatePickPane').classList.remove('hidden');
+  renderTemplatePicker();
+});
+
+renderTemplatePicker();
+
 /* ============ بعد از لاگین/ثبت‌نام موفق ============ */
 async function afterAuth(){
   document.getElementById('authCard').classList.add('hidden');
@@ -532,6 +604,10 @@ async function afterAuth(){
   }catch(e){
     if (e.status === 404){
       document.getElementById('createCard').classList.remove('hidden');
+      // اگه از صفحه‌ی معرفی قالب اومده (?template=...)، مستقیم بریم سراغ فرم ساخت
+      if (pendingTemplateFromUrl && TEMPLATES.some(t => t.id === pendingTemplateFromUrl)){
+        selectTemplate(pendingTemplateFromUrl);
+      }
     } else {
       showMsg('createMsg', 'خطا در دریافت اطلاعات: ' + e.message, 'err');
       document.getElementById('createCard').classList.remove('hidden');
@@ -544,9 +620,10 @@ document.getElementById('createBtn').addEventListener('click', async () => {
   const cafeName = document.getElementById('cCafeName').value.trim();
   const slug = document.getElementById('cSlug').value.trim();
   const tagline = document.getElementById('cTagline').value.trim();
+  if (!selectedTemplateId){ showMsg('createMsg', 'اول یه قالب انتخاب کن.', 'err'); return; }
   if (!cafeName || !slug){ showMsg('createMsg', 'نام کافه و آدرس اختصاصی الزامی‌ان.', 'err'); return; }
   try{
-    const data = await apiCall('/api/menu/create', { cafeName, slug, tagline });
+    const data = await apiCall('/api/menu/create', { cafeName, slug, tagline, template: selectedTemplateId });
     currentMenu = data.menu;
     document.getElementById('createCard').classList.add('hidden');
     renderDashboard();
