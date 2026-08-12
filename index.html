@@ -187,7 +187,7 @@
 <script>
 /* ⚠️ بعد از دیپلوی menuproai-worker.js (مرحله ۱)، آدرس زیر رو با آدرس
    واقعی Worker جایگزین کن. */
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 const PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS/";
 
 let currentMenu = null;
@@ -570,6 +570,7 @@ function renderOrders(){
         ${o.items.map(l => `<div><b>${escapeHtml(l.name)}</b> × ${l.qty} — ${l.lineTotal.toLocaleString('fa-IR')} تومان</div>`).join('')}
         ${o.note ? `<div>یادداشت: ${escapeHtml(o.note)}</div>` : ''}
       </div>
+      ${(o.customerName || o.customerPhone) ? `<div class="order-lines" style="margin-bottom:8px;">مشتری: <b>${escapeHtml(o.customerName || '—')}</b> — <a href="tel:${escapeHtml(o.customerPhone || '')}" style="color:var(--cyan);">${escapeHtml(o.customerPhone || '—')}</a></div>` : ''}
       <div class="order-total">جمع: ${o.total.toLocaleString('fa-IR')} تومان</div>
       <div class="order-actions">
         ${o.status !== 'seen' && o.status !== 'done' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
