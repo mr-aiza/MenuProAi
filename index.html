@@ -115,6 +115,8 @@
       <input type="text" id="regName" placeholder="اسمت">
       <label>شماره موبایل</label>
       <input type="text" id="regPhone" dir="ltr" placeholder="09xxxxxxxxx">
+      <label>ایمیل</label>
+      <input type="email" id="regEmail" dir="ltr" placeholder="example@mail.com">
       <label>رمز عبور</label>
       <input type="password" id="regPass">
       <button class="btn-primary" id="registerBtn" style="width:100%;">ثبت‌نام</button>
@@ -505,10 +507,11 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 document.getElementById('registerBtn').addEventListener('click', async () => {
   const name = document.getElementById('regName').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
   const pass = document.getElementById('regPass').value;
-  if (!name || !phone || !pass){ showMsg('authMsg', 'همه فیلدها رو پر کن.', 'err'); return; }
+  if (!name || !phone || !email || !pass){ showMsg('authMsg', 'همه فیلدها رو پر کن.', 'err'); return; }
   try{
-    await BytelabAuth.register(phone, pass, name);
+    await BytelabAuth.register(phone, pass, name, email);
     await afterAuth();
   }catch(e){ showMsg('authMsg', e.message, 'err'); }
 });
