@@ -378,6 +378,17 @@
     border:none; border-radius:999px; padding:12px; font-weight:800;
     font-size:14px; cursor:pointer;
   }
+  .order-note-label{ display:block; font-size:11.5px; color:var(--chalk-dim); margin:14px 0 6px; }
+  .order-note-input{
+    width:100%; background: var(--bg-panel); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:10px 12px; font-size:13px;
+    font-family:inherit; resize:vertical; min-height:52px; box-sizing:border-box; outline:none;
+  }
+  .order-status-track{
+    margin-top:12px; padding:10px 12px; background: rgba(0,0,0,0.18); border-radius:10px;
+    font-size:12.5px; color: var(--chalk-dim); text-align:center;
+  }
+  .order-status-track b{ color: var(--sage); }
   .submit-order-btn:disabled{ opacity:.5; cursor:default; }
   .order-confirmed{
     margin-top:10px; text-align:center; color:var(--sage);
@@ -521,9 +532,9 @@
 // ⚠️ بعد از دیپلوی menuproai-worker.js، آدرس MENUPROAI_API رو با آدرس
 // واقعی Workerت جایگزین کن (همون که تو dashboard.html هم گذاشتی).
 // =====================================================================
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 // آدرس همون Worker هوش مصنوعی که از قبل داشتی (ai-worker.js نسخه‌ی جدید رو توش دیپلوی کن)
-const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
+const AI_WORKER_URL = "https://menuproai.tempmail41245.workers.dev";
 
 function detectSlug(){
   // ۱) از مسیر /USERS/{slug}/menu.html
@@ -902,6 +913,8 @@ function renderInvoice(){
         </div>`).join('')}
       <div class="inv-divider"></div>
       <div class="inv-total"><span>جمع کل</span><span class="amt">${cartGrandTotal().toLocaleString('fa-IR')} تومان</span></div>
+      <label class="order-note-label" for="orderNote">توضیحات سفارش (اختیاری) — مثلاً کم‌شکر باشه، شماره میز ۴</label>
+      <textarea id="orderNote" class="order-note-input" placeholder="توضیح خاصی داری بنویس..." maxlength="200"></textarea>
       <button class="submit-order-btn" id="submitOrderBtn">ثبت سفارش برای کافه</button>
       <div id="orderConfirmBox"></div>
       <button class="pdf-btn" id="pdfInvoiceBtn">دانلود PDF فاکتور</button>
@@ -909,6 +922,7 @@ function renderInvoice(){
     </div>`;
   cartFooter.style.display = 'none';
   document.getElementById('newOrderBtn').addEventListener('click', ()=>{
+    if (orderTrackTimer) clearInterval(orderTrackTimer);
     cart = {};
     saveCart();
     renderCart();
@@ -926,11 +940,13 @@ async function submitOrder(){
   btn.disabled = true;
   btn.textContent = 'در حال ارسال…';
 
+  const noteEl = document.getElementById('orderNote');
   const payload = {
     slug: MENU.slug,
     items: cartLines().map(l => ({ id: l.item.id, qty: l.qty })),
     customerName: identity.name || '',
     customerPhone: identity.phone || '',
+    note: noteEl ? noteEl.value.trim() : '',
   };
 
   try{
@@ -941,16 +957,40 @@ async function submitOrder(){
     });
     const data = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
+    if (noteEl) noteEl.disabled = true;
 
     btn.style.display = 'none';
     document.getElementById('orderConfirmBox').innerHTML =
-      '<p class="order-confirmed">✓ سفارش برای کافه ثبت شد.</p>';
+      '<p class="order-confirmed">✓ سفارش برای کافه ثبت شد.</p>' +
+      '<div class="order-status-track" id="orderStatusTrack">در انتظار دیده‌شدن توسط کافه…</div>';
+    if (data.order && data.order.id) trackOrderStatus(data.order.id);
   }catch(e){
     btn.disabled = false;
     btn.textContent = 'ثبت سفارش برای کافه';
     document.getElementById('orderConfirmBox').innerHTML =
       `<p class="order-confirmed" style="color:var(--rust);">✕ ${e.message}</p>`;
   }
+}
+
+/* ---------------------- پیگیری زنده‌ی وضعیت سفارش توسط مشتری ---------------------- */
+const ORDER_STATUS_LABEL = { new: 'در انتظار دیده‌شدن توسط کافه…', seen: 'کافه سفارشت رو دید 👀', done: 'سفارشت آماده‌ست ✅' };
+let orderTrackTimer = null;
+
+function trackOrderStatus(orderId){
+  if (orderTrackTimer) clearInterval(orderTrackTimer);
+  const poll = async () => {
+    const box = document.getElementById('orderStatusTrack');
+    if (!box) { clearInterval(orderTrackTimer); return; }
+    try{
+      const res = await fetch(MENUPROAI_API + '/api/menu/order/status/' + encodeURIComponent(MENU.slug) + '/' + encodeURIComponent(orderId), { cache: 'no-store' });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok) return;
+      box.innerHTML = ORDER_STATUS_LABEL[data.status] ? `وضعیت: <b>${ORDER_STATUS_LABEL[data.status]}</b>` : 'وضعیت: در حال بررسی…';
+      if (data.status === 'done') clearInterval(orderTrackTimer);
+    }catch(e){ /* بی‌سروصدا رد می‌شیم، دفعه بعد دوباره تلاش می‌کنیم */ }
+  };
+  poll();
+  orderTrackTimer = setInterval(poll, 8000);
 }
 
 /* ---------------------- خروجی PDF فاکتور ---------------------- */
