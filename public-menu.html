@@ -26,6 +26,7 @@
 
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; }
+  .hidden{ display:none !important; }
   body{
     background: var(--bg);
     color: var(--chalk);
@@ -388,6 +389,30 @@
     font-size:13px; cursor:pointer;
   }
   .pdf-btn:disabled{ opacity:.5; cursor:default; }
+  /* ---------- مودال دریافت نام/شماره مشتری ---------- */
+  .id-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .id-modal{
+    width:100%; max-width:360px; background: var(--bg-panel);
+    border:1px solid var(--line); border-radius: 16px; padding:22px;
+  }
+  .id-modal h3{ margin:0 0 4px; font-size:16px; }
+  .id-modal p{ margin:0 0 16px; color:var(--chalk-dim); font-size:12.5px; line-height:1.8; }
+  .id-modal label{ display:block; font-size:12px; color:var(--chalk-dim); margin: 12px 0 6px; }
+  .id-modal input{
+    width:100%; background: var(--bg-panel-2); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:11px 13px; font-size:14px;
+    font-family:inherit; outline:none; box-sizing:border-box;
+  }
+  .id-modal .id-err{ color: var(--rust); font-size:12px; margin-top:8px; min-height:14px; }
+  .id-modal .id-actions{ display:flex; gap:8px; margin-top:16px; }
+  .id-modal .id-actions button{
+    flex:1; border:none; border-radius:999px; padding:11px; font-size:13.5px; cursor:pointer;
+  }
+  .id-modal .id-confirm{ background: var(--amber); color: var(--bg); font-weight:800; }
+  .id-modal .id-cancel{ background:none; color: var(--chalk-dim); border:1px solid var(--line) !important; }
   /* ---------- قالب چاپی فاکتور PDF (خارج از دید، فقط برای html2pdf) ---------- */
   #pdfInvoiceHolder{ position:absolute; top:0; left:-9999px; }
   #pdfInvoice{
@@ -467,6 +492,23 @@
   </div>
 </div>
 
+<!-- مودال دریافت نام/شماره مشتری — قبل از باز شدن چت یا ثبت سفارش نمایش داده می‌شه -->
+<div class="id-overlay hidden" id="idOverlay">
+  <div class="id-modal">
+    <h3 id="idModalTitle">قبل از شروع</h3>
+    <p id="idModalDesc">برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.</p>
+    <label>نام</label>
+    <input type="text" id="idName" placeholder="اسم شما">
+    <label>شماره تلفن</label>
+    <input type="text" id="idPhone" dir="ltr" inputmode="tel" placeholder="09xxxxxxxxx">
+    <div class="id-err" id="idErr"></div>
+    <div class="id-actions">
+      <button class="id-cancel" id="idCancel">انصراف</button>
+      <button class="id-confirm" id="idConfirm">تایید</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // =====================================================================
 // تنظیمات — این صفحه دیگه استاتیک نیست: منو رو بر اساس اسلاگِ تو آدرس
@@ -479,9 +521,9 @@
 // ⚠️ بعد از دیپلوی menuproai-worker.js، آدرس MENUPROAI_API رو با آدرس
 // واقعی Workerت جایگزین کن (همون که تو dashboard.html هم گذاشتی).
 // =====================================================================
-const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const MENUPROAI_API = "https://menuproai-api.YOUR-SUBDOMAIN.workers.dev";
 // آدرس همون Worker هوش مصنوعی که از قبل داشتی (ai-worker.js نسخه‌ی جدید رو توش دیپلوی کن)
-const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
+const AI_WORKER_URL = "https://menuproai.tempmail41245.workers.dev";
 
 function detectSlug(){
   // ۱) از مسیر /USERS/{slug}/menu.html
@@ -590,6 +632,65 @@ function highlightItem(id){
 loadMenu();
 
 // ---------------------- chat ----------------------
+// ---------------------- هویت مشتری (نام + شماره) ----------------------
+const ID_KEY = 'bolut_identity_' + (detectSlug() || 'x');
+function getIdentity(){
+  try{ return JSON.parse(localStorage.getItem(ID_KEY) || 'null'); }catch(e){ return null; }
+}
+function saveIdentity(name, phone){
+  localStorage.setItem(ID_KEY, JSON.stringify({ name, phone }));
+}
+
+const idOverlay = document.getElementById('idOverlay');
+const idName = document.getElementById('idName');
+const idPhone = document.getElementById('idPhone');
+const idErr = document.getElementById('idErr');
+const idConfirm = document.getElementById('idConfirm');
+const idCancel = document.getElementById('idCancel');
+const idModalTitle = document.getElementById('idModalTitle');
+const idModalDesc = document.getElementById('idModalDesc');
+
+let pendingIdentityCallback = null;
+
+// purpose: 'chat' یا 'order' — فقط برای متن مودال
+function requireIdentity(purpose, onReady){
+  const saved = getIdentity();
+  if (saved && saved.name && saved.phone){
+    onReady(saved);
+    return;
+  }
+  idModalTitle.textContent = purpose === 'chat' ? 'قبل از گفتگو با دستیار' : 'قبل از ثبت سفارش';
+  idModalDesc.textContent = purpose === 'chat'
+    ? 'برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.'
+    : 'برای ثبت سفارش نزد کافه، لطفاً نام و شماره تماست رو وارد کن.';
+  idName.value = saved ? saved.name || '' : '';
+  idPhone.value = saved ? saved.phone || '' : '';
+  idErr.textContent = '';
+  pendingIdentityCallback = onReady;
+  idOverlay.classList.remove('hidden');
+  idName.focus();
+}
+
+function closeIdentityModal(){
+  idOverlay.classList.add('hidden');
+  pendingIdentityCallback = null;
+}
+
+idConfirm.addEventListener('click', () => {
+  const name = idName.value.trim();
+  const phone = idPhone.value.trim();
+  if (!name){ idErr.textContent = 'نام رو وارد کن.'; idName.focus(); return; }
+  if (!/^0?9\d{9}$/.test(phone.replace(/\s/g,''))){ idErr.textContent = 'شماره تلفن معتبر نیست.'; idPhone.focus(); return; }
+  saveIdentity(name, phone);
+  const cb = pendingIdentityCallback;
+  idOverlay.classList.add('hidden');
+  pendingIdentityCallback = null;
+  if (cb) cb({ name, phone });
+});
+idCancel.addEventListener('click', closeIdentityModal);
+idOverlay.addEventListener('click', (e) => { if (e.target === idOverlay) closeIdentityModal(); });
+
+// ---------------------- chat ----------------------
 const chatBtn = document.getElementById('chatBtn');
 const chatOverlay = document.getElementById('chatOverlay');
 const chatPanel = document.getElementById('chatPanel');
@@ -607,12 +708,14 @@ function openChat(){
     alert('دستیار هوش مصنوعی این کافه هنوز فعال نشده.');
     return;
   }
-  chatOverlay.classList.add('open');
-  chatPanel.classList.add('open');
-  if(!greeted){
-    addMsg('bot', 'سلام، بفرمایید. لطفاً بگویید دنبال چه نوشیدنی یا دسری هستید تا با کمال میل پیشنهاد بدهم.');
-    greeted = true;
-  }
+  requireIdentity('chat', () => {
+    chatOverlay.classList.add('open');
+    chatPanel.classList.add('open');
+    if(!greeted){
+      addMsg('bot', 'سلام، بفرمایید. لطفاً بگویید دنبال چه نوشیدنی یا دسری هستید تا با کمال میل پیشنهاد بدهم.');
+      greeted = true;
+    }
+  });
 }
 function closeChat(){
   chatOverlay.classList.remove('open');
@@ -665,7 +768,7 @@ async function sendMessage(text){
     const res = await fetch(AI_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history, slug: MENU.slug })
+      body: JSON.stringify({ message: text, history, slug: MENU.slug, customerName: (getIdentity()||{}).name, customerPhone: (getIdentity()||{}).phone })
     });
     const data = await res.json();
     typingEl.remove();
@@ -811,11 +914,14 @@ function renderInvoice(){
     renderCart();
   });
   document.getElementById('pdfInvoiceBtn').addEventListener('click', downloadPdfInvoice);
-  document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+  document.getElementById('submitOrderBtn').addEventListener('click', () => {
+    requireIdentity('order', () => submitOrder());
+  });
 }
 
 /* ---------------------- ثبت سفارش (تیکت برای صاحب کافه) ---------------------- */
 async function submitOrder(){
+  const identity = getIdentity() || {};
   const btn = document.getElementById('submitOrderBtn');
   btn.disabled = true;
   btn.textContent = 'در حال ارسال…';
@@ -823,6 +929,8 @@ async function submitOrder(){
   const payload = {
     slug: MENU.slug,
     items: cartLines().map(l => ({ id: l.item.id, qty: l.qty })),
+    customerName: identity.name || '',
+    customerPhone: identity.phone || '',
   };
 
   try{
