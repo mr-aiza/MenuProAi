@@ -10,45 +10,106 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="assets/bytelab-auth.js"></script>
 <style>
-  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--panel-3:#1a2434;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;padding:40px 16px 80px;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;line-height:1.7;min-height:100vh;padding:0 0 90px;}
   .mono{font-family:'JetBrains Mono',monospace;}
-  .wrap{max-width:640px;margin:0 auto;}
-  h1{font-size:24px;font-weight:800;margin-bottom:6px;}
-  .sub{color:var(--muted);font-size:13.5px;margin-bottom:24px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
-  .card h2{font-size:15px;color:var(--cyan);margin-bottom:14px;}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px;}
+
+  /* ---- هدر بالای صفحه ---- */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(7,11,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 16px;}
+  .topbar-inner{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .topbar h1{font-size:16px;font-weight:800;}
+  .topbar .cafe-tag{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .topbar-actions{display:flex;gap:6px;}
+  .icon-btn{width:34px;height:34px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;position:relative;}
+  .icon-btn .dot{position:absolute;top:-3px;left:-3px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;line-height:15px;text-align:center;border-radius:999px;padding:0 3px;}
+
+  .intro{padding:20px 0 4px;}
+  h1.page-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:20px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+  .card h2{font-size:14.5px;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .card h2 .h2-hint{font-size:11.5px;color:var(--muted);font-weight:500;}
   label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600;}
   input,textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--paper);font-family:inherit;font-size:15px;margin-bottom:14px;}
   input:focus,textarea:focus{outline:2px solid var(--cyan);border-color:var(--cyan);}
   input[dir=ltr]{direction:ltr;text-align:left;font-family:'JetBrains Mono',monospace;}
-  textarea{min-height:70px;resize:vertical;}
+  textarea{min-height:60px;resize:vertical;}
   button{border:none;border-radius:999px;padding:11px 20px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;}
   .btn-primary{background:var(--cyan);color:#06120f;}
   .btn-primary:disabled{opacity:.55;cursor:not-allowed;}
   .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--paper);}
   .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
   .btn-sm{padding:7px 12px;font-size:12px;}
+  .btn-block{width:100%;}
   .row{display:flex;gap:8px;}
-  .tabs{display:flex;gap:6px;margin-bottom:18px;}
-  .tab{flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font-size:13px;font-weight:700;}
-  .tab.active{background:var(--cyan);color:#06120f;border-color:transparent;}
   .msg{font-size:12.5px;padding:10px 12px;border-radius:8px;margin-bottom:12px;display:none;}
   .msg.show{display:block;}
   .msg.err{background:rgba(255,138,138,.1);color:var(--danger);}
   .msg.ok{background:rgba(77,240,201,.1);color:var(--cyan);}
   .hidden{display:none !important;}
-  .item-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-  .item-row .meta{flex:1;min-width:0;}
-  .item-row .name{font-weight:700;font-size:13.5px;}
-  .item-row .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-  .item-actions{display:flex;gap:6px;}
   .chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--muted);margin:0 4px 8px 0;}
   .chip.active{color:var(--cyan);border-color:var(--cyan);}
   .public-link{font-family:'JetBrains Mono',monospace;font-size:12.5px;direction:ltr;text-align:left;background:var(--panel-2);border-radius:10px;padding:12px;word-break:break-all;color:var(--cyan);}
   select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--paper);font-family:inherit;font-size:14px;margin-bottom:14px;}
   .badge{display:inline-block;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:999px;padding:0 5px;margin-inline-start:6px;}
+
+  /* ---- تب پایین صفحه (ناوبری اصلی) ---- */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(15,22,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));}
+  .bottom-nav .nav-btn{flex:1;text-align:center;padding:8px 2px;border-radius:12px;background:transparent;border:none;color:var(--muted);font-size:10.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;}
+  .bottom-nav .nav-btn.active{color:var(--cyan);background:rgba(77,240,201,.08);}
+  .bottom-nav .nav-btn .ic{font-size:18px;}
+  .bottom-nav .nav-btn .dot{position:absolute;top:2px;left:calc(50% - 2px);background:var(--danger);color:#fff;font-size:9px;font-weight:800;min-width:14px;height:14px;line-height:14px;text-align:center;border-radius:999px;padding:0 3px;}
+
+  /* ============ منوساز (دسته‌بندی + محصولات) ============ */
+  .cat-list{margin-bottom:6px;}
+  .cat-row{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .cat-row.selected{border-color:var(--cyan);background:rgba(77,240,201,.06);}
+  .cat-row .cat-info{flex:1;min-width:0;}
+  .cat-row .cat-title{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;}
+  .cat-row .cat-count{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-weight:400;}
+  .cat-arrows{display:flex;flex-direction:column;gap:2px;}
+  .cat-arrows button{background:var(--panel-3);border:1px solid var(--line);color:var(--muted);width:26px;height:22px;border-radius:6px;padding:0;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .cat-arrows button:disabled{opacity:.3;}
+  .cat-del{background:transparent;border:none;color:var(--danger);font-size:15px;padding:6px;line-height:1;}
+  .cat-empty-note{font-size:11px;color:var(--danger);margin-top:2px;}
+  .add-cat-row input{margin-bottom:0;}
+
+  .quickadd-card{border-color:var(--cyan);}
+  .quickadd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;}
+  .quickadd-header .qa-title{font-size:14.5px;color:var(--cyan);font-weight:800;}
+  .quickadd-header .qa-cat-name{color:var(--paper);}
+  .details-toggle{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0 0 12px;text-decoration:underline;display:inline-block;}
+  .details-body{display:none;}
+  .details-body.show{display:block;}
+  .qa-actions{display:flex;gap:8px;}
+  .qa-actions button{flex:1;}
+
+  .empty-state{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px;}
+  .empty-state .es-icon{font-size:28px;margin-bottom:8px;}
+
+  .search-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .search-toggle input{margin-bottom:0;}
+
+  .item-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .item-row.editing{border-color:var(--violet);}
+  .item-row .meta{flex:1;min-width:0;}
+  .item-row .name{font-weight:700;font-size:13.5px;}
+  .item-row .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .item-row .sub .cat-pill{color:var(--violet);font-family:'Vazirmatn',sans-serif;}
+  .item-actions{display:flex;gap:6px;}
+
+  .disc-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+  .disc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .disc-code{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;color:var(--cyan);direction:ltr;display:inline-block;}
+  .disc-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
+  .disc-status.on{background:rgba(77,240,201,.15);color:var(--cyan);}
+  .disc-status.off{background:rgba(124,139,156,.15);color:var(--muted);}
+  .disc-meta{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.9;}
+  .disc-actions{display:flex;gap:6px;}
+
   .order-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
   .order-card.new{border-color:var(--cyan);}
   .order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
@@ -61,14 +122,7 @@
   .order-lines b{color:var(--paper);font-weight:600;}
   .order-total{font-size:13.5px;font-weight:800;color:var(--cyan);margin-bottom:10px;}
   .order-actions{display:flex;gap:6px;}
-  .disc-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
-  .disc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .disc-code{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;color:var(--cyan);direction:ltr;display:inline-block;}
-  .disc-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
-  .disc-status.on{background:rgba(77,240,201,.15);color:var(--cyan);}
-  .disc-status.off{background:rgba(124,139,156,.15);color:var(--muted);}
-  .disc-meta{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.9;}
-  .disc-actions{display:flex;gap:6px;}
+
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
   .stat-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
   .stat-box .num{font-size:19px;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
@@ -87,6 +141,7 @@
   .cust-row .meta .name{font-weight:700;font-size:13.5px;}
   .cust-row .meta .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
   .cust-row .count{font-size:12px;color:var(--cyan);font-weight:800;white-space:nowrap;}
+
   .tmpl-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:6px;}
   .tmpl-card{background:var(--panel-2);border:2px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
   .tmpl-card:hover{border-color:var(--violet);}
@@ -101,15 +156,33 @@
 </style>
 </head>
 <body>
+
+<!-- ============ هدر بالا (فقط بعد از ورود) ============ -->
+<div class="topbar hidden" id="topbar">
+  <div class="topbar-inner">
+    <div>
+      <h1 id="topbarCafeName">منوی من</h1>
+      <div class="cafe-tag" id="topbarSlug"></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="topbarOrdersBtn" title="سفارش‌ها">🧾<span class="dot hidden" id="topbarOrdersDot">0</span></button>
+      <button class="icon-btn" id="topbarLogoutBtn" title="خروج">⎋</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
-  <h1>داشبورد MenuProAI</h1>
-  <p class="sub">حساب کاربری، ساخت کافه و مدیریت آیتم‌های منو — همه از همین‌جا.</p>
+
+  <div class="intro" id="introBlock">
+    <h1 class="page-title">داشبورد MenuProAI</h1>
+    <p class="sub">حساب کاربری، ساخت کافه و مدیریت آیتم‌های منو — همه از همین‌جا.</p>
+  </div>
 
   <!-- ============ بخش ورود/ثبت‌نام ============ -->
   <div class="card" id="authCard">
-    <div class="tabs">
-      <div class="tab active" data-tab="login">ورود</div>
-      <div class="tab" data-tab="register">ثبت‌نام</div>
+    <div class="row" style="margin-bottom:16px;">
+      <button class="btn-ghost btn-block" id="authTabLogin" style="background:var(--cyan);color:#06120f;border-color:transparent;">ورود</button>
+      <button class="btn-ghost btn-block" id="authTabRegister">ثبت‌نام</button>
     </div>
     <div class="msg" id="authMsg"></div>
 
@@ -118,7 +191,7 @@
       <input type="text" id="loginPhone" dir="ltr" placeholder="09xxxxxxxxx">
       <label>رمز عبور</label>
       <input type="password" id="loginPass">
-      <button class="btn-primary" id="loginBtn" style="width:100%;">ورود</button>
+      <button class="btn-primary btn-block" id="loginBtn">ورود</button>
     </div>
 
     <div id="registerPane" class="hidden">
@@ -130,7 +203,7 @@
       <input type="email" id="regEmail" dir="ltr" placeholder="example@mail.com">
       <label>رمز عبور</label>
       <input type="password" id="regPass">
-      <button class="btn-primary" id="registerBtn" style="width:100%;">ثبت‌نام</button>
+      <button class="btn-primary btn-block" id="registerBtn">ثبت‌نام</button>
     </div>
   </div>
 
@@ -155,77 +228,80 @@
       <input type="text" id="cSlug" dir="ltr" placeholder="kafe-boloot">
       <label>توضیح کوتاه (اختیاری)</label>
       <input type="text" id="cTagline" placeholder="مثلاً کافه‌ای با فضای گرم و صمیمی">
-      <button class="btn-primary" id="createBtn" style="width:100%;">ساخت منو</button>
+      <button class="btn-primary btn-block" id="createBtn">ساخت منو</button>
     </div>
   </div>
 
   <!-- ============ داشبورد اصلی (بعد از ساخت منو) ============ -->
-  <div class="hidden" id="dashboardWrap">
-    <div class="tabs">
-      <div class="tab active" data-maintab="products">محصولات</div>
-      <div class="tab" data-maintab="orders">سفارش‌ها<span class="badge hidden" id="ordersBadge">0</span></div>
-      <div class="tab" data-maintab="discounts">کد تخفیف</div>
-      <div class="tab" data-maintab="analytics">آمار</div>
-    </div>
+  <div class="hidden" id="dashboardWrap" style="padding-top:14px;">
 
-    <div id="productsPane">
-    <div class="card">
-      <h2>اطلاعات کافه</h2>
-      <div class="msg" id="infoMsg"></div>
-      <label>نام کافه</label>
-      <input type="text" id="dCafeName">
-      <label>توضیح کوتاه</label>
-      <input type="text" id="dTagline">
-      <button class="btn-ghost btn-sm" id="saveInfoBtn">ذخیره تغییرات</button>
-      <div style="margin-top:16px;">
-        <label>لینک عمومی منوی شما</label>
-        <div class="public-link" id="publicLink"></div>
+    <!-- ---- تب منوساز ---- -->
+    <div id="menuPane">
+      <div class="card">
+        <h2>دسته‌بندی‌ها <span class="h2-hint">با ▲▼ ترتیبشون رو عوض کن</span></h2>
+        <div class="msg" id="catMsg"></div>
+        <div class="cat-list" id="catList"></div>
+        <div class="row add-cat-row">
+          <input type="text" id="newCatTitle" placeholder="اسم دسته جدید (مثلاً قهوه گرم)">
+          <button class="btn-ghost btn-sm" id="addCatBtn">افزودن</button>
+        </div>
+      </div>
+
+      <!-- وقتی دسته‌ای انتخاب نشده -->
+      <div class="card" id="noCatSelectedCard">
+        <div class="empty-state">
+          <div class="es-icon">📂</div>
+          یه دسته از بالا انتخاب کن (یا بساز) تا بتونی محصولاتش رو یکی‌یکی اضافه کنی.
+        </div>
+      </div>
+
+      <!-- وقتی دسته‌ای انتخاب شده: فرم افزودن سریع + لیست همون دسته -->
+      <div class="card quickadd-card hidden" id="quickAddCard">
+        <div class="quickadd-header">
+          <span class="qa-title">افزودن محصول به «<span class="qa-cat-name" id="qaCatName"></span>»</span>
+          <button class="btn-ghost btn-sm" id="deselectCatBtn">بستن</button>
+        </div>
+        <div class="msg" id="itemMsg"></div>
+        <input type="hidden" id="editItemId">
+
+        <label>نام محصول</label>
+        <input type="text" id="itName" placeholder="مثلاً اسپرسو">
+        <label>قیمت (تومان)</label>
+        <input type="text" id="itPrice" dir="ltr" inputmode="numeric" placeholder="55000">
+
+        <button type="button" class="details-toggle" id="detailsToggleBtn">+ جزئیات بیشتر (توضیح، برچسب، کالری...)</button>
+        <div class="details-body" id="detailsBody">
+          <label>توضیح کوتاه</label>
+          <textarea id="itDesc" placeholder="شات غلیظ و پرقدرت..."></textarea>
+          <label>برچسب‌ها (با کاما جدا کن)</label>
+          <input type="text" id="itTags" placeholder="تلخ, پرانرژی, کافئین‌دار">
+          <label>کالری (تقریبی، اختیاری)</label>
+          <input type="text" id="itCalories" dir="ltr" inputmode="numeric" placeholder="مثلاً 250">
+          <label>اجزای تشکیل‌دهنده (با کاما جدا کن، اختیاری)</label>
+          <input type="text" id="itIngredients" placeholder="تخم‌مرغ, گوجه‌فرنگی, پنیر">
+        </div>
+
+        <div class="qa-actions">
+          <button class="btn-primary" id="addItemBtn">افزودن محصول</button>
+          <button class="btn-ghost hidden" id="cancelEditBtn">انصراف از ویرایش</button>
+        </div>
+
+        <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px;">
+          <div id="catItemsList"></div>
+        </div>
+      </div>
+
+      <!-- جستجوی کلی بین همه‌ی محصولات، فارغ از دسته -->
+      <div class="card">
+        <h2>جستجو در همه‌ی محصولات</h2>
+        <div class="search-toggle">
+          <input type="text" id="itemSearch" placeholder="اسم، توضیح یا برچسب رو بنویس...">
+        </div>
+        <div id="searchResultsList"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>دسته‌بندی‌ها</h2>
-      <div class="msg" id="catMsg"></div>
-      <div id="catChips"></div>
-      <div class="row">
-        <input type="text" id="newCatTitle" placeholder="اسم دسته جدید (مثلاً قهوه گرم)" style="margin-bottom:0;">
-        <button class="btn-ghost btn-sm" id="addCatBtn">افزودن</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 id="itemFormTitle">افزودن آیتم جدید</h2>
-      <div class="msg" id="itemMsg"></div>
-      <label>نام آیتم</label>
-      <input type="text" id="itName" placeholder="مثلاً اسپرسو">
-      <label>دسته</label>
-      <select id="itCategory"></select>
-      <label>قیمت (تومان)</label>
-      <input type="text" id="itPrice" dir="ltr" inputmode="numeric" placeholder="55000">
-      <label>توضیح کوتاه</label>
-      <textarea id="itDesc" placeholder="شات غلیظ و پرقدرت..."></textarea>
-      <label>برچسب‌ها (با کاما جدا کن)</label>
-      <input type="text" id="itTags" placeholder="تلخ, پرانرژی, کافئین‌دار">
-      <label>کالری (تقریبی، اختیاری)</label>
-      <input type="text" id="itCalories" dir="ltr" inputmode="numeric" placeholder="مثلاً 250">
-      <label>اجزای تشکیل‌دهنده (با کاما جدا کن، اختیاری)</label>
-      <input type="text" id="itIngredients" placeholder="تخم‌مرغ, گوجه‌فرنگی, پنیر">
-      <div class="row">
-        <button class="btn-primary" id="addItemBtn" style="flex:1;">افزودن آیتم</button>
-        <button class="btn-ghost hidden" id="cancelEditBtn" style="flex:0 0 auto;">انصراف از ویرایش</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>آیتم‌های منو</h2>
-      <div class="row" style="margin-bottom:6px;">
-        <input type="text" id="itemSearch" placeholder="جستجو بین آیتم‌ها..." style="margin-bottom:0;">
-      </div>
-      <div class="row" id="filterCatChips" style="margin-bottom:14px;flex-wrap:wrap;"></div>
-      <div id="itemsList"></div>
-    </div>
-    </div>
-
+    <!-- ---- تب سفارش‌ها ---- -->
     <div class="hidden" id="ordersPane">
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -240,6 +316,7 @@
       </div>
     </div>
 
+    <!-- ---- تب تخفیف‌ها ---- -->
     <div class="hidden" id="discountsPane">
       <div class="card">
         <h2>ساخت کد تخفیف جدید</h2>
@@ -257,7 +334,7 @@
         <input type="text" id="discMaxUses" dir="ltr" inputmode="numeric" placeholder="مثلاً 50">
         <label>تاریخ انقضا (اختیاری)</label>
         <input type="date" id="discExpires" dir="ltr">
-        <button class="btn-primary" id="addDiscBtn" style="width:100%;">ساخت کد تخفیف</button>
+        <button class="btn-primary btn-block" id="addDiscBtn">ساخت کد تخفیف</button>
       </div>
 
       <div class="card">
@@ -266,6 +343,7 @@
       </div>
     </div>
 
+    <!-- ---- تب آمار ---- -->
     <div class="hidden" id="analyticsPane">
       <div class="card">
         <h2>خلاصه درآمد</h2>
@@ -295,8 +373,34 @@
       </div>
     </div>
 
-    <button class="btn-ghost" id="logoutBtn" style="width:100%;">خروج از حساب</button>
+    <!-- ---- تب تنظیمات ---- -->
+    <div class="hidden" id="settingsPane">
+      <div class="card">
+        <h2>اطلاعات کافه</h2>
+        <div class="msg" id="infoMsg"></div>
+        <label>نام کافه</label>
+        <input type="text" id="dCafeName">
+        <label>توضیح کوتاه</label>
+        <input type="text" id="dTagline">
+        <button class="btn-ghost btn-sm" id="saveInfoBtn">ذخیره تغییرات</button>
+        <div style="margin-top:16px;">
+          <label>لینک عمومی منوی شما</label>
+          <div class="public-link" id="publicLink"></div>
+        </div>
+      </div>
+      <button class="btn-ghost btn-block" id="logoutBtn">خروج از حساب</button>
+    </div>
+
   </div>
+</div>
+
+<!-- ============ ناوبری پایین (فقط بعد از ساخت منو) ============ -->
+<div class="bottom-nav hidden" id="bottomNav">
+  <button class="nav-btn active" data-maintab="menu"><span class="ic">🍽️</span>منو</button>
+  <button class="nav-btn" data-maintab="orders"><span class="ic">🧾</span>سفارش‌ها<span class="dot hidden" id="navOrdersDot">0</span></button>
+  <button class="nav-btn" data-maintab="discounts"><span class="ic">🏷️</span>تخفیف‌ها</button>
+  <button class="nav-btn" data-maintab="analytics"><span class="ic">📊</span>آمار</button>
+  <button class="nav-btn" data-maintab="settings"><span class="ic">⚙️</span>تنظیمات</button>
 </div>
 
 <script>
@@ -307,7 +411,7 @@ const PUBLIC_BASE = "https://menuproai.bytelabpro.xyz/USERS/";
 
 let currentMenu = null;
 let editItemId = null;
-let activeFilterCat = '';
+let selectedCatId = null; // دسته‌ای که الان تو منوساز فعاله
 let searchQuery = '';
 let orders = [];
 let ordersPollTimer = null;
@@ -320,6 +424,7 @@ function showMsg(id, text, kind){
   el.className = 'msg show ' + (kind || '');
 }
 function hideMsg(id){ document.getElementById(id).classList.remove('show'); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 // چون این API روی Worker جدایی از bytelab-users هست، از apiFetch خود
 // BytelabAuth استفاده نمی‌کنیم (چون اون به API_URL ثابت bytelab-users می‌زنه)
@@ -339,38 +444,42 @@ async function apiCall(path, body){
 }
 
 /* ============ تب‌های ورود/ثبت‌نام ============ */
-document.querySelectorAll('#authCard .tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('#authCard .tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('loginPane').classList.toggle('hidden', tab.dataset.tab !== 'login');
-    document.getElementById('registerPane').classList.toggle('hidden', tab.dataset.tab !== 'register');
-    hideMsg('authMsg');
-  });
-});
+document.getElementById('authTabLogin').addEventListener('click', () => switchAuthTab('login'));
+document.getElementById('authTabRegister').addEventListener('click', () => switchAuthTab('register'));
+function switchAuthTab(which){
+  document.getElementById('loginPane').classList.toggle('hidden', which !== 'login');
+  document.getElementById('registerPane').classList.toggle('hidden', which !== 'register');
+  const loginBtn = document.getElementById('authTabLogin');
+  const regBtn = document.getElementById('authTabRegister');
+  [loginBtn, regBtn].forEach(b => { b.style.background = 'transparent'; b.style.color = 'var(--paper)'; b.style.borderColor = 'var(--line)'; });
+  const activeBtn = which === 'login' ? loginBtn : regBtn;
+  activeBtn.style.background = 'var(--cyan)'; activeBtn.style.color = '#06120f'; activeBtn.style.borderColor = 'transparent';
+  hideMsg('authMsg');
+}
 
-/* ============ تب‌های محصولات/سفارش‌ها ============ */
-document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('#dashboardWrap > .tabs .tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const which = tab.dataset.maintab; // 'products' | 'orders' | 'discounts' | 'analytics'
-    document.getElementById('productsPane').classList.toggle('hidden', which !== 'products');
-    document.getElementById('ordersPane').classList.toggle('hidden', which !== 'orders');
-    document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
-    document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
-    if (which === 'orders'){
-      document.getElementById('ordersBadge').classList.add('hidden');
-      loadOrders();
-    }
-    if (which === 'discounts'){
-      loadDiscounts();
-    }
-    if (which === 'analytics'){
-      loadAnalytics();
-    }
-  });
+/* ============ ناوبری اصلی (پایین صفحه) ============ */
+document.querySelectorAll('#bottomNav .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMainTab(btn.dataset.maintab));
 });
+document.getElementById('topbarOrdersBtn').addEventListener('click', () => switchMainTab('orders'));
+
+function switchMainTab(which){
+  document.querySelectorAll('#bottomNav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.maintab === which));
+  document.getElementById('menuPane').classList.toggle('hidden', which !== 'menu');
+  document.getElementById('ordersPane').classList.toggle('hidden', which !== 'orders');
+  document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
+  document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
+  document.getElementById('settingsPane').classList.toggle('hidden', which !== 'settings');
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+  if (which === 'orders'){
+    document.getElementById('navOrdersDot').classList.add('hidden');
+    document.getElementById('topbarOrdersDot').classList.add('hidden');
+    loadOrders();
+  }
+  if (which === 'discounts') loadDiscounts();
+  if (which === 'analytics') loadAnalytics();
+}
 
 /* ============ کدهای تخفیف ============ */
 const discTypeEl = document.getElementById('discType');
@@ -471,7 +580,6 @@ function renderAnalytics(a){
   document.getElementById('statMonth').textContent = (a.revenueMonth || 0).toLocaleString('fa-IR');
   document.getElementById('statOrders').textContent = (a.totalOrders || 0).toLocaleString('fa-IR');
 
-  // محصولات پرطرفدار
   const prodBox = document.getElementById('popularProductsBox');
   if (!a.popularProducts || !a.popularProducts.length){
     prodBox.innerHTML = '<p class="sub">هنوز سفارشی ثبت نشده.</p>';
@@ -485,7 +593,6 @@ function renderAnalytics(a){
       </div>`).join('');
   }
 
-  // ساعات پرتقاضا
   const byHour = [...(a.peakHours || [])].sort((x, y) => x.hour - y.hour);
   const maxCount = Math.max(1, ...byHour.map(h => h.count));
   document.getElementById('hoursChart').innerHTML = byHour.map(h => {
@@ -501,7 +608,6 @@ function renderAnalytics(a){
     ? 'پرترددترین ساعت‌ها: ' + topHours.map(h => `${h.hour}:۰۰ (${h.count} سفارش)`).join('، ')
     : 'هنوز داده‌ای برای نمایش نیست.';
 
-  // مشتری‌های تکراری
   const custBox = document.getElementById('repeatCustomersBox');
   if (!a.repeatCustomers || !a.repeatCustomers.length){
     custBox.innerHTML = '<p class="sub">هنوز مشتری تکراری‌ای ثبت نشده.</p>';
@@ -539,15 +645,15 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
   }catch(e){ showMsg('authMsg', e.message, 'err'); }
 });
 
-document.getElementById('logoutBtn').addEventListener('click', async () => {
+async function doLogout(){
   if (ordersPollTimer) clearInterval(ordersPollTimer);
   await BytelabAuth.logout();
   location.reload();
-});
+}
+document.getElementById('logoutBtn').addEventListener('click', doLogout);
+document.getElementById('topbarLogoutBtn').addEventListener('click', () => { if (confirm('از حساب خارج بشی؟')) doLogout(); });
 
 /* ============ انتخاب قالب ============ */
-// هرچی بعداً قالب جدید اضافه شد، فقط یه آیتم به همین آرایه اضافه کن —
-// بقیه‌ی UI (گرید انتخاب، لینک تغییر قالب و...) خودکار باهاش کار می‌کنه.
 const TEMPLATES = [
   {
     id: 'classic-menu',
@@ -603,8 +709,8 @@ async function afterAuth(){
     renderDashboard();
   }catch(e){
     if (e.status === 404){
+      document.getElementById('introBlock').classList.remove('hidden');
       document.getElementById('createCard').classList.remove('hidden');
-      // اگه از صفحه‌ی معرفی قالب اومده (?template=...)، مستقیم بریم سراغ فرم ساخت
       if (pendingTemplateFromUrl && TEMPLATES.some(t => t.id === pendingTemplateFromUrl)){
         selectTemplate(pendingTemplateFromUrl);
       }
@@ -632,62 +738,113 @@ document.getElementById('createBtn').addEventListener('click', async () => {
 
 /* ============ رندر داشبورد ============ */
 function renderDashboard(){
+  document.getElementById('introBlock').classList.add('hidden');
+  document.getElementById('topbar').classList.remove('hidden');
+  document.getElementById('bottomNav').classList.remove('hidden');
   document.getElementById('dashboardWrap').classList.remove('hidden');
+
+  document.getElementById('topbarCafeName').textContent = currentMenu.cafeName || 'منوی من';
+  document.getElementById('topbarSlug').textContent = currentMenu.slug || '';
   document.getElementById('dCafeName').value = currentMenu.cafeName || '';
   document.getElementById('dTagline').value = currentMenu.tagline || '';
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
+
+  selectedCatId = null;
   renderCategories();
-  renderItems();
+  renderQuickAddArea();
+  renderSearchResults();
+
   loadOrders(true);
   if (ordersPollTimer) clearInterval(ordersPollTimer);
   ordersPollTimer = setInterval(() => loadOrders(true), 20000);
 }
 
-function renderCategories(){
-  const wrap = document.getElementById('catChips');
-  wrap.innerHTML = '';
-  const catSelect = document.getElementById('itCategory');
-  catSelect.innerHTML = '<option value="">— انتخاب دسته —</option>';
-  (currentMenu.categories || []).forEach(c => {
-    const chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.innerHTML = c.title + ' <b style="cursor:pointer;color:var(--danger);" data-delcat="' + c.id + '">✕</b>';
-    wrap.appendChild(chip);
+/* ============ دسته‌بندی‌ها (منوساز) ============ */
+function itemCountInCat(catId){
+  return (currentMenu.items || []).filter(it => it.category === catId).length;
+}
 
-    const opt = document.createElement('option');
-    opt.value = c.id; opt.textContent = c.title;
-    catSelect.appendChild(opt);
+function renderCategories(){
+  const wrap = document.getElementById('catList');
+  const cats = currentMenu.categories || [];
+
+  if (!cats.length){
+    wrap.innerHTML = '<div class="empty-state" style="padding:16px 0;">هنوز دسته‌ای نساختی. اول یه دسته بساز (مثلاً «قهوه گرم»).</div>';
+    return;
+  }
+
+  wrap.innerHTML = cats.map((c, idx) => {
+    const count = itemCountInCat(c.id);
+    return `
+    <div class="cat-row${c.id === selectedCatId ? ' selected' : ''}" data-cat-select="${c.id}">
+      <div class="cat-arrows" onclick="event.stopPropagation();">
+        <button data-cat-up="${c.id}" ${idx === 0 ? 'disabled' : ''}>▲</button>
+        <button data-cat-down="${c.id}" ${idx === cats.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+      <div class="cat-info">
+        <div class="cat-title">${escapeHtml(c.title)} <span class="cat-count">(${count} محصول)</span></div>
+      </div>
+      <button class="cat-del" data-cat-del="${c.id}" onclick="event.stopPropagation();">✕</button>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('[data-cat-select]').forEach(row => {
+    row.addEventListener('click', () => selectCategory(row.dataset.catSelect));
   });
-  wrap.querySelectorAll('[data-delcat]').forEach(b => {
-    b.addEventListener('click', async () => {
+  wrap.querySelectorAll('[data-cat-up]').forEach(btn => {
+    btn.addEventListener('click', () => moveCategory(btn.dataset.catUp, -1));
+  });
+  wrap.querySelectorAll('[data-cat-down]').forEach(btn => {
+    btn.addEventListener('click', () => moveCategory(btn.dataset.catDown, 1));
+  });
+  wrap.querySelectorAll('[data-cat-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const cat = cats.find(c => c.id === btn.dataset.catDel);
+      const count = itemCountInCat(btn.dataset.catDel);
+      const warnMsg = count
+        ? `دسته «${cat.title}» حذف بشه؟ ${count} محصول توش هست که «بدون دسته» می‌شن (حذف نمی‌شن).`
+        : `دسته «${cat.title}» حذف بشه؟`;
+      if (!confirm(warnMsg)) return;
       try{
-        const data = await apiCall('/api/menu/categories/delete', { id: b.dataset.delcat });
+        const data = await apiCall('/api/menu/categories/delete', { id: btn.dataset.catDel });
         currentMenu = data.menu;
-        renderCategories(); renderItems();
+        if (selectedCatId === btn.dataset.catDel) selectedCatId = null;
+        renderCategories();
+        renderQuickAddArea();
+        renderSearchResults();
       }catch(e){ showMsg('catMsg', e.message, 'err'); }
     });
   });
-  renderFilterChips();
 }
 
-function renderFilterChips(){
-  const wrap = document.getElementById('filterCatChips');
-  wrap.innerHTML = '';
-  const all = [{ id: '', title: 'همه' }, ...(currentMenu.categories || [])];
-  all.forEach(c => {
-    const chip = document.createElement('span');
-    chip.className = 'chip' + (activeFilterCat === c.id ? ' active' : '');
-    chip.textContent = c.title;
-    chip.dataset.filtercat = c.id;
-    chip.style.cursor = 'pointer';
-    chip.addEventListener('click', () => {
-      activeFilterCat = c.id;
-      renderFilterChips();
-      renderItems();
-    });
-    wrap.appendChild(chip);
-  });
+async function moveCategory(id, dir){
+  const cats = [...(currentMenu.categories || [])];
+  const idx = cats.findIndex(c => c.id === id);
+  const newIdx = idx + dir;
+  if (idx === -1 || newIdx < 0 || newIdx >= cats.length) return;
+  [cats[idx], cats[newIdx]] = [cats[newIdx], cats[idx]];
+  currentMenu.categories = cats; // خوش‌بینانه، فوری تو UI اعمال می‌شه
+  renderCategories();
+  try{
+    const data = await apiCall('/api/menu/categories/reorder', { order: cats.map(c => c.id) });
+    currentMenu = data.menu;
+  }catch(e){
+    showMsg('catMsg', 'ذخیره ترتیب ناموفق بود: ' + e.message, 'err');
+  }
 }
+
+function selectCategory(id){
+  selectedCatId = id;
+  renderCategories();
+  renderQuickAddArea();
+  exitEditMode(true);
+}
+
+document.getElementById('deselectCatBtn').addEventListener('click', () => {
+  selectedCatId = null;
+  renderCategories();
+  renderQuickAddArea();
+});
 
 document.getElementById('addCatBtn').addEventListener('click', async () => {
   const title = document.getElementById('newCatTitle').value.trim();
@@ -696,77 +853,58 @@ document.getElementById('addCatBtn').addEventListener('click', async () => {
     const data = await apiCall('/api/menu/categories', { title });
     currentMenu = data.menu;
     document.getElementById('newCatTitle').value = '';
-    renderCategories();
+    hideMsg('catMsg');
+    // دسته‌ی تازه‌ساخته‌شده رو خودکار انتخاب کن تا بشه بلافاصله محصول اضافه کرد
+    const newCat = currentMenu.categories[currentMenu.categories.length - 1];
+    if (newCat) selectCategory(newCat.id);
+    else renderCategories();
   }catch(e){ showMsg('catMsg', e.message, 'err'); }
 });
 
-document.getElementById('saveInfoBtn').addEventListener('click', async () => {
-  const cafeName = document.getElementById('dCafeName').value.trim();
-  const tagline = document.getElementById('dTagline').value.trim();
-  try{
-    const data = await apiCall('/api/menu/update-info', { cafeName, tagline });
-    currentMenu = data.menu;
-    showMsg('infoMsg', '✓ ذخیره شد.', 'ok');
-  }catch(e){ showMsg('infoMsg', e.message, 'err'); }
+/* ============ فرم افزودن سریع محصول (وابسته به دسته‌ی انتخاب‌شده) ============ */
+document.getElementById('detailsToggleBtn').addEventListener('click', () => {
+  const body = document.getElementById('detailsBody');
+  const btn = document.getElementById('detailsToggleBtn');
+  const showing = body.classList.toggle('show');
+  btn.textContent = showing ? '− بستن جزئیات بیشتر' : '+ جزئیات بیشتر (توضیح، برچسب، کالری...)';
 });
 
-document.getElementById('itemSearch').addEventListener('input', (e) => {
-  searchQuery = e.target.value.trim().toLowerCase();
-  renderItems();
-});
+function renderQuickAddArea(){
+  const noCatCard = document.getElementById('noCatSelectedCard');
+  const qaCard = document.getElementById('quickAddCard');
 
-function renderItems(){
-  const wrap = document.getElementById('itemsList');
-  wrap.innerHTML = '';
-
-  let items = currentMenu.items || [];
-  if (activeFilterCat) items = items.filter(it => it.category === activeFilterCat);
-  if (searchQuery) items = items.filter(it =>
-    (it.name || '').toLowerCase().includes(searchQuery) ||
-    (it.desc || '').toLowerCase().includes(searchQuery) ||
-    (it.tags || []).some(t => t.toLowerCase().includes(searchQuery))
-  );
-
-  if (!items.length){
-    wrap.innerHTML = `<p style="color:var(--muted);font-size:13px;">${currentMenu.items.length ? 'چیزی با این فیلتر/جستجو پیدا نشد.' : 'هنوز آیتمی اضافه نکردی.'}</p>`;
+  if (!selectedCatId){
+    noCatCard.classList.remove('hidden');
+    qaCard.classList.add('hidden');
     return;
   }
+  const cat = (currentMenu.categories || []).find(c => c.id === selectedCatId);
+  if (!cat){ selectedCatId = null; renderQuickAddArea(); return; }
 
-  // گروه‌بندی زیر هر دسته
-  const groups = new Map(); // catId -> items[]
-  items.forEach(it => {
-    const key = it.category || '';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(it);
-  });
+  noCatCard.classList.add('hidden');
+  qaCard.classList.remove('hidden');
+  document.getElementById('qaCatName').textContent = cat.title;
+  renderCatItemsList();
+}
 
-  const orderedCatIds = (currentMenu.categories || []).map(c => c.id).filter(id => groups.has(id));
-  if (groups.has('')) orderedCatIds.push('');
-
-  orderedCatIds.forEach(catId => {
-    const catTitle = catId ? ((currentMenu.categories.find(c => c.id === catId) || {}).title || 'بدون دسته') : 'بدون دسته';
-    const groupItems = groups.get(catId);
-
-    const heading = document.createElement('div');
-    heading.style.cssText = 'font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px;';
-    heading.textContent = catTitle + ' (' + groupItems.length + ')';
-    wrap.appendChild(heading);
-
-    groupItems.forEach(it => {
-      const row = document.createElement('div');
-      row.className = 'item-row';
-      row.innerHTML = `
-        <div class="meta">
-          <div class="name">${escapeHtml(it.name)}</div>
-          <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
-        </div>
-        <div class="item-actions">
-          <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
-          <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
-        </div>`;
-      wrap.appendChild(row);
-    });
-  });
+function renderCatItemsList(){
+  const wrap = document.getElementById('catItemsList');
+  const items = (currentMenu.items || []).filter(it => it.category === selectedCatId);
+  if (!items.length){
+    wrap.innerHTML = '<p class="sub" style="font-size:12.5px;">هنوز محصولی تو این دسته نیست. از فرم بالا اولین محصول رو اضافه کن.</p>';
+    return;
+  }
+  wrap.innerHTML = items.map(it => `
+    <div class="item-row${it.id === editItemId ? ' editing' : ''}">
+      <div class="meta">
+        <div class="name">${escapeHtml(it.name)}</div>
+        <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
+        <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
+      </div>
+    </div>`).join('');
 
   wrap.querySelectorAll('[data-del]').forEach(b => {
     b.addEventListener('click', async () => {
@@ -775,12 +913,59 @@ function renderItems(){
         const data = await apiCall('/api/menu/items/delete', { id: b.dataset.del });
         currentMenu = data.menu;
         if (editItemId === b.dataset.del) exitEditMode();
-        renderItems();
+        renderCategories();
+        renderCatItemsList();
+        renderSearchResults();
       }catch(e){ alert(e.message); }
     });
   });
   wrap.querySelectorAll('[data-edit]').forEach(b => {
     b.addEventListener('click', () => enterEditMode(b.dataset.edit));
+  });
+}
+
+/* ============ جستجوی سراسری بین همه محصولات ============ */
+document.getElementById('itemSearch').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  renderSearchResults();
+});
+
+function renderSearchResults(){
+  const wrap = document.getElementById('searchResultsList');
+  if (!searchQuery){
+    wrap.innerHTML = '<p class="sub" style="font-size:12.5px;">برای جستجوی سریع بین همه محصولات (فارغ از دسته)، همینجا تایپ کن.</p>';
+    return;
+  }
+  const catTitle = (id) => ((currentMenu.categories || []).find(c => c.id === id) || {}).title || 'بدون دسته';
+  const items = (currentMenu.items || []).filter(it =>
+    (it.name || '').toLowerCase().includes(searchQuery) ||
+    (it.desc || '').toLowerCase().includes(searchQuery) ||
+    (it.tags || []).some(t => t.toLowerCase().includes(searchQuery))
+  );
+  if (!items.length){ wrap.innerHTML = '<p class="sub" style="font-size:12.5px;">چیزی پیدا نشد.</p>'; return; }
+
+  wrap.innerHTML = items.map(it => `
+    <div class="item-row">
+      <div class="meta">
+        <div class="name">${escapeHtml(it.name)}</div>
+        <div class="sub"><span class="cat-pill">${escapeHtml(catTitle(it.category))}</span> · ${Number(it.price).toLocaleString('fa-IR')} تومان</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-ghost btn-sm" data-goto="${it.id}" data-cat="${it.category || ''}">برو به آیتم</button>
+      </div>
+    </div>`).join('');
+
+  wrap.querySelectorAll('[data-goto]').forEach(b => {
+    b.addEventListener('click', () => {
+      const catId = b.dataset.cat;
+      if (catId && (currentMenu.categories || []).some(c => c.id === catId)){
+        selectCategory(catId);
+      } else {
+        selectedCatId = null; renderCategories(); renderQuickAddArea();
+      }
+      enterEditMode(b.dataset.goto);
+      document.getElementById('quickAddCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   });
 }
 
@@ -790,19 +975,21 @@ function enterEditMode(id){
   if (!it) return;
   editItemId = id;
   document.getElementById('itName').value = it.name || '';
-  document.getElementById('itCategory').value = it.category || '';
   document.getElementById('itPrice').value = it.price || '';
   document.getElementById('itDesc').value = it.desc || '';
   document.getElementById('itTags').value = (it.tags || []).join(', ');
   document.getElementById('itCalories').value = it.calories != null ? it.calories : '';
   document.getElementById('itIngredients').value = (it.ingredients || []).join(', ');
-  document.getElementById('itemFormTitle').textContent = 'ویرایش آیتم';
   document.getElementById('addItemBtn').textContent = 'ذخیره تغییرات';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
-  document.getElementById('itName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (it.desc || (it.tags && it.tags.length) || it.calories || (it.ingredients && it.ingredients.length)){
+    document.getElementById('detailsBody').classList.add('show');
+    document.getElementById('detailsToggleBtn').textContent = '− بستن جزئیات بیشتر';
+  }
+  renderCatItemsList();
 }
 
-function exitEditMode(){
+function exitEditMode(silent){
   editItemId = null;
   document.getElementById('itName').value = '';
   document.getElementById('itPrice').value = '';
@@ -810,17 +997,15 @@ function exitEditMode(){
   document.getElementById('itTags').value = '';
   document.getElementById('itCalories').value = '';
   document.getElementById('itIngredients').value = '';
-  document.getElementById('itCategory').value = '';
-  document.getElementById('itemFormTitle').textContent = 'افزودن آیتم جدید';
-  document.getElementById('addItemBtn').textContent = 'افزودن آیتم';
+  document.getElementById('addItemBtn').textContent = 'افزودن محصول';
   document.getElementById('cancelEditBtn').classList.add('hidden');
+  if (!silent) renderCatItemsList();
 }
-
-document.getElementById('cancelEditBtn').addEventListener('click', exitEditMode);
+document.getElementById('cancelEditBtn').addEventListener('click', () => exitEditMode());
 
 document.getElementById('addItemBtn').addEventListener('click', async () => {
+  if (!selectedCatId){ showMsg('itemMsg', 'اول یه دسته انتخاب کن.', 'err'); return; }
   const name = document.getElementById('itName').value.trim();
-  const category = document.getElementById('itCategory').value;
   const price = document.getElementById('itPrice').value.trim();
   const desc = document.getElementById('itDesc').value.trim();
   const tags = document.getElementById('itTags').value.split(',').map(t => t.trim()).filter(Boolean);
@@ -828,31 +1013,26 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
   const calories = caloriesRaw ? Number(caloriesRaw) : null;
   const ingredients = document.getElementById('itIngredients').value.split(',').map(t => t.trim()).filter(Boolean);
 
-  if (!name || !category){ showMsg('itemMsg', 'نام آیتم و دسته الزامی‌ان.', 'err'); return; }
+  if (!name){ showMsg('itemMsg', 'نام محصول الزامیه.', 'err'); return; }
 
   try{
     if (editItemId){
-      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category, price, desc, tags, calories, ingredients });
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
-      exitEditMode();
+      exitEditMode(true);
     } else {
-      const data = await apiCall('/api/menu/items', { name, category, price, desc, tags, calories, ingredients });
+      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients });
       currentMenu = data.menu;
-      document.getElementById('itName').value = '';
-      document.getElementById('itPrice').value = '';
-      document.getElementById('itDesc').value = '';
-      document.getElementById('itTags').value = '';
-      document.getElementById('itCalories').value = '';
-      document.getElementById('itIngredients').value = '';
-      showMsg('itemMsg', '✓ آیتم اضافه شد.', 'ok');
-      document.getElementById('itName').focus();
+      showMsg('itemMsg', '✓ «' + name + '» اضافه شد. محصول بعدی رو وارد کن.', 'ok');
+      exitEditMode(true);
     }
-    renderItems();
+    document.getElementById('itName').focus();
+    renderCategories();
+    renderCatItemsList();
+    renderSearchResults();
   }catch(e){ showMsg('itemMsg', e.message, 'err'); }
 });
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ============ سفارش‌ها ============ */
 const STATUS_LABEL = { new: 'جدید', seen: 'دیده‌شد', done: 'انجام‌شد' };
@@ -882,21 +1062,17 @@ async function loadOrders(silent){
 
     hideMsg('ordersMsg');
     const newCount = orders.filter(o => o.status === 'new').length;
-    const badge = document.getElementById('ordersBadge');
     const onOrdersTab = !document.getElementById('ordersPane').classList.contains('hidden');
-    if (newCount > 0 && !onOrdersTab){
-      badge.textContent = newCount;
-      badge.classList.remove('hidden');
-    } else if (onOrdersTab){
-      badge.classList.add('hidden');
-    }
+    [document.getElementById('navOrdersDot'), document.getElementById('topbarOrdersDot')].forEach(dot => {
+      if (newCount > 0 && !onOrdersTab){ dot.textContent = newCount; dot.classList.remove('hidden'); }
+      else { dot.classList.add('hidden'); }
+    });
     if (onOrdersTab) renderOrders();
   }catch(e){
     if (!silent) showMsg('ordersMsg', e.message, 'err');
   }
 }
 
-/* ------------ زنگ/اعلان مرورگر برای سفارش جدید ------------ */
 function beep(){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -973,6 +1149,18 @@ function renderOrders(){
 }
 
 document.getElementById('refreshOrdersBtn').addEventListener('click', () => loadOrders());
+
+/* ============ تنظیمات ============ */
+document.getElementById('saveInfoBtn').addEventListener('click', async () => {
+  const cafeName = document.getElementById('dCafeName').value.trim();
+  const tagline = document.getElementById('dTagline').value.trim();
+  try{
+    const data = await apiCall('/api/menu/update-info', { cafeName, tagline });
+    currentMenu = data.menu;
+    document.getElementById('topbarCafeName').textContent = currentMenu.cafeName || 'منوی من';
+    showMsg('infoMsg', '✓ ذخیره شد.', 'ok');
+  }catch(e){ showMsg('infoMsg', e.message, 'err'); }
+});
 
 /* ============ شروع ============ */
 (async function init(){
