@@ -57,6 +57,8 @@
   .section-head p{color:var(--muted);font-size:13.5px;}
 
   .template-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:340px;margin:0 auto;}
+  .templates-grid{display:grid;grid-template-columns:repeat(2,340px);justify-content:center;gap:20px;}
+  @media(max-width:740px){.templates-grid{grid-template-columns:1fr;max-width:340px;margin:0 auto;}}
   .template-preview{background:linear-gradient(160deg,var(--panel-2),var(--ink));padding:0;border-bottom:1px solid var(--line);}
   .template-preview img{display:block;width:100%;height:auto;}
   .template-body{padding:22px;}
@@ -100,7 +102,7 @@
     <div class="icon">🎨</div>
     <h3>قالب‌ها</h3>
     <p>یه قالب اختصاصی و مدرن برای منوی آنلاین، آماده برای هر کافه یا رستوران.</p>
-    <a href="#templates" class="go">مشاهده قالب</a>
+    <a href="#templates" class="go">مشاهده قالب‌ها</a>
   </div>
 
   <div class="opt-card">
@@ -113,30 +115,58 @@
 
 <section class="section" id="templates">
   <div class="section-head">
-    <h2>قالب منو</h2>
-    <p>در حال حاضر یک قالب — طراحی‌شده برای سرعت، خوانایی و تجربه سفارش‌دهی راحت روی موبایل.</p>
+    <h2>قالب‌های منو</h2>
+    <p>دو قالب آماده — هر کدوم برای یه فضا و سلیقه‌ی متفاوت.</p>
   </div>
 
-  <div class="template-card">
-    <div class="template-preview">
-      <a href="portfolio/templates/classic-menu/menu.html">
-        <img src="portfolio/templates/classic-menu/classic-menu.png" alt="پیش‌نمایش قالب کلاسیک منوپروای" loading="lazy">
-      </a>
+  <div class="templates-grid">
+    <div class="template-card">
+      <div class="template-preview">
+        <a href="portfolio/templates/classic-menu/menu.html">
+          <img src="portfolio/templates/classic-menu/classic-menu.png" alt="پیش‌نمایش قالب کلاسیک منوپروای" loading="lazy">
+        </a>
+      </div>
+      <div class="template-body">
+        <span class="badge">قالب پیش‌فرض</span>
+        <h3>قالب کلاسیک</h3>
+        <p>طراحی تیره و مدرن، مرتب‌شده بر اساس دسته‌بندی، با دستیار هوش مصنوعی برای پیشنهاد و ثبت سفارش.</p>
+        <ul class="feature-list">
+          <li>نمایش دسته‌بندی‌شده آیتم‌ها با قیمت و توضیحات</li>
+          <li>دستیار هوش مصنوعی برای پیشنهاد و پاسخ به سوال مشتری</li>
+          <li>سبد خرید، ثبت سفارش و فاکتور PDF</li>
+          <li>تاریخچه سفارش‌های قبلی مشتری با دانلود فاکتور</li>
+          <li>پیگیری زنده وضعیت سفارش برای مشتری</li>
+          <li>کد تخفیف اختصاصی هر کافه</li>
+        </ul>
+        <div class="row">
+          <a href="portfolio/templates/classic-menu/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
+          <a href="dashboard.html?template=classic-menu" class="btn btn-ghost">شروع با این قالب</a>
+        </div>
+      </div>
     </div>
-    <div class="template-body">
-      <span class="badge">قالب پیش‌فرض</span>
-      <h3>قالب کلاسیک منوپروای</h3>
-      <p>طراحی تیره و مدرن، مرتب‌شده بر اساس دسته‌بندی، با دستیار هوش مصنوعی برای پیشنهاد و ثبت سفارش.</p>
-      <ul class="feature-list">
-        <li>نمایش دسته‌بندی‌شده آیتم‌ها با قیمت و توضیحات</li>
-        <li>دستیار هوش مصنوعی برای پیشنهاد و پاسخ به سوال مشتری</li>
-        <li>سبد خرید، ثبت سفارش و فاکتور PDF</li>
-        <li>پیگیری زنده وضعیت سفارش برای مشتری</li>
-        <li>کد تخفیف اختصاصی هر کافه</li>
-      </ul>
-      <div class="row">
-        <a href="portfolio/templates/classic-menu/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
-        <a href="dashboard.html?template=classic-menu" class="btn btn-ghost">شروع با این قالب</a>
+
+    <div class="template-card">
+      <div class="template-preview">
+        <a href="portfolio/templates/modern-grid/menu.html">
+          <img src="portfolio/templates/modern-grid/modern-grid.png" alt="پیش‌نمایش قالب مدرن روشن منوپروای" loading="lazy">
+        </a>
+      </div>
+      <div class="template-body">
+        <span class="badge">جدید</span>
+        <h3>قالب مدرن روشن</h3>
+        <p>پس‌زمینه‌ی روشن و گرم، آیتم‌ها به‌شکل کارت‌های سایه‌دار — حس دنج و امروزی برای کافه‌های نور روز.</p>
+        <ul class="feature-list">
+          <li>آیتم‌های کارتی با سایه و گوشه‌ی گرد</li>
+          <li>دستیار هوش مصنوعی برای پیشنهاد و پاسخ به سوال مشتری</li>
+          <li>سبد خرید، ثبت سفارش و فاکتور PDF</li>
+          <li>تاریخچه سفارش‌های قبلی مشتری با دانلود فاکتور</li>
+          <li>پیگیری زنده وضعیت سفارش برای مشتری</li>
+          <li>کد تخفیف اختصاصی هر کافه</li>
+        </ul>
+        <div class="row">
+          <a href="portfolio/templates/modern-grid/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
+          <a href="dashboard.html?template=modern-grid" class="btn btn-ghost">شروع با این قالب</a>
+        </div>
       </div>
     </div>
   </div>
