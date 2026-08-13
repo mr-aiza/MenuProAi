@@ -310,6 +310,32 @@
     padding: 5px 12px; background:none; cursor:pointer;
   }
 
+  /* ---------- دکمه‌ی سفارش‌های قبلی ---------- */
+  .orders-link{
+    display:inline-flex; align-items:center; gap:6px; margin-top:10px;
+    background: var(--bg-panel-2); color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .order-hist-card{
+    background: var(--bg-panel-2); border-radius:12px; padding:14px;
+    margin-bottom:12px; font-family:'Vazirmatn', sans-serif;
+  }
+  .order-hist-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .order-hist-head b{ font-size:13.5px; }
+  .order-hist-status{ font-size:11px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.06); color:var(--chalk-dim); }
+  .order-hist-status.done{ color:var(--sage); }
+  .order-hist-meta{ font-size:11.5px; color:var(--chalk-dim); margin-bottom:8px; }
+  .order-hist-items{ font-size:12.5px; color:var(--chalk-dim); line-height:1.9; margin-bottom:8px; }
+  .order-hist-total{ display:flex; justify-content:space-between; font-weight:800; font-size:13.5px; margin-bottom:10px; }
+  .order-hist-total span.amt{ color:var(--amber); }
+  .order-hist-pdf-btn{
+    width:100%; background:var(--amber); color:var(--bg); border:none;
+    border-radius:999px; padding:9px; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .order-hist-pdf-btn:disabled{ opacity:.5; }
+  .order-hist-empty, .order-hist-loading{ text-align:center; color:var(--chalk-dim); font-size:13px; padding:40px 10px; }
+
   /* ---------- cart launcher ---------- */
   .cart-btn{
     position: fixed; bottom: 20px; right: 20px;
@@ -480,6 +506,7 @@
   </div>
   <h1 class="cafe-name" id="cafeName">کافه بلوط</h1>
   <p class="tagline" id="tagline">منو رو نگاه کن یا از دستیار بپرس چی بهت میاد</p>
+  <button class="orders-link" id="ordersBtn">🧾 سفارش‌های قبلی من</button>
 </header>
 
 <nav class="cats" id="catsNav"></nav>
@@ -528,6 +555,19 @@
     <div class="cart-total-row"><span>جمع کل</span><span class="amt" id="cartTotal">۰ تومان</span></div>
     <button class="invoice-btn" id="invoiceBtn">مشاهده فاکتور نهایی</button>
   </div>
+</div>
+
+<!-- پنل تاریخچه‌ی سفارش‌های مشتری -->
+<div class="chat-overlay" id="ordersOverlay"></div>
+<div class="chat-panel" id="ordersPanel">
+  <div class="chat-head">
+    <div>
+      <strong>سفارش‌های قبلی من</strong>
+      <span>تاریخچه سفارش‌ها و فاکتور هر کدوم</span>
+    </div>
+    <button class="chat-close" id="ordersClose">✕</button>
+  </div>
+  <div class="cart-msgs" id="ordersMsgs"></div>
 </div>
 
 <!-- مودال دریافت نام/شماره مشتری — قبل از باز شدن چت یا ثبت سفارش نمایش داده می‌شه -->
@@ -1086,32 +1126,15 @@ function trackOrderStatus(orderId){
   orderTrackTimer = setInterval(poll, 8000);
 }
 
-/* ---------------------- خروجی PDF فاکتور ---------------------- */
-function downloadPdfInvoice(){
-  const lines = cartLines();
-  console.log('📋 cartLines:', lines); // DEBUG
-  
-  if(!lines.length){
-    alert('سبد خریدت خالیه!');
-    return;
-  }
-
-  const btn = document.getElementById('pdfInvoiceBtn');
-  btn.disabled = true;
-  btn.textContent = 'در حال ساخت PDF…';
-
-  const now = new Date();
-  
-  // ایجاد template PDF به صورت dynamic
-  const pdfHtml = document.createElement('div');
-  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:-9999px; left:-9999px;';
-  
-  const itemsHtml = lines.map(l => {
-    console.log('🧾 آیتم:', { name: l.item.name, qty: l.qty, price: l.item.price }); // DEBUG
-    return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.name}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${l.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${l.item.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${(l.item.price * l.qty).toLocaleString('fa-IR')}</td></tr>`;
+/* ---------------------- خروجی PDF فاکتور (قابل استفاده هم برای سبد فعلی، هم برای سفارش‌های قبلی) ---------------------- */
+// data: { items:[{name, price, qty}], subtotal, discountCode, discountAmount, total, dateObj, orderNo, statusLabel, filename }
+function buildInvoiceHtml(data){
+  const itemsHtml = data.items.map(it => {
+    const lineTotal = it.price * it.qty;
+    return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.name}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${it.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${lineTotal.toLocaleString('fa-IR')}</td></tr>`;
   }).join('');
-  
-  pdfHtml.innerHTML = `
+
+  return `
     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
       <div>
         <div style="font-size:19px; font-weight:800;">${MENU.cafeName || 'کافه'}
@@ -1121,8 +1144,8 @@ function downloadPdfInvoice(){
       <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">فاکتور</div>
     </div>
     <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px;">
-      <span>${now.toLocaleDateString('fa-IR')} — ${now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
-      <span>سفارش #${now.getTime().toString().slice(-6)}</span>
+      <span>${data.dateObj.toLocaleDateString('fa-IR')} — ${data.dateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
+      <span>سفارش #${data.orderNo}${data.statusLabel ? ' · ' + data.statusLabel : ''}</span>
     </div>
     <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px;">
       <thead>
@@ -1138,42 +1161,82 @@ function downloadPdfInvoice(){
     <div style="width:220px; margin-inline-start:auto; font-size:12px;">
       <div style="display:flex; justify-content:space-between; padding:3px 0;">
         <span>جمع سبد</span>
-        <span>${cartGrandTotal().toLocaleString('fa-IR')}</span>
+        <span>${data.subtotal.toLocaleString('fa-IR')}</span>
       </div>
-      ${appliedDiscount ? `<div style="display:flex; justify-content:space-between; padding:3px 0; color:#0a7a4a;">
-        <span>تخفیف (${appliedDiscount.code})</span>
-        <span>− ${appliedDiscount.discountAmount.toLocaleString('fa-IR')}</span>
+      ${data.discountAmount ? `<div style="display:flex; justify-content:space-between; padding:3px 0; color:#0a7a4a;">
+        <span>تخفیف${data.discountCode ? ' (' + data.discountCode + ')' : ''}</span>
+        <span>− ${data.discountAmount.toLocaleString('fa-IR')}</span>
       </div>` : ''}
       <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
         <span>جمع کل</span>
-        <span>${(appliedDiscount ? appliedDiscount.total : cartGrandTotal()).toLocaleString('fa-IR')} تومان</span>
+        <span>${data.total.toLocaleString('fa-IR')} تومان</span>
       </div>
     </div>
   `;
-  
+}
+
+// خروجی PDF از یک شیء «داده‌ی فاکتور» عمومی (data ساختارش بالاست) — با btn اختیاری برای نمایش وضعیت روی دکمه
+async function generateInvoicePdf(data, btn){
+  const originalLabel = btn ? btn.textContent : '';
+  if (btn){ btn.disabled = true; btn.textContent = 'در حال ساخت PDF…'; }
+
+  // مهم: این المان باید داخل مرزهای قابل‌رندر صفحه بمونه (نه با top منفی خیلی زیاد)
+  // وگرنه html2canvas یک تصویر کاملاً سفید تولید می‌کنه. با position:fixed + z-index منفی
+  // پشت محتوای اصلی صفحه مخفی می‌مونه ولی برای رندرر قابل‌دیدنه.
+  const pdfHtml = document.createElement('div');
+  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:fixed; top:0; left:0; z-index:-99999; pointer-events:none;';
+  pdfHtml.innerHTML = buildInvoiceHtml(data);
   document.body.appendChild(pdfHtml);
-  console.log('✅ pdfHtml به DOM اضافه شد'); // DEBUG
-  
-  // تأخیر برای اجازه دادن به browser برای رندر کردن
-  setTimeout(() => {
-    html2pdf().set({
+
+  try{
+    // صبر برای لود کامل فونت Vazirmatn، وگرنه ممکنه متن اشتباه یا خالی رندر بشه
+    if (document.fonts && document.fonts.ready){ await document.fonts.ready; }
+    await new Promise(r => setTimeout(r, 250));
+
+    await html2pdf().set({
       margin: 8,
-      filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
+      filename: data.filename,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(pdfHtml).save().then(() => {
-      console.log('✅ PDF دانلود شد');
-      document.body.removeChild(pdfHtml);
-      btn.disabled = false;
-      btn.textContent = 'دانلود PDF فاکتور';
-    }).catch((err) => {
-      console.error('❌ خطا در دانلود PDF:', err);
-      if(document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
-      btn.disabled = false;
-      btn.textContent = 'دانلود PDF فاکتور';
-    });
-  }, 500);
+    }).from(pdfHtml).save();
+  }catch(err){
+    console.error('❌ خطا در دانلود PDF:', err);
+    alert('دانلود فاکتور با خطا مواجه شد. لطفاً دوباره امتحان کن.');
+  }finally{
+    if (document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
+    if (btn){ btn.disabled = false; btn.textContent = originalLabel || 'دانلود PDF فاکتور'; }
+  }
+}
+
+// دکمه‌ی «دانلود PDF فاکتور» داخل سبد خرید فعلی (پیش از ثبت سفارش)
+function downloadPdfInvoice(){
+  const lines = cartLines();
+  if(!lines.length){
+    alert('سبد خریدت خالیه!');
+    return;
+  }
+  const now = new Date();
+  const subtotal = cartGrandTotal();
+  const data = {
+    items: lines.map(l => ({ name: l.item.name, price: l.item.price, qty: l.qty })),
+    subtotal,
+    discountCode: appliedDiscount ? appliedDiscount.code : null,
+    discountAmount: appliedDiscount ? appliedDiscount.discountAmount : 0,
+    total: appliedDiscount ? appliedDiscount.total : subtotal,
+    dateObj: now,
+    orderNo: now.getTime().toString().slice(-6),
+    statusLabel: '',
+    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
+  };
+  generateInvoicePdf(data, document.getElementById('pdfInvoiceBtn'));
 }
 
 invoiceBtn.addEventListener('click', renderInvoice);
@@ -1190,6 +1253,92 @@ function closeCart(){
 cartBtn.addEventListener('click', openCart);
 cartClose.addEventListener('click', closeCart);
 cartOverlay.addEventListener('click', closeCart);
+
+/* ---------------------- تاریخچه سفارش‌های مشتری + فاکتور هر کدوم ---------------------- */
+const ordersBtn = document.getElementById('ordersBtn');
+const ordersOverlay = document.getElementById('ordersOverlay');
+const ordersPanel = document.getElementById('ordersPanel');
+const ordersClose = document.getElementById('ordersClose');
+const ordersMsgs = document.getElementById('ordersMsgs');
+
+function openOrdersPanel(){
+  ordersOverlay.classList.add('open');
+  ordersPanel.classList.add('open');
+}
+function closeOrdersPanel(){
+  ordersOverlay.classList.remove('open');
+  ordersPanel.classList.remove('open');
+}
+
+function orderHistCardHtml(order, idx){
+  const created = new Date(order.createdAt);
+  const statusKey = order.status || 'new';
+  const itemsLine = order.items.map(it => `${it.name} × ${it.qty}`).join('، ');
+  return `
+    <div class="order-hist-card" data-idx="${idx}">
+      <div class="order-hist-head">
+        <b>سفارش #${String(order.id || '').slice(-6) || (idx+1)}</b>
+        <span class="order-hist-status ${statusKey === 'done' ? 'done' : ''}">${ORDER_STATUS_LABEL[statusKey] ? (statusKey === 'done' ? 'آماده شد ✅' : (statusKey === 'seen' ? 'دیده شد 👀' : 'در انتظار')) : ''}</span>
+      </div>
+      <div class="order-hist-meta">${created.toLocaleDateString('fa-IR')} — ${created.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</div>
+      <div class="order-hist-items">${itemsLine}</div>
+      <div class="order-hist-total"><span>جمع کل</span><span class="amt">${(order.total || 0).toLocaleString('fa-IR')} تومان</span></div>
+      <button class="order-hist-pdf-btn" data-pdf-idx="${idx}">دانلود فاکتور PDF</button>
+    </div>`;
+}
+
+let lastLoadedOrders = [];
+
+async function loadOrderHistory(){
+  ordersMsgs.innerHTML = '<div class="order-hist-loading">در حال بارگذاری سفارش‌ها…</div>';
+  const identity = getIdentity();
+  if (!identity || !identity.phone){
+    ordersMsgs.innerHTML = '<div class="order-hist-empty">برای دیدن سفارش‌هات باید اول شناسه‌ات رو وارد کنی.</div>';
+    return;
+  }
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/order/history?slug=' + encodeURIComponent(MENU.slug) + '&phone=' + encodeURIComponent(identity.phone), { cache: 'no-store' });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'خطا در دریافت سفارش‌ها');
+    lastLoadedOrders = Array.isArray(data.orders) ? data.orders : [];
+    if (!lastLoadedOrders.length){
+      ordersMsgs.innerHTML = '<div class="order-hist-empty">هنوز سفارشی از این کافه ثبت نکردی.</div>';
+      return;
+    }
+    ordersMsgs.innerHTML = lastLoadedOrders.map((o, i) => orderHistCardHtml(o, i)).join('');
+  }catch(e){
+    ordersMsgs.innerHTML = `<div class="order-hist-empty">${e.message || 'خطا در دریافت سفارش‌ها'}</div>`;
+  }
+}
+
+ordersMsgs.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-pdf-idx]');
+  if (!btn) return;
+  const order = lastLoadedOrders[parseInt(btn.dataset.pdfIdx, 10)];
+  if (!order) return;
+  const created = new Date(order.createdAt);
+  const data = {
+    items: (order.items || []).map(it => ({ name: it.name, price: it.price, qty: it.qty })),
+    subtotal: order.subtotal || 0,
+    discountCode: order.discountCode || null,
+    discountAmount: order.discountAmount || 0,
+    total: order.total || 0,
+    dateObj: created,
+    orderNo: String(order.id || '').slice(-6),
+    statusLabel: ORDER_STATUS_LABEL[order.status] || '',
+    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${String(order.id || '').slice(-6)}.pdf`,
+  };
+  generateInvoicePdf(data, btn);
+});
+
+ordersBtn.addEventListener('click', () => {
+  requireIdentity('order', () => {
+    openOrdersPanel();
+    loadOrderHistory();
+  });
+});
+ordersClose.addEventListener('click', closeOrdersPanel);
+ordersOverlay.addEventListener('click', closeOrdersPanel);
 
 updateCartBadge();
 </script>
