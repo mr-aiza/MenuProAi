@@ -389,6 +389,14 @@
           <div class="public-link" id="publicLink"></div>
         </div>
       </div>
+
+      <div class="card">
+        <h2>قالب منو</h2>
+        <p class="sub" style="margin-bottom:14px;">هر وقت خواستی می‌تونی قالب منوی عمومی‌ت رو عوض کنی — همون لحظه‌ای که انتخاب کنی، برای مشتری‌ها فعال می‌شه.</p>
+        <div class="msg" id="tmplSettingsMsg"></div>
+        <div class="tmpl-grid" id="tmplSettingsGrid"></div>
+      </div>
+
       <button class="btn-ghost btn-block" id="logoutBtn">خروج از حساب</button>
     </div>
 
@@ -705,6 +713,45 @@ document.getElementById('tmplChangeBtn').addEventListener('click', () => {
   renderTemplatePicker();
 });
 
+/* ============ تعویض قالب از تب تنظیمات (بعد از ساخت کافه) ============ */
+// همون آرایه‌ی TEMPLATES بالا رو استفاده می‌کنه — هر قالب جدیدی که به اون
+// آرایه اضافه بشه، خودکار اینجا هم نشون داده می‌شه.
+function renderSettingsTemplatePicker(){
+  const grid = document.getElementById('tmplSettingsGrid');
+  const activeId = (currentMenu && currentMenu.template) || 'classic-menu';
+  grid.innerHTML = TEMPLATES.map(t => `
+    <div class="tmpl-card${t.id === activeId ? ' selected' : ''}" data-tmpl="${t.id}">
+      <img src="${t.img}" alt="${t.name}" loading="lazy">
+      <div class="tmpl-body">
+        <div class="tmpl-name">${t.name}${t.id === activeId ? ' <span style="color:var(--cyan);font-weight:700;">(فعال)</span>' : ''}</div>
+        <div class="tmpl-desc">${t.desc}</div>
+        <button type="button" class="btn-primary btn-sm tmpl-pick" data-tmpl-switch="${t.id}" ${t.id === activeId ? 'disabled' : ''}>
+          ${t.id === activeId ? 'قالب فعلی' : 'استفاده از این قالب'}
+        </button>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('[data-tmpl-switch]').forEach(btn => {
+    btn.addEventListener('click', () => switchTemplate(btn.dataset.tmplSwitch, btn));
+  });
+}
+
+async function switchTemplate(id, btn){
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'در حال اعمال…';
+  try{
+    const data = await apiCall('/api/menu/update-info', { template: id });
+    currentMenu = data.menu;
+    showMsg('tmplSettingsMsg', '✓ قالب عوض شد — همین الان روی منوی عمومی‌ت فعاله.', 'ok');
+    renderSettingsTemplatePicker();
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = original;
+    showMsg('tmplSettingsMsg', e.message, 'err');
+  }
+}
+
 renderTemplatePicker();
 
 /* ============ بعد از لاگین/ثبت‌نام موفق ============ */
@@ -755,6 +802,7 @@ function renderDashboard(){
   document.getElementById('dCafeName').value = currentMenu.cafeName || '';
   document.getElementById('dTagline').value = currentMenu.tagline || '';
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
+  renderSettingsTemplatePicker();
 
   selectedCatId = null;
   renderCategories();
