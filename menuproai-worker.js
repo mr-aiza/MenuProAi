@@ -224,9 +224,13 @@ function randomId(prefix) {
 }
 
 // ============================================================
-// POST /api/menu/update-info — ویرایش نام/توضیح/رنگ کافه
-// body: { cafeName?, tagline?, theme?: {varName: hex, ...} }
+// POST /api/menu/update-info — ویرایش نام/توضیح/رنگ/قالب کافه
+// body: { cafeName?, tagline?, theme?: {varName: hex, ...}, template? }
 // ============================================================
+// قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
+// menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid"];
+
 async function handleUpdateInfo(request, env) {
   const phone = await getAuthedPhone(request, env);
   if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
@@ -246,7 +250,14 @@ async function handleUpdateInfo(request, env) {
   if (body.theme && typeof body.theme === "object") {
     own.menu.theme = { ...own.menu.theme, ...body.theme };
   }
+  if (typeof body.template === "string") {
+    if (!KNOWN_TEMPLATES.includes(body.template)) {
+      return json({ error: "قالب انتخابی معتبر نیست." }, 400);
+    }
+    own.menu.template = body.template;
+  }
 
+  own.menu.updatedAt = new Date().toISOString();
   await saveMenu(own.slug, own.menu, env);
   return json({ ok: true, menu: own.menu }, 200);
 }
