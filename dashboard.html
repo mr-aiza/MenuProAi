@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="assets/bytelab-auth.js"></script>
 <style>
   :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--panel-3:#1a2434;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
@@ -121,7 +122,7 @@
   .order-lines{font-size:12.5px;color:var(--muted);margin-bottom:8px;line-height:1.9;}
   .order-lines b{color:var(--paper);font-weight:600;}
   .order-total{font-size:13.5px;font-weight:800;color:var(--cyan);margin-bottom:10px;}
-  .order-actions{display:flex;gap:6px;}
+  .order-actions{display:flex;gap:6px;flex-wrap:wrap;}
 
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
   .stat-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
@@ -1113,6 +1114,120 @@ document.getElementById('enableNotifBtn').addEventListener('click', async () => 
   showMsg('ordersMsg', notifEnabled ? '✓ اعلان‌ها فعال شد.' : 'اجازه‌ی اعلان داده نشد؛ فقط زنگ فعال می‌مونه.', notifEnabled ? 'ok' : 'err');
 });
 
+/* ============ خروجی PDF فاکتور سفارش (برای دکمه‌ی «فاکتور» کنار هر سفارش) ============ */
+// data: { items:[{name, price, qty}], subtotal, discountCode, discountAmount, total, dateObj, orderNo, statusLabel, filename }
+function buildInvoiceHtml(data){
+  const itemsHtml = data.items.map(it => {
+    const lineTotal = it.price * it.qty;
+    return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${escapeHtml(it.name)}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${it.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${lineTotal.toLocaleString('fa-IR')}</td></tr>`;
+  }).join('');
+
+  return `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
+      <div>
+        <div style="font-size:19px; font-weight:800;">${escapeHtml(currentMenu.cafeName || 'کافه')}
+          <div style="display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px;">menuproai.bytelabpro.xyz</div>
+        </div>
+      </div>
+      <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">فاکتور</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px;">
+      <span>${data.dateObj.toLocaleDateString('fa-IR')} — ${data.dateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
+      <span>سفارش #${data.orderNo}${data.statusLabel ? ' · ' + data.statusLabel : ''}</span>
+    </div>
+    ${(data.customerName || data.customerPhone) ? `<div style="font-size:11.5px; color:#6b7280; margin-bottom:12px;">مشتری: ${escapeHtml(data.customerName || '—')} — ${escapeHtml(data.customerPhone || '—')}</div>` : ''}
+    <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px;">
+      <thead>
+        <tr>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">شرح</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">تعداد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">قیمت واحد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">جمع</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHtml}</tbody>
+    </table>
+    <div style="width:220px; margin-inline-start:auto; font-size:12px;">
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span>جمع سبد</span>
+        <span>${data.subtotal.toLocaleString('fa-IR')}</span>
+      </div>
+      ${data.discountAmount ? `<div style="display:flex; justify-content:space-between; padding:3px 0; color:#0a7a4a;">
+        <span>تخفیف${data.discountCode ? ' (' + escapeHtml(data.discountCode) + ')' : ''}</span>
+        <span>− ${data.discountAmount.toLocaleString('fa-IR')}</span>
+      </div>` : ''}
+      <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
+        <span>جمع کل</span>
+        <span>${data.total.toLocaleString('fa-IR')} تومان</span>
+      </div>
+    </div>
+  `;
+}
+
+// همون تابع مطمئنی که برای منوی مشتری هم استفاده می‌شه — قبل از رندر، صفحه رو به
+// بالا اسکرول می‌کنیم تا اسکرول واقعی صفحه با scrollX/scrollY صفرِ html2canvas
+// هماهنگ باشه؛ وگرنه (مخصوصاً وقتی صفحه اسکرول شده) خروجی یک PDF کاملاً سفید می‌شه.
+async function generateInvoicePdf(data, btn){
+  const originalLabel = btn ? btn.textContent : '';
+  if (btn){ btn.disabled = true; btn.textContent = 'در حال ساخت PDF…'; }
+
+  const scrollBefore = window.scrollY || window.pageYOffset || 0;
+  window.scrollTo(0, 0);
+  await new Promise(r => setTimeout(r, 60));
+
+  const pdfHtml = document.createElement('div');
+  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:0; left:0; z-index:-99999; pointer-events:none;';
+  pdfHtml.innerHTML = buildInvoiceHtml(data);
+  document.body.appendChild(pdfHtml);
+
+  try{
+    if (document.fonts && document.fonts.ready){ await document.fonts.ready; }
+    await new Promise(r => setTimeout(r, 250));
+
+    await html2pdf().set({
+      margin: 8,
+      filename: data.filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: pdfHtml.scrollWidth,
+        windowHeight: pdfHtml.scrollHeight
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(pdfHtml).save();
+  }catch(err){
+    console.error('❌ خطا در دانلود PDF:', err);
+    alert('دانلود فاکتور با خطا مواجه شد. لطفاً دوباره امتحان کن.');
+  }finally{
+    if (document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
+    window.scrollTo(0, scrollBefore);
+    if (btn){ btn.disabled = false; btn.textContent = originalLabel || '🧾 فاکتور'; }
+  }
+}
+
+function downloadOrderInvoice(order, btn){
+  const created = new Date(order.createdAt);
+  const data = {
+    items: (order.items || []).map(it => ({ name: it.name, price: it.price, qty: it.qty })),
+    subtotal: order.subtotal || 0,
+    discountCode: order.discountCode || null,
+    discountAmount: order.discountAmount || 0,
+    total: order.total || 0,
+    dateObj: created,
+    orderNo: String(order.id || '').slice(-6),
+    statusLabel: STATUS_LABEL[order.status] || '',
+    customerName: order.customerName || '',
+    customerPhone: order.customerPhone || '',
+    filename: `فاکتور-${(currentMenu.cafeName || 'menu').replace(/\s+/g,'-')}-${String(order.id || '').slice(-6)}.pdf`,
+  };
+  generateInvoicePdf(data, btn);
+}
+
 function renderOrders(){
   const wrap = document.getElementById('ordersList');
   if (!orders.length){
@@ -1134,6 +1249,7 @@ function renderOrders(){
       <div class="order-actions">
         ${o.status !== 'seen' && o.status !== 'done' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
         ${o.status !== 'done' ? `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="done">انجام شد</button>` : ''}
+        <button class="btn-ghost btn-sm" data-pdf="${o.id}">🧾 فاکتور</button>
       </div>
     </div>`).join('');
 
@@ -1144,6 +1260,14 @@ function renderOrders(){
         await loadOrders(true);
         renderOrders();
       }catch(e){ showMsg('ordersMsg', e.message, 'err'); }
+    });
+  });
+
+  wrap.querySelectorAll('[data-pdf]').forEach(b => {
+    b.addEventListener('click', () => {
+      const order = orders.find(x => x.id === b.dataset.pdf);
+      if (!order) return;
+      downloadOrderInvoice(order, b);
     });
   });
 }
