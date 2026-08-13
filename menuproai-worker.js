@@ -295,6 +295,36 @@ async function handleDeleteCategory(request, env) {
 }
 
 // ============================================================
+// POST /api/menu/categories/reorder — جابه‌جایی ترتیب نمایش دسته‌ها
+// body: { order: [id1, id2, id3, ...] }  ← آرایه‌ی کامل idهای دسته‌ها
+// به همون ترتیب دلخواه. هر id ای که تو منو نباشه نادیده گرفته می‌شه؛
+// هر دسته‌ای که تو order نیومده باشه، به همون ترتیب فعلی ته لیست اضافه می‌شه.
+// ============================================================
+async function handleReorderCategories(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const order = Array.isArray(body.order) ? body.order.map(String) : [];
+  const byId = new Map(own.menu.categories.map((c) => [c.id, c]));
+  const reordered = [];
+  for (const id of order) {
+    if (byId.has(id)) { reordered.push(byId.get(id)); byId.delete(id); }
+  }
+  // هر دسته‌ای که تو order فراموش شده، همون آخر لیست بمونه (چیزی گم نشه)
+  for (const rest of byId.values()) reordered.push(rest);
+
+  own.menu.categories = reordered;
+  await saveMenu(own.slug, own.menu, env);
+  return json({ ok: true, menu: own.menu }, 200);
+}
+
+// ============================================================
 // آیتم‌های منو
 // POST /api/menu/items         body: { name, category, price, desc?, tags?, pairsWith? }
 // POST /api/menu/items/update  body: { id, ...همون فیلدها }
@@ -1155,6 +1185,9 @@ export default {
       }
       if (url.pathname === "/api/menu/categories/delete" && request.method === "POST") {
         return await handleDeleteCategory(request, env);
+      }
+      if (url.pathname === "/api/menu/categories/reorder" && request.method === "POST") {
+        return await handleReorderCategories(request, env);
       }
       if (url.pathname === "/api/menu/items" && request.method === "POST") {
         return await handleAddItem(request, env);
