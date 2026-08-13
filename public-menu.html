@@ -1180,11 +1180,22 @@ async function generateInvoicePdf(data, btn){
   const originalLabel = btn ? btn.textContent : '';
   if (btn){ btn.disabled = true; btn.textContent = 'در حال ساخت PDF…'; }
 
-  // مهم: این المان باید داخل مرزهای قابل‌رندر صفحه بمونه (نه با top منفی خیلی زیاد)
-  // وگرنه html2canvas یک تصویر کاملاً سفید تولید می‌کنه. با position:fixed + z-index منفی
-  // پشت محتوای اصلی صفحه مخفی می‌مونه ولی برای رندرر قابل‌دیدنه.
+  // نکته‌ی مهم (علت اصلی باگ «PDF کاملاً سفید»): html2canvas موقع محاسبه‌ی موقعیت
+  // یک المان position:fixed از اسکرول واقعی پنجره استفاده می‌کنه. اگه کاربر صفحه رو
+  // اسکرول کرده باشه ولی ما به html2canvas بگیم scrollX/scrollY صفره، این دو با هم
+  // ناهماهنگ می‌شن و ناحیه‌ای که عکس ازش گرفته می‌شه با ناحیه‌ای که واقعاً محتوا توشه
+  // یکی نیست → خروجی یک عکس/PDF کاملاً خالی و سفید. راه‌حل قطعی: قبل از رندر، صفحه
+  // رو به بالا اسکرول می‌کنیم (پس اسکرول واقعی هم صفر می‌شه)، بعد از ساخت PDF هم
+  // اسکرول قبلی کاربر رو برمی‌گردونیم تا تجربه‌ی کاربری بهم نخوره.
+  const scrollBefore = window.scrollY || window.pageYOffset || 0;
+  window.scrollTo(0, 0);
+  await new Promise(r => setTimeout(r, 60));
+
+  // این المان باید داخل مرزهای قابل‌رندر صفحه بمونه (نه با left منفی خیلی زیاد)
+  // وگرنه html2canvas یک تصویر کاملاً سفید تولید می‌کنه. با z-index منفی پشت محتوای
+  // اصلی صفحه مخفی می‌مونه ولی برای رندرر قابل‌دیدنه.
   const pdfHtml = document.createElement('div');
-  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:fixed; top:0; left:0; z-index:-99999; pointer-events:none;';
+  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:0; left:0; z-index:-99999; pointer-events:none;';
   pdfHtml.innerHTML = buildInvoiceHtml(data);
   document.body.appendChild(pdfHtml);
 
@@ -1203,7 +1214,9 @@ async function generateInvoicePdf(data, btn){
         allowTaint: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        windowWidth: pdfHtml.scrollWidth,
+        windowHeight: pdfHtml.scrollHeight
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }).from(pdfHtml).save();
@@ -1212,6 +1225,7 @@ async function generateInvoicePdf(data, btn){
     alert('دانلود فاکتور با خطا مواجه شد. لطفاً دوباره امتحان کن.');
   }finally{
     if (document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
+    window.scrollTo(0, scrollBefore);
     if (btn){ btn.disabled = false; btn.textContent = originalLabel || 'دانلود PDF فاکتور'; }
   }
 }
