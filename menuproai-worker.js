@@ -650,6 +650,36 @@ async function handleCreateOrder(request, env) {
   return json({ ok: true, order }, 200);
 }
 
+// GET /api/menu/order/history?slug=...&phone=...   ← عمومی، بدون لاگین — تاریخچه سفارش‌های یک مشتری تو یک کافه
+async function handleGetOrderHistory(request, env) {
+  const url = new URL(request.url);
+  const slug = slugify(url.searchParams.get("slug") || "");
+  const phoneRaw = String(url.searchParams.get("phone") || "").trim().slice(0, 20);
+  if (!slug) return json({ error: "اسلاگ کافه مشخص نیست." }, 400);
+  if (!phoneRaw) return json({ error: "شماره تلفن مشخص نیست." }, 400);
+
+  const orders = await loadOrders(slug, env);
+  const mine = orders
+    .filter((o) => String(o.customerPhone || "").trim() === phoneRaw)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, 50)
+    // فقط چیزی که برای مشتری لازمه رو برمی‌گردونیم (نه اطلاعات داخلی)
+    .map((o) => ({
+      id: o.id,
+      items: o.items,
+      subtotal: o.subtotal,
+      discountCode: o.discountCode,
+      discountAmount: o.discountAmount,
+      total: o.total,
+      note: o.note,
+      status: o.status,
+      createdAt: o.createdAt,
+      updatedAt: o.updatedAt,
+    }));
+
+  return json({ ok: true, orders: mine }, 200);
+}
+
 async function handleGetOrders(request, env) {
   const phone = await getAuthedPhone(request, env);
   if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
@@ -1218,6 +1248,9 @@ export default {
       }
       if (url.pathname === "/api/menu/orders" && request.method === "GET") {
         return await handleGetOrders(request, env);
+      }
+      if (url.pathname === "/api/menu/order/history" && request.method === "GET") {
+        return await handleGetOrderHistory(request, env);
       }
       if (url.pathname === "/api/menu/analytics" && request.method === "GET") {
         return await handleGetAnalytics(request, env);
