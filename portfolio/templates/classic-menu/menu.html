@@ -147,6 +147,13 @@
     border-bottom: 1px solid var(--line);
   }
   .item:last-child{ border-bottom:none; }
+  .item-inner{ display:flex; gap:12px; align-items:flex-start; }
+  .item-thumb{
+    width:68px; height:68px; flex-shrink:0;
+    border-radius:10px; object-fit:cover;
+    background: var(--bg-panel-2);
+  }
+  .item-content{ flex:1; min-width:0; }
   .item-row{
     display:flex; align-items: baseline; gap:8px;
   }
@@ -687,17 +694,22 @@ function renderItem(it){
     ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.join('، ')}</div>` : '';
   return `
     <div class="item" id="item-${it.id}">
-      <div class="item-row">
-        <span class="item-name">${it.name}</span>
-        <span class="leader"></span>
-        ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
-        <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
-        <button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>
+      <div class="item-inner">
+        ${it.image ? `<img class="item-thumb" src="${it.image}" alt="${it.name}" loading="lazy">` : ''}
+        <div class="item-content">
+          <div class="item-row">
+            <span class="item-name">${it.name}</span>
+            <span class="leader"></span>
+            ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
+            <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
+            <button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>
+          </div>
+          <p class="item-desc">${it.desc || ''}</p>
+          <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          ${ingredientsHtml}
+          ${recipeHtml}
+        </div>
       </div>
-      <p class="item-desc">${it.desc || ''}</p>
-      <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-      ${ingredientsHtml}
-      ${recipeHtml}
     </div>`;
 }
 
