@@ -103,6 +103,16 @@
   }
 
   /* ---------- category nav ---------- */
+  .menu-search-wrap{ padding: 4px 18px 0; max-width: 640px; margin: 0 auto; }
+  .menu-search-input{
+    width:100%; background: var(--bg-panel); border:1px solid var(--line);
+    border-radius: 999px; padding: 11px 16px; font-family:inherit; font-size:13.5px;
+    color: var(--chalk); outline:none;
+  }
+  .menu-search-input::placeholder{ color: var(--chalk-dim); }
+  .menu-search-input:focus{ border-color: var(--amber); }
+  .search-empty{ text-align:center; color:var(--chalk-dim); padding-top:40px; font-size:13.5px; }
+
   nav.cats{
     position: sticky; top:0; z-index: 20;
     display:flex; gap:8px; overflow-x:auto;
@@ -175,6 +185,12 @@
     background: var(--bg-panel-2);
   }
   .item-content{ flex:1; min-width:0; }
+  .item.sold-out{ opacity:.5; }
+  .soldout-badge{
+    font-size:11px; font-weight:700; color: var(--chalk-dim);
+    background: rgba(140,140,140,.16); padding:5px 11px; border-radius:999px;
+    white-space:nowrap;
+  }
   .item-row{
     display:flex; align-items: baseline; gap:8px;
   }
@@ -200,6 +216,32 @@
   }
   .add-btn.added{
     background: var(--amber); color: var(--accent-ink);
+    transform: scale(1.1);
+  }
+  .fav-btn{
+    flex: 0 0 auto;
+    width:26px; height:26px; border-radius:50%;
+    border: 1.5px solid var(--line);
+    background: transparent; color: var(--chalk-dim);
+    font-size:14px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: color .15s, border-color .15s, transform .15s;
+  }
+  .fav-btn.active{
+    color: #ff6b81; border-color: #ff6b81;
+    transform: scale(1.08);
+  }
+  .fav-btn{
+    flex: 0 0 auto;
+    width:26px; height:26px; border-radius:50%;
+    border: 1.5px solid var(--line);
+    background: transparent; color: var(--chalk-dim);
+    font-size:14px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: color .15s, border-color .15s, transform .15s;
+  }
+  .fav-btn.active{
+    color: #ff5d7a; border-color: #ff5d7a;
     transform: scale(1.1);
   }
   .item-desc{
@@ -339,12 +381,20 @@
   }
 
   /* ---------- دکمه‌ی سفارش‌های قبلی ---------- */
+  .header-actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
   .orders-link{
-    display:inline-flex; align-items:center; gap:6px; margin-top:10px;
+    display:inline-flex; align-items:center; gap:6px; margin-top:0;
     background: var(--bg-panel-2); color: var(--chalk-dim);
     border:1px solid var(--line); border-radius:999px;
     padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit;
   }
+  .waiter-link{
+    display:inline-flex; align-items:center; gap:6px; margin-top:0;
+    background: var(--bg-panel-2); color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  #favFilterBtn.active{ color:#ff6b81; border-color:#ff6b81; }
   .order-hist-card{
     background: var(--bg-panel-2); border-radius:12px; padding:14px;
     margin-bottom:12px; font-family:'Vazirmatn', sans-serif;
@@ -534,8 +584,16 @@
   </div>
   <h1 class="cafe-name" id="cafeName">کافه بلوط</h1>
   <p class="tagline" id="tagline">منو رو نگاه کن یا از دستیار بپرس چی بهت میاد</p>
-  <button class="orders-link" id="ordersBtn">🧾 سفارش‌های قبلی من</button>
+  <div class="header-actions">
+    <button class="orders-link" id="ordersBtn">🧾 سفارش‌های قبلی من</button>
+    <button class="waiter-link" id="waiterBtn">🔔 صدا زدن گارسون</button>
+    <button class="waiter-link" id="favFilterBtn">♥ علاقه‌مندی‌ها</button>
+  </div>
 </header>
+
+<div class="menu-search-wrap">
+  <input type="text" id="menuSearchInput" class="menu-search-input" placeholder="🔍 تو منو جستجو کن…">
+</div>
 
 <nav class="cats" id="catsNav"></nav>
 
@@ -611,6 +669,21 @@
     <div class="id-actions">
       <button class="id-cancel" id="idCancel">انصراف</button>
       <button class="id-confirm" id="idConfirm">تایید</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال صدا زدن گارسون -->
+<div class="id-overlay hidden" id="waiterOverlay">
+  <div class="id-modal">
+    <h3>صدا زدن گارسون</h3>
+    <p>شماره میزت رو بنویس تا گارسون خبر بشه بیاد سراغت.</p>
+    <label>شماره میز</label>
+    <input type="text" id="waiterTable" inputmode="numeric" placeholder="مثلاً 4">
+    <div class="id-err" id="waiterErr"></div>
+    <div class="id-actions">
+      <button class="id-cancel" id="waiterCancel">انصراف</button>
+      <button class="id-confirm" id="waiterConfirm">خبرش کن</button>
     </div>
   </div>
 </div>
@@ -701,6 +774,42 @@ function renderMenu(){
   }).join('');
 }
 
+/* ---------------------- جستجوی زنده تو منو (سمت مشتری) ---------------------- */
+const menuSearchInput = document.getElementById('menuSearchInput');
+const catsNavEl = document.getElementById('catsNav');
+
+function runMenuSearch(query){
+  const q = query.trim().toLowerCase();
+  const root = document.getElementById('menuRoot');
+
+  if (!q){
+    menuFilterMode = 'all';
+    if (favBtnHeader) favBtnHeader.classList.remove('active');
+    catsNavEl.classList.remove('hidden');
+    renderMenu();
+    return;
+  }
+  menuFilterMode = 'search';
+  if (favBtnHeader) favBtnHeader.classList.remove('active');
+  catsNavEl.classList.add('hidden');
+
+  const results = MENU.items.filter(it =>
+    (it.name || '').toLowerCase().includes(q) ||
+    (it.desc || '').toLowerCase().includes(q) ||
+    (it.tags || []).some(t => t.toLowerCase().includes(q))
+  );
+
+  if (!results.length){
+    root.innerHTML = `<p class="search-empty">چیزی برای «${query.trim()}» پیدا نشد.</p>`;
+    return;
+  }
+  root.innerHTML = `<section class="cat">${results.map(renderItem).join('')}</section>`;
+}
+
+if (menuSearchInput){
+  menuSearchInput.addEventListener('input', (e) => runMenuSearch(e.target.value));
+}
+
 function renderItem(it){
   const recipeHtml = it.recipe ? `
       <details class="recipe">
@@ -715,7 +824,7 @@ function renderItem(it){
   const ingredientsHtml = (it.ingredients && it.ingredients.length)
     ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.join('، ')}</div>` : '';
   return `
-    <div class="item" id="item-${it.id}">
+    <div class="item${it.available === false ? ' sold-out' : ''}" id="item-${it.id}">
       <div class="item-inner">
         ${it.image ? `<img class="item-thumb" src="${it.image}" alt="${it.name}" loading="lazy">` : ''}
         <div class="item-content">
@@ -724,7 +833,8 @@ function renderItem(it){
             <span class="leader"></span>
             ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
             <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
-            <button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>
+            <button class="fav-btn${isFavorite(it.id) ? ' active' : ''}" data-fav="${it.id}" aria-label="علاقه‌مندی">♥</button>
+            ${it.available === false ? '<span class="soldout-badge">ناموجود</span>' : `<button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>`}
           </div>
           <p class="item-desc">${it.desc || ''}</p>
           <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
@@ -742,6 +852,63 @@ function highlightItem(id){
   el.classList.remove('highlight');
   void el.offsetWidth;
   el.classList.add('highlight');
+}
+
+// ---------------------- علاقه‌مندی‌ها (ذخیره محلی رو گوشی مشتری) ----------------------
+const FAV_KEY = 'bolut_favorites_' + (detectSlug() || 'x');
+function getFavorites(){
+  try{ return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }catch(e){ return []; }
+}
+function isFavorite(id){ return getFavorites().includes(id); }
+function toggleFavorite(id){
+  const favs = getFavorites();
+  const idx = favs.indexOf(id);
+  if (idx === -1) favs.push(id); else favs.splice(idx, 1);
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+  return favs.includes(id);
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.fav-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  const active = toggleFavorite(btn.dataset.fav);
+  btn.classList.toggle('active', active);
+  if (!active && catsNavEl.classList.contains('hidden') && menuFilterMode === 'favorites'){
+    runFavoritesView();
+  }
+});
+
+let menuFilterMode = 'all'; // 'all' | 'favorites' | 'search'
+const favBtnHeader = document.getElementById('favFilterBtn');
+
+function runFavoritesView(){
+  menuFilterMode = 'favorites';
+  if (menuSearchInput) menuSearchInput.value = '';
+  catsNavEl.classList.add('hidden');
+  favBtnHeader.classList.add('active');
+  const root = document.getElementById('menuRoot');
+  const favIds = getFavorites();
+  const results = MENU.items.filter(it => favIds.includes(it.id));
+  if (!results.length){
+    root.innerHTML = '<p class="search-empty">هنوز چیزی رو لایک نکردی — روی ♥ کنار هر آیتم بزن.</p>';
+    return;
+  }
+  root.innerHTML = `<section class="cat">${results.map(renderItem).join('')}</section>`;
+}
+
+function exitFavoritesView(){
+  menuFilterMode = 'all';
+  favBtnHeader.classList.remove('active');
+  catsNavEl.classList.remove('hidden');
+  renderMenu();
+}
+
+if (favBtnHeader){
+  favBtnHeader.addEventListener('click', () => {
+    if (menuFilterMode === 'favorites') exitFavoritesView();
+    else runFavoritesView();
+  });
 }
 
 loadMenu();
@@ -1386,6 +1553,54 @@ ordersBtn.addEventListener('click', () => {
 });
 ordersClose.addEventListener('click', closeOrdersPanel);
 ordersOverlay.addEventListener('click', closeOrdersPanel);
+
+/* ---------------------- صدا زدن گارسون ---------------------- */
+const waiterBtn = document.getElementById('waiterBtn');
+const waiterOverlay = document.getElementById('waiterOverlay');
+const waiterTable = document.getElementById('waiterTable');
+const waiterErr = document.getElementById('waiterErr');
+const waiterCancel = document.getElementById('waiterCancel');
+const waiterConfirm = document.getElementById('waiterConfirm');
+
+waiterBtn.addEventListener('click', () => {
+  waiterErr.textContent = '';
+  waiterTable.value = '';
+  waiterOverlay.classList.remove('hidden');
+});
+waiterCancel.addEventListener('click', () => waiterOverlay.classList.add('hidden'));
+waiterOverlay.addEventListener('click', (e) => { if (e.target === waiterOverlay) waiterOverlay.classList.add('hidden'); });
+
+waiterConfirm.addEventListener('click', async () => {
+  const tableNumber = waiterTable.value.trim();
+  if (!tableNumber){ waiterErr.textContent = 'شماره میز رو بنویس.'; return; }
+  waiterConfirm.disabled = true;
+  waiterConfirm.textContent = 'در حال ارسال…';
+
+  if (DEMO_MODE){
+    await new Promise(r => setTimeout(r, 500));
+    waiterOverlay.classList.add('hidden');
+    waiterConfirm.disabled = false;
+    waiterConfirm.textContent = 'خبرش کن';
+    alert('این یه نمونه‌کاره — تو نسخه‌ی واقعی، گارسون همین الان برای میز ' + tableNumber + ' خبر می‌شد.');
+    return;
+  }
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/call-waiter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: MENU.slug, tableNumber }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'ارسال نشد.');
+    waiterOverlay.classList.add('hidden');
+    alert('گارسون خبر شد! تا چند لحظه دیگه میاد سراغت.');
+  }catch(e){
+    waiterErr.textContent = e.message;
+  }
+  waiterConfirm.disabled = false;
+  waiterConfirm.textContent = 'خبرش کن';
+});
 
 updateCartBadge();
 </script>

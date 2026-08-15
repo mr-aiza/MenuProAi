@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="assets/bytelab-auth.js"></script>
 <style>
   :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--panel-3:#1a2434;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
@@ -95,7 +96,14 @@
   .search-toggle input{margin-bottom:0;}
 
   .item-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .item-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--panel);}
+  .item-img-row{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .item-img-preview{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--line);background:var(--panel-2);}
+  .item-img-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+  .item-img-upload-btn{cursor:pointer;display:inline-block;}
   .item-row.editing{border-color:var(--violet);}
+  .item-row.unavailable{opacity:.55;}
+  .sold-out-pill{display:inline-block;background:rgba(255,128,128,.14);color:#ff8080;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:6px;}
   .item-row .meta{flex:1;min-width:0;}
   .item-row .name{font-weight:700;font-size:13.5px;}
   .item-row .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
@@ -113,6 +121,8 @@
 
   .order-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
   .order-card.new{border-color:var(--cyan);}
+  .order-card.call-waiter{border-right:3px solid var(--violet);}
+  .order-card.call-waiter.new{border-color:var(--violet);}
   .order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
   .order-head .time{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
   .order-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
@@ -154,6 +164,8 @@
   .tmpl-card .tmpl-pick{width:100%;}
   .tmpl-selected-note{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:12.5px;}
   .tmpl-selected-note .tmpl-change{color:var(--cyan);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;font-size:12px;}
+  .qr-box{display:flex;justify-content:center;align-items:center;background:#fff;border-radius:14px;padding:18px;}
+  .qr-box img, .qr-box canvas{display:block;}
 </style>
 </head>
 <body>
@@ -269,6 +281,17 @@
         <input type="text" id="itName" placeholder="مثلاً اسپرسو">
         <label>قیمت (تومان)</label>
         <input type="text" id="itPrice" dir="ltr" inputmode="numeric" placeholder="55000">
+
+        <label>عکس محصول (اختیاری)</label>
+        <div class="item-img-row">
+          <img id="itImagePreview" class="item-img-preview hidden" alt="پیش‌نمایش عکس محصول">
+          <div class="item-img-actions">
+            <label class="btn-ghost btn-sm item-img-upload-btn" for="itImageFile">📷 انتخاب عکس</label>
+            <input type="file" id="itImageFile" accept="image/png,image/jpeg,image/webp" class="hidden">
+            <button type="button" class="btn-ghost btn-sm hidden" id="removeImageBtn">حذف عکس</button>
+          </div>
+        </div>
+        <div class="msg" id="itImageMsg"></div>
 
         <button type="button" class="details-toggle" id="detailsToggleBtn">+ جزئیات بیشتر (توضیح، برچسب، کالری...)</button>
         <div class="details-body" id="detailsBody">
@@ -391,6 +414,15 @@
       </div>
 
       <div class="card">
+        <h2>QR کد منو</h2>
+        <p class="sub" style="margin-bottom:14px;">این کد رو دانلود کن و روی میزهای کافه بچسبون — مشتری با اسکن، مستقیم منوی آنلاینت رو باز می‌کنه.</p>
+        <div class="qr-box">
+          <div id="qrCodeCanvas"></div>
+        </div>
+        <button class="btn-ghost btn-sm btn-block" id="downloadQrBtn" style="margin-top:12px;">⬇️ دانلود عکس QR</button>
+      </div>
+
+      <div class="card">
         <h2>قالب منو</h2>
         <p class="sub" style="margin-bottom:14px;">هر وقت خواستی می‌تونی قالب منوی عمومی‌ت رو عوض کنی — همون لحظه‌ای که انتخاب کنی، برای مشتری‌ها فعال می‌شه.</p>
         <div class="msg" id="tmplSettingsMsg"></div>
@@ -422,6 +454,7 @@ let currentMenu = null;
 let editItemId = null;
 let selectedCatId = null; // دسته‌ای که الان تو منوساز فعاله
 let searchQuery = '';
+let currentItemImage = ''; // data URL عکس محصولِ در حال افزودن/ویرایش (اگه باشه)
 let orders = [];
 let ordersPollTimer = null;
 let knownOrderIds = null; // null یعنی هنوز اولین بار لود نشده
@@ -752,6 +785,33 @@ async function switchTemplate(id, btn){
   }
 }
 
+/* ============ QR کد لینک عمومی منو ============ */
+function renderMenuQrCode(){
+  const box = document.getElementById('qrCodeCanvas');
+  if (!box || !currentMenu || !currentMenu.slug) return;
+  box.innerHTML = '';
+  const link = PUBLIC_BASE + currentMenu.slug + '/menu.html';
+  if (typeof QRCode === 'undefined'){
+    box.innerHTML = '<p class="sub" style="font-size:12px;">کتابخانه QR بارگذاری نشد — اتصال اینترنتت رو چک کن.</p>';
+    return;
+  }
+  new QRCode(box, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff' });
+}
+
+document.getElementById('downloadQrBtn').addEventListener('click', () => {
+  const box = document.getElementById('qrCodeCanvas');
+  const canvas = box.querySelector('canvas');
+  const img = box.querySelector('img');
+  const dataUrl = canvas ? canvas.toDataURL('image/png') : (img ? img.src : null);
+  if (!dataUrl){ alert('QR کد هنوز آماده نیست.'); return; }
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = 'qr-' + (currentMenu.slug || 'menu') + '.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
 renderTemplatePicker();
 
 /* ============ بعد از لاگین/ثبت‌نام موفق ============ */
@@ -803,6 +863,7 @@ function renderDashboard(){
   document.getElementById('dTagline').value = currentMenu.tagline || '';
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
   renderSettingsTemplatePicker();
+  renderMenuQrCode();
 
   selectedCatId = null;
   renderCategories();
@@ -950,16 +1011,41 @@ function renderCatItemsList(){
     return;
   }
   wrap.innerHTML = items.map(it => `
-    <div class="item-row${it.id === editItemId ? ' editing' : ''}">
+    <div class="item-row${it.id === editItemId ? ' editing' : ''}${it.available === false ? ' unavailable' : ''}">
+      ${it.image ? `<img class="item-thumb" src="${it.image}" alt="">` : ''}
       <div class="meta">
-        <div class="name">${escapeHtml(it.name)}</div>
+        <div class="name">${escapeHtml(it.name)}${it.available === false ? ' <span class="sold-out-pill">ناموجود</span>' : ''}</div>
         <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
       </div>
       <div class="item-actions">
+        <button class="btn-ghost btn-sm avail-toggle" data-avail="${it.id}" data-cur="${it.available === false ? '0' : '1'}">${it.available === false ? '✅ موجود کن' : '🚫 ناموجود کن'}</button>
         <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
         <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
       </div>
     </div>`).join('');
+
+  wrap.querySelectorAll('[data-avail]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = b.dataset.avail;
+      const item = (currentMenu.items || []).find(i => i.id === id);
+      if (!item) return;
+      const nextAvailable = b.dataset.cur === '0';
+      b.disabled = true;
+      try{
+        const data = await apiCall('/api/menu/items/update', {
+          id, name: item.name, category: item.category, price: item.price, desc: item.desc,
+          tags: item.tags, calories: item.calories, ingredients: item.ingredients,
+          image: item.image, available: nextAvailable,
+        });
+        currentMenu = data.menu;
+        renderCatItemsList();
+        renderSearchResults();
+      }catch(e){
+        b.disabled = false;
+        alert(e.message);
+      }
+    });
+  });
 
   wrap.querySelectorAll('[data-del]').forEach(b => {
     b.addEventListener('click', async () => {
@@ -1001,6 +1087,7 @@ function renderSearchResults(){
 
   wrap.innerHTML = items.map(it => `
     <div class="item-row">
+      ${it.image ? `<img class="item-thumb" src="${it.image}" alt="">` : ''}
       <div class="meta">
         <div class="name">${escapeHtml(it.name)}</div>
         <div class="sub"><span class="cat-pill">${escapeHtml(catTitle(it.category))}</span> · ${Number(it.price).toLocaleString('fa-IR')} تومان</div>
@@ -1024,6 +1111,64 @@ function renderSearchResults(){
   });
 }
 
+/* ============ عکس محصول (فشرده‌سازی سمت مرورگر با canvas) ============ */
+function setItemImagePreview(dataUrl){
+  const img = document.getElementById('itImagePreview');
+  const removeBtn = document.getElementById('removeImageBtn');
+  currentItemImage = dataUrl || '';
+  if (currentItemImage){
+    img.src = currentItemImage;
+    img.classList.remove('hidden');
+    removeBtn.classList.remove('hidden');
+  } else {
+    img.src = '';
+    img.classList.add('hidden');
+    removeBtn.classList.add('hidden');
+  }
+}
+
+// عکس رو تو مرورگر خودِ کاربر کوچیک و فشرده می‌کنه (حداکثر عرض ۶۴۰px،
+// JPEG کیفیت ۰.۷۲) تا هم آپلود سریع باشه هم حجم منو تو دیتابیس منطقی بمونه.
+function compressImageFile(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('خواندن فایل با خطا مواجه شد.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('فایل انتخاب‌شده یک تصویر معتبر نیست.'));
+      img.onload = () => {
+        const maxW = 640;
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.72));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('itImageFile').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = ''; // بذار بشه دوباره همون فایل رو انتخاب کرد
+  if (!file) return;
+  showMsg('itImageMsg', 'در حال آماده‌سازی عکس…', 'ok');
+  try{
+    const dataUrl = await compressImageFile(file);
+    setItemImagePreview(dataUrl);
+    showMsg('itImageMsg', '', 'ok');
+  }catch(err){
+    showMsg('itImageMsg', err.message || 'خطا در پردازش عکس.', 'err');
+  }
+});
+
+document.getElementById('removeImageBtn').addEventListener('click', () => setItemImagePreview(''));
+
 /* ============ حالت ویرایش آیتم ============ */
 function enterEditMode(id){
   const it = currentMenu.items.find(x => x.id === id);
@@ -1035,6 +1180,7 @@ function enterEditMode(id){
   document.getElementById('itTags').value = (it.tags || []).join(', ');
   document.getElementById('itCalories').value = it.calories != null ? it.calories : '';
   document.getElementById('itIngredients').value = (it.ingredients || []).join(', ');
+  setItemImagePreview(it.image || '');
   document.getElementById('addItemBtn').textContent = 'ذخیره تغییرات';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   if (it.desc || (it.tags && it.tags.length) || it.calories || (it.ingredients && it.ingredients.length)){
@@ -1052,6 +1198,7 @@ function exitEditMode(silent){
   document.getElementById('itTags').value = '';
   document.getElementById('itCalories').value = '';
   document.getElementById('itIngredients').value = '';
+  setItemImagePreview('');
   document.getElementById('addItemBtn').textContent = 'افزودن محصول';
   document.getElementById('cancelEditBtn').classList.add('hidden');
   if (!silent) renderCatItemsList();
@@ -1072,12 +1219,12 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
 
   try{
     if (editItemId){
-      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients });
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
       exitEditMode(true);
     } else {
-      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients });
+      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ «' + name + '» اضافه شد. محصول بعدی رو وارد کن.', 'ok');
       exitEditMode(true);
@@ -1288,7 +1435,21 @@ function renderOrders(){
     wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">هنوز سفارشی نرسیده.</p>';
     return;
   }
-  wrap.innerHTML = orders.map(o => `
+  wrap.innerHTML = orders.map(o => o.type === 'call-waiter' ? `
+    <div class="order-card call-waiter ${o.status === 'new' ? 'new' : ''}" data-order="${o.id}">
+      <div class="order-head">
+        <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+        <span class="time">${timeAgo(o.createdAt)}</span>
+      </div>
+      <div class="order-lines">
+        <div>🔔 <b>صدا زدن گارسون</b> — میز ${escapeHtml(o.tableNumber || '—')}</div>
+        ${o.note ? `<div>یادداشت: ${escapeHtml(o.note)}</div>` : ''}
+      </div>
+      <div class="order-actions">
+        ${o.status !== 'seen' && o.status !== 'done' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
+        ${o.status !== 'done' ? `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="done">رسیدگی شد</button>` : ''}
+      </div>
+    </div>` : `
     <div class="order-card ${o.status === 'new' ? 'new' : ''}" data-order="${o.id}">
       <div class="order-head">
         <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>

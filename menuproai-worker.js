@@ -337,7 +337,7 @@ async function handleReorderCategories(request, env) {
 
 // ============================================================
 // آیتم‌های منو
-// POST /api/menu/items         body: { name, category, price, desc?, tags?, pairsWith? }
+// POST /api/menu/items         body: { name, category, price, desc?, tags?, pairsWith?, image? }
 // POST /api/menu/items/update  body: { id, ...همون فیلدها }
 // POST /api/menu/items/delete  body: { id }
 // ============================================================
@@ -353,7 +353,25 @@ function sanitizeItemInput(body) {
     pairsWith: Array.isArray(body.pairsWith) ? body.pairsWith.map((p) => String(p).trim()).filter(Boolean).slice(0, 5) : [],
     calories: Number.isFinite(calories) && calories >= 0 ? Math.round(Math.min(calories, 5000)) : null,
     ingredients: Array.isArray(body.ingredients) ? body.ingredients.map((i) => String(i).trim().slice(0, 40)).filter(Boolean).slice(0, 15) : [],
+    image: typeof body.image === "string" ? body.image.trim() : "",
+    available: body.available === false ? false : true,
   };
+}
+
+// عکس‌ها به‌صورت data URL (base64) از سمت مرورگر (بعد از فشرده‌سازی
+// خودکار با canvas) می‌رسن؛ فقط data URLهای تصویری رو قبول می‌کنیم و
+// سایزشون رو محدود می‌کنیم تا حجم کل منو تو KV غیرمنطقی نشه.
+const MAX_IMAGE_DATA_URL_LEN = 350000; // تقریباً ~250KB باینری بعد از دیکد base64
+
+function validateItemImage(image) {
+  if (!image) return { ok: true };
+  if (!/^data:image\/(jpeg|jpg|png|webp);base64,/.test(image)) {
+    return { ok: false, error: "فرمت عکس نامعتبر است." };
+  }
+  if (image.length > MAX_IMAGE_DATA_URL_LEN) {
+    return { ok: false, error: "حجم عکس زیاده. یه عکس کوچیک‌تر امتحان کن." };
+  }
+  return { ok: true };
 }
 
 async function handleAddItem(request, env) {
@@ -368,6 +386,8 @@ async function handleAddItem(request, env) {
 
   const data = sanitizeItemInput(body);
   if (!data.name) return json({ error: "نام آیتم الزامی است." }, 400);
+  const imgCheck = validateItemImage(data.image);
+  if (!imgCheck.ok) return json({ error: imgCheck.error }, 400);
 
   const id = randomId("item");
   const item = { id, ...data };
@@ -392,6 +412,8 @@ async function handleUpdateItem(request, env) {
 
   const data = sanitizeItemInput(body);
   if (!data.name) return json({ error: "نام آیتم الزامی است." }, 400);
+  const imgCheck = validateItemImage(data.image);
+  if (!imgCheck.ok) return json({ error: imgCheck.error }, 400);
 
   own.menu.items[idx] = { id, ...data };
   await saveMenu(own.slug, own.menu, env);
@@ -636,6 +658,7 @@ async function handleCreateOrder(request, env) {
 
   const order = {
     id: randomId("order"),
+    type: "order",
     items: lines,
     subtotal,
     discountCode,
@@ -659,6 +682,48 @@ async function handleCreateOrder(request, env) {
   }
 
   return json({ ok: true, order }, 200);
+}
+
+// POST /api/menu/call-waiter   body: { slug, tableNumber, note? }   ← عمومی، بدون لاگین
+// یه تیکت سبک (بدون آیتم) تو همون آرایه‌ی سفارش‌های کافه ثبت می‌شه، پس
+// همون سیستم اعلان/صدا/شمارنده‌ی سفارش‌های داشبورد خودکار برای اینم کار می‌کنه.
+async function handleCallWaiter(request, env) {
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+
+  const slug = slugify(body.slug);
+  if (!slug) return json({ error: "اسلاگ کافه مشخص نیست." }, 400);
+
+  const raw = await env.MENU_KV.get("menu:" + slug);
+  if (!raw) return json({ error: "منویی با این آدرس پیدا نشد." }, 404);
+  const menu = JSON.parse(raw);
+  if (menu.active === false) return json({ error: "این کافه موقتاً پاسخگو نیست." }, 403);
+
+  const tableNumber = String(body.tableNumber || "").trim().slice(0, 20);
+  if (!tableNumber) return json({ error: "شماره میز الزامی است." }, 400);
+
+  const ticket = {
+    id: randomId("call"),
+    type: "call-waiter",
+    tableNumber,
+    items: [],
+    subtotal: 0,
+    discountCode: null,
+    discountAmount: 0,
+    total: 0,
+    note: String(body.note || "").trim().slice(0, 200),
+    customerName: "",
+    customerPhone: "",
+    status: "new",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const orders = await loadOrders(slug, env);
+  orders.push(ticket);
+  await saveOrders(slug, orders, env);
+
+  return json({ ok: true, order: ticket }, 200);
 }
 
 // GET /api/menu/order/history?slug=...&phone=...   ← عمومی، بدون لاگین — تاریخچه سفارش‌های یک مشتری تو یک کافه
@@ -1256,6 +1321,9 @@ export default {
       }
       if (url.pathname === "/api/menu/order" && request.method === "POST") {
         return await handleCreateOrder(request, env);
+      }
+      if (url.pathname === "/api/menu/call-waiter" && request.method === "POST") {
+        return await handleCallWaiter(request, env);
       }
       if (url.pathname === "/api/menu/orders" && request.method === "GET") {
         return await handleGetOrders(request, env);
