@@ -1,0 +1,61 @@
+{
+  "slug": "portfolio-demo-shop",
+  "cafeName": "بوتیک آرمان",
+  "tagline": "پوشاک و اکسسوری زنانه — کیفیت خوب، قیمت منصفانه",
+  "businessType": "shop",
+  "categories": [
+    { "id": "clothing", "title": "پوشاک" },
+    { "id": "shoes", "title": "کفش" },
+    { "id": "accessories", "title": "اکسسوری" }
+  ],
+  "items": [
+    {
+      "id": "jeans-01",
+      "name": "شلوار جین کلاسیک",
+      "category": "clothing",
+      "price": 980000,
+      "tags": ["جین", "پرفروش"],
+      "desc": "سایزبندی S تا XL، رنگ سرمه‌ای و مشکی موجود است."
+    },
+    {
+      "id": "shirt-01",
+      "name": "پیراهن کتان مردانه",
+      "category": "clothing",
+      "price": 720000,
+      "tags": ["کتان", "تابستانه"],
+      "desc": "پارچه‌ی نخی خنک، مناسب کار و مهمانی."
+    },
+    {
+      "id": "boots-01",
+      "name": "بوت چرم زنانه",
+      "category": "shoes",
+      "price": 1450000,
+      "tags": ["چرم طبیعی"],
+      "desc": "سایز ۳۶ تا ۴۰، رنگ قهوه‌ای."
+    },
+    {
+      "id": "sneaker-01",
+      "name": "کتانی روزمره",
+      "category": "shoes",
+      "price": 1100000,
+      "tags": ["راحتی"],
+      "desc": "مناسب پیاده‌روی و استفاده روزانه."
+    },
+    {
+      "id": "bag-01",
+      "name": "کیف دوشی چرم",
+      "category": "accessories",
+      "price": 650000,
+      "tags": ["چرم", "دست‌دوز"],
+      "desc": "طراحی مینیمال، رنگ مشکی و شترنگ."
+    },
+    {
+      "id": "scarf-01",
+      "name": "شال ابریشمی",
+      "category": "accessories",
+      "price": 320000,
+      "tags": ["ابریشم"],
+      "desc": "طرح‌های متنوع، مناسب هدیه."
+    }
+  ]
+}
