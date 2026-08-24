@@ -1,0 +1,61 @@
+{
+  "slug": "portfolio-demo-salon",
+  "cafeName": "سالن زیبایی رز",
+  "tagline": "خدمات مو، پوست و ناخن — با وقت‌دهی آنلاین",
+  "businessType": "salon",
+  "categories": [
+    { "id": "hair", "title": "مو" },
+    { "id": "skin", "title": "پوست و صورت" },
+    { "id": "nails", "title": "ناخن" }
+  ],
+  "items": [
+    {
+      "id": "haircut-01",
+      "name": "کوتاهی مو",
+      "category": "hair",
+      "price": 350000,
+      "tags": ["۳۰ دقیقه"],
+      "desc": "شامل شستشو و سشوار."
+    },
+    {
+      "id": "haircolor-01",
+      "name": "رنگ مو کامل",
+      "category": "hair",
+      "price": 1800000,
+      "tags": ["۲ تا ۳ ساعت"],
+      "desc": "شامل مشاوره رنگ، رنگ و مراقبت بعد از رنگ."
+    },
+    {
+      "id": "blowdry-01",
+      "name": "میکاپ و شینیون",
+      "category": "hair",
+      "price": 950000,
+      "tags": ["مجلسی"],
+      "desc": "مناسب عروسی و مهمانی، با هماهنگی قبلی."
+    },
+    {
+      "id": "facial-01",
+      "name": "پاکسازی پوست",
+      "category": "skin",
+      "price": 600000,
+      "tags": ["۴۵ دقیقه"],
+      "desc": "پاکسازی عمیق مناسب پوست‌های چرب و مختلط."
+    },
+    {
+      "id": "manicure-01",
+      "name": "مانیکور ژلیش",
+      "category": "nails",
+      "price": 420000,
+      "tags": ["۵۰ دقیقه"],
+      "desc": "ماندگاری بالا، طرح‌های متنوع."
+    },
+    {
+      "id": "pedicure-01",
+      "name": "پدیکور کامل",
+      "category": "nails",
+      "price": 380000,
+      "tags": ["۴۰ دقیقه"],
+      "desc": "شامل لایه‌برداری و مراقبت پا."
+    }
+  ]
+}
