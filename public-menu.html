@@ -697,6 +697,22 @@ let MENU = null;
 let AI_ENDPOINT = null; // مرحله ۴ پرش می‌کنه (فعلاً چت غیرفعال می‌مونه اگه نیاد)
 const itemsById = {};
 
+// =====================================================================
+// برچسب‌های وابسته به نوع کسب‌وکار (پلتفرم یونیورسال — دمو)
+// همین یک قالب برای کافه/رستوران/فروشگاه/سالن استفاده می‌شه؛ فقط چندتا
+// متن کلیدی بر اساس MENU.businessType عوض می‌شه. برای تکمیل این بخش،
+// می‌تونی برچسب‌های بیشتری (مثلاً واحد قیمت، برچسب دسته‌بندی) هم اضافه کنی.
+// =====================================================================
+const BTYPE_COPY = {
+  cafe:       { pageTitle: 'منو',        businessNoun: 'کافه',     placeName: 'کافه',   submitBtn: 'ثبت سفارش برای کافه',   idPurpose: 'برای ثبت سفارش نزد کافه، لطفاً نام و شماره تماست رو وارد کن.',   newOrderBtn: 'شروع سفارش جدید' },
+  restaurant: { pageTitle: 'منو',        businessNoun: 'رستوران',  placeName: 'رستوران', submitBtn: 'ثبت سفارش برای رستوران', idPurpose: 'برای ثبت سفارش نزد رستوران، لطفاً نام و شماره تماست رو وارد کن.', newOrderBtn: 'شروع سفارش جدید' },
+  shop:       { pageTitle: 'محصولات',    businessNoun: 'فروشگاه',  placeName: 'فروشگاه', submitBtn: 'ثبت سفارش خرید',          idPurpose: 'برای ثبت سفارش، لطفاً نام و شماره تماست رو وارد کن.',              newOrderBtn: 'شروع خرید جدید' },
+  salon:      { pageTitle: 'خدمات',      businessNoun: 'سالن',     placeName: 'سالن',    submitBtn: 'ثبت درخواست نوبت',        idPurpose: 'برای ثبت درخواست نوبت، لطفاً نام و شماره تماست رو وارد کن.',       newOrderBtn: 'ثبت نوبت جدید' },
+};
+function btypeCopy(){
+  return BTYPE_COPY[(MENU && MENU.businessType) || 'cafe'] || BTYPE_COPY.cafe;
+}
+
 async function loadMenu(){
   const slug = detectSlug();
   if (!slug){
@@ -716,8 +732,9 @@ async function loadMenu(){
     return;
   }
 
-  document.title = (MENU.cafeName || 'کافه') + ' | منو';
-  document.getElementById('cafeName').textContent = MENU.cafeName || 'کافه';
+  const copy = btypeCopy();
+  document.title = (MENU.cafeName || copy.placeName) + ' | ' + copy.pageTitle;
+  document.getElementById('cafeName').textContent = MENU.cafeName || copy.placeName;
   AI_ENDPOINT = AI_WORKER_URL; // حالا که MENU.slug معتبره، دستیار رو فعال می‌کنیم
   const taglineEl = document.getElementById('tagline');
   if (taglineEl && MENU.tagline) taglineEl.textContent = MENU.tagline;
@@ -924,7 +941,7 @@ function requireIdentity(purpose, onReady){
   idModalTitle.textContent = purpose === 'chat' ? 'قبل از گفتگو با دستیار' : 'قبل از ثبت سفارش';
   idModalDesc.textContent = purpose === 'chat'
     ? 'برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.'
-    : 'برای ثبت سفارش نزد کافه، لطفاً نام و شماره تماست رو وارد کن.';
+    : btypeCopy().idPurpose;
   idName.value = saved ? saved.name || '' : '';
   idPhone.value = saved ? saved.phone || '' : '';
   idErr.textContent = '';
@@ -1187,10 +1204,10 @@ function renderInvoice(){
       <div id="invTotalsBox">${invoiceTotalsHtml()}</div>
       <label class="order-note-label" for="orderNote">توضیحات سفارش (اختیاری) — مثلاً کم‌شکر باشه، شماره میز ۴</label>
       <textarea id="orderNote" class="order-note-input" placeholder="توضیح خاصی داری بنویس..." maxlength="200"></textarea>
-      <button class="submit-order-btn" id="submitOrderBtn">ثبت سفارش برای کافه</button>
+      <button class="submit-order-btn" id="submitOrderBtn">${btypeCopy().submitBtn}</button>
       <div id="orderConfirmBox"></div>
       <button class="pdf-btn" id="pdfInvoiceBtn">دانلود PDF فاکتور</button>
-      <button class="new-order-btn" id="newOrderBtn">شروع سفارش جدید</button>
+      <button class="new-order-btn" id="newOrderBtn">${btypeCopy().newOrderBtn}</button>
     </div>`;
   cartFooter.style.display = 'none';
   document.getElementById('newOrderBtn').addEventListener('click', ()=>{
@@ -1279,7 +1296,7 @@ async function submitOrder(){
     if (data.order && data.order.id) trackOrderStatus(data.order.id);
   }catch(e){
     btn.disabled = false;
-    btn.textContent = 'ثبت سفارش برای کافه';
+    btn.textContent = btypeCopy().submitBtn;
     document.getElementById('orderConfirmBox').innerHTML =
       `<p class="order-confirmed" style="color:var(--rust);">✕ ${e.message}</p>`;
   }

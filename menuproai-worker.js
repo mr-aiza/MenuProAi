@@ -31,6 +31,7 @@
 //     ownerPhone: "0912xxxxxxx",
 //     cafeName: "کافه بلوط",
 //     tagline: "...",
+//     businessType: "cafe" | "restaurant" | "shop" | "salon",  // پلتفرم یونیورسال (دمو)
 //     theme: { amber:"#D9A566", sage:"#8FB89C", ... }  // مرحله بعد پر می‌شه
 //     categories: [ { id, title } ],
 //     items: [ { id, name, category, price, tags, desc, pairsWith } ],
@@ -40,6 +41,14 @@
 
 const ALLOWED_ORIGIN = "*"; // بعد از اتصال دامنه نهایی، با آدرس واقعی جایگزین کن
 const RESERVED_SLUGS = ["api", "users", "assets", "admin", "login", "register", "menu", "www"];
+
+// ============================================================
+// انواع کسب‌وکار پشتیبانی‌شده (نسخه‌ی دموی پلتفرم یونیورسال)
+// هر آیتم جدید که این‌جا اضافه بشه باید تو BUSINESS_TYPES فرانت
+// (dashboard.html و public-menu.html) هم با همین id اضافه بشه.
+// ============================================================
+const BUSINESS_TYPES = ["cafe", "restaurant", "shop", "salon"];
+const DEFAULT_BUSINESS_TYPE = "cafe";
 
 function corsHeaders() {
   return {
@@ -141,6 +150,9 @@ async function handleCreateMenu(request, env) {
   // فعلاً فقط یه قالب داریم ("classic-menu")؛ فیلد رو همینجا ذخیره می‌کنیم
   // که وقتی قالب‌های بیشتری اضافه شد، هر کافه بدونه قالبش کدومه.
   const template = String(body.template || "classic-menu").trim().slice(0, 60);
+  const businessType = BUSINESS_TYPES.includes(body.businessType)
+    ? body.businessType
+    : DEFAULT_BUSINESS_TYPE;
 
   if (!cafeName) return json({ error: "نام کافه/کسب‌وکار الزامی است." }, 400);
   if (!isValidSlug(slug)) {
@@ -158,6 +170,7 @@ async function handleCreateMenu(request, env) {
     cafeName,
     tagline,
     template,
+    businessType,
     theme: {},
     categories: [],
     items: [],
@@ -255,6 +268,12 @@ async function handleUpdateInfo(request, env) {
       return json({ error: "قالب انتخابی معتبر نیست." }, 400);
     }
     own.menu.template = body.template;
+  }
+  if (typeof body.businessType === "string") {
+    if (!BUSINESS_TYPES.includes(body.businessType)) {
+      return json({ error: "نوع کسب‌وکار معتبر نیست." }, 400);
+    }
+    own.menu.businessType = body.businessType;
   }
 
   own.menu.updatedAt = new Date().toISOString();

@@ -153,6 +153,16 @@
   .cust-row .meta .sub{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
   .cust-row .count{font-size:12px;color:var(--cyan);font-weight:800;white-space:nowrap;}
 
+  .btype-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:6px;}
+  .btype-card{background:var(--panel-2);border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s;text-align:right;width:100%;font-family:inherit;color:inherit;}
+  .btype-card:hover{border-color:var(--violet);}
+  .btype-card.selected{border-color:var(--cyan);}
+  .btype-card .btype-icon{width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:var(--panel-3);border:1px solid var(--line);}
+  .btype-card .btype-body{flex:1;}
+  .btype-card .btype-name{font-weight:800;font-size:14.5px;margin-bottom:3px;}
+  .btype-card .btype-desc{font-size:12px;color:var(--muted);}
+  .btype-selected-note{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:12.5px;}
+  .btype-selected-note .btype-change{color:var(--cyan);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;font-size:12px;}
   .tmpl-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:6px;}
   .tmpl-card{background:var(--panel-2);border:2px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
   .tmpl-card:hover{border-color:var(--violet);}
@@ -176,6 +186,7 @@
     <div>
       <h1 id="topbarCafeName">منوی من</h1>
       <div class="cafe-tag" id="topbarSlug"></div>
+      <div class="cafe-tag" id="topbarBtype"></div>
     </div>
     <div class="topbar-actions">
       <button class="icon-btn" id="topbarOrdersBtn" title="سفارش‌ها">🧾<span class="dot hidden" id="topbarOrdersDot">0</span></button>
@@ -225,8 +236,17 @@
     <h2>کسب‌وکارت رو بساز</h2>
     <div class="msg" id="createMsg"></div>
 
-    <div id="templatePickPane">
-      <p class="sub" style="margin-bottom:14px;">اول یه قالب برای منوت انتخاب کن.</p>
+    <div id="btypePickPane">
+      <p class="sub" style="margin-bottom:14px;">اول بگو چه نوع کسب‌وکاری داری.</p>
+      <div class="btype-grid" id="btypeGrid"></div>
+    </div>
+
+    <div id="templatePickPane" class="hidden">
+      <div class="btype-selected-note">
+        <span>نوع کسب‌وکار: <b id="btypeSelectedName"></b></span>
+        <button type="button" class="btype-change" id="btypeChangeBtn">تغییر نوع کسب‌وکار</button>
+      </div>
+      <p class="sub" style="margin-bottom:14px;">حالا یه قالب برای <span id="tmplPaneNoun">منو</span>ت انتخاب کن.</p>
       <div class="tmpl-grid" id="tmplGrid"></div>
     </div>
 
@@ -235,13 +255,13 @@
         <span>قالب انتخابی: <b id="tmplSelectedName"></b></span>
         <button type="button" class="tmpl-change" id="tmplChangeBtn">تغییر قالب</button>
       </div>
-      <label>نام کافه/کسب‌وکار</label>
+      <label id="cCafeNameLabel">نام کافه/کسب‌وکار</label>
       <input type="text" id="cCafeName" placeholder="مثلاً کافه بلوط">
       <label>آدرس اختصاصی (فقط انگلیسی، بدون فاصله)</label>
       <input type="text" id="cSlug" dir="ltr" placeholder="kafe-boloot">
       <label>توضیح کوتاه (اختیاری)</label>
       <input type="text" id="cTagline" placeholder="مثلاً کافه‌ای با فضای گرم و صمیمی">
-      <button class="btn-primary btn-block" id="createBtn">ساخت منو</button>
+      <button class="btn-primary btn-block" id="createBtn">ساخت <span id="createBtnNoun">منو</span></button>
     </div>
   </div>
 
@@ -695,6 +715,56 @@ async function doLogout(){
 document.getElementById('logoutBtn').addEventListener('click', doLogout);
 document.getElementById('topbarLogoutBtn').addEventListener('click', () => { if (confirm('از حساب خارج بشی؟')) doLogout(); });
 
+/* ============ انتخاب نوع کسب‌وکار (پلتفرم یونیورسال — دمو) ============ */
+// هر نوع جدید که این‌جا اضافه بشه باید با همون id تو BUSINESS_TYPES
+// ورکر (menuproai-worker.js) هم اضافه بشه، وگرنه سرور رد می‌کنه.
+const BUSINESS_TYPES = [
+  { id: 'cafe', icon: '☕', name: 'کافه و رستوران', desc: 'منوی غذا و نوشیدنی، سفارش‌گیری آنلاین و دستیار هوشمند برای مشتری.', nameLabel: 'نام کافه/رستوران', namePlaceholder: 'مثلاً کافه بلوط', itemNoun: 'آیتم', itemsNoun: 'منو' },
+  { id: 'shop', icon: '🛍️', name: 'فروشگاه', desc: 'نمایش محصولات با قیمت، دسته‌بندی و دریافت سفارش آنلاین.', nameLabel: 'نام فروشگاه', namePlaceholder: 'مثلاً بوتیک آرمان', itemNoun: 'محصول', itemsNoun: 'محصولات' },
+  { id: 'salon', icon: '💇', name: 'آرایشگاه و سالن زیبایی', desc: 'لیست خدمات با قیمت و مدت‌زمان، و دریافت درخواست نوبت.', nameLabel: 'نام سالن/آرایشگاه', namePlaceholder: 'مثلاً سالن زیبایی رز', itemNoun: 'خدمت', itemsNoun: 'خدمات' },
+  { id: 'restaurant', icon: '🍽️', name: 'رستوران و فست‌فود', desc: 'منوی غذا با دسته‌بندی کامل و سفارش‌گیری آنلاین.', nameLabel: 'نام رستوران', namePlaceholder: 'مثلاً رستوران سنتی', itemNoun: 'آیتم', itemsNoun: 'منو' },
+];
+let selectedBusinessType = null;
+
+function renderBtypePicker(){
+  const grid = document.getElementById('btypeGrid');
+  grid.innerHTML = BUSINESS_TYPES.map(b => `
+    <button type="button" class="btype-card${b.id === selectedBusinessType ? ' selected' : ''}" data-btype-pick="${b.id}">
+      <div class="btype-icon">${b.icon}</div>
+      <div class="btype-body">
+        <div class="btype-name">${b.name}</div>
+        <div class="btype-desc">${b.desc}</div>
+      </div>
+    </button>
+  `).join('');
+  grid.querySelectorAll('[data-btype-pick]').forEach(btn => {
+    btn.addEventListener('click', () => selectBtype(btn.dataset.btypePick));
+  });
+}
+
+function selectBtype(id){
+  const b = BUSINESS_TYPES.find(x => x.id === id);
+  if (!b) return;
+  selectedBusinessType = id;
+  document.getElementById('btypeSelectedName').textContent = b.name;
+  document.getElementById('tmplPaneNoun').textContent = b.itemsNoun;
+  document.getElementById('cCafeNameLabel').textContent = b.nameLabel;
+  document.getElementById('cCafeName').placeholder = b.namePlaceholder;
+  document.getElementById('createBtnNoun').textContent = b.itemsNoun;
+  document.getElementById('btypePickPane').classList.add('hidden');
+  document.getElementById('templatePickPane').classList.remove('hidden');
+  renderTemplatePicker();
+}
+
+document.getElementById('btypeChangeBtn').addEventListener('click', () => {
+  document.getElementById('templatePickPane').classList.add('hidden');
+  document.getElementById('createFormPane').classList.add('hidden');
+  document.getElementById('btypePickPane').classList.remove('hidden');
+  renderBtypePicker();
+});
+
+renderBtypePicker();
+
 /* ============ انتخاب قالب ============ */
 const TEMPLATES = [
   {
@@ -826,6 +896,8 @@ async function afterAuth(){
       document.getElementById('introBlock').classList.remove('hidden');
       document.getElementById('createCard').classList.remove('hidden');
       if (pendingTemplateFromUrl && TEMPLATES.some(t => t.id === pendingTemplateFromUrl)){
+        // لینک‌های «شروع با این قالب» از صفحه‌ی اصلی فعلاً فقط برای کافه/رستوران‌اند
+        selectBtype('cafe');
         selectTemplate(pendingTemplateFromUrl);
       }
     } else {
@@ -840,15 +912,21 @@ document.getElementById('createBtn').addEventListener('click', async () => {
   const cafeName = document.getElementById('cCafeName').value.trim();
   const slug = document.getElementById('cSlug').value.trim();
   const tagline = document.getElementById('cTagline').value.trim();
+  if (!selectedBusinessType){ showMsg('createMsg', 'اول نوع کسب‌وکارت رو انتخاب کن.', 'err'); return; }
   if (!selectedTemplateId){ showMsg('createMsg', 'اول یه قالب انتخاب کن.', 'err'); return; }
-  if (!cafeName || !slug){ showMsg('createMsg', 'نام کافه و آدرس اختصاصی الزامی‌ان.', 'err'); return; }
+  if (!cafeName || !slug){ showMsg('createMsg', 'نام کسب‌وکار و آدرس اختصاصی الزامی‌ان.', 'err'); return; }
   try{
-    const data = await apiCall('/api/menu/create', { cafeName, slug, tagline, template: selectedTemplateId });
+    const data = await apiCall('/api/menu/create', { cafeName, slug, tagline, template: selectedTemplateId, businessType: selectedBusinessType });
     currentMenu = data.menu;
     document.getElementById('createCard').classList.add('hidden');
     renderDashboard();
   }catch(e){ showMsg('createMsg', e.message, 'err'); }
 });
+
+/* ============ متادیتای نوع کسب‌وکار فعلی (برای برچسب‌های داشبورد) ============ */
+function currentBtypeMeta(){
+  return BUSINESS_TYPES.find(b => b.id === (currentMenu && currentMenu.businessType)) || BUSINESS_TYPES[0];
+}
 
 /* ============ رندر داشبورد ============ */
 function renderDashboard(){
@@ -857,8 +935,10 @@ function renderDashboard(){
   document.getElementById('bottomNav').classList.remove('hidden');
   document.getElementById('dashboardWrap').classList.remove('hidden');
 
+  const btype = currentBtypeMeta();
   document.getElementById('topbarCafeName').textContent = currentMenu.cafeName || 'منوی من';
   document.getElementById('topbarSlug').textContent = currentMenu.slug || '';
+  document.getElementById('topbarBtype').textContent = btype.icon + ' ' + btype.name;
   document.getElementById('dCafeName').value = currentMenu.cafeName || '';
   document.getElementById('dTagline').value = currentMenu.tagline || '';
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
