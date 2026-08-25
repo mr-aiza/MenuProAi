@@ -1,0 +1,72 @@
+{
+  "slug": "portfolio-demo-restaurant",
+  "cafeName": "رستوران سنتی نارنج",
+  "tagline": "غذای ایرانی اصیل — با دستیار هوش مصنوعی برای انتخاب بهتر",
+  "businessType": "restaurant",
+  "categories": [
+    { "id": "starters", "title": "پیش‌غذا" },
+    { "id": "mains", "title": "غذای اصلی" },
+    { "id": "desserts", "title": "دسر" }
+  ],
+  "items": [
+    {
+      "id": "mast-khiar",
+      "name": "ماست و خیار",
+      "category": "starters",
+      "price": 95000,
+      "tags": ["سرد", "سبک"],
+      "desc": "ماست چکیده با خیار، نعنا و گردو."
+    },
+    {
+      "id": "mirza-ghasemi",
+      "name": "میرزاقاسمی",
+      "category": "starters",
+      "price": 145000,
+      "tags": ["گیاهی", "پرطرفدار"],
+      "desc": "بادمجان کبابی با تخم‌مرغ و رب گوجه، سرو با نان تازه."
+    },
+    {
+      "id": "zereshk-polo",
+      "name": "زرشک‌پلو با مرغ",
+      "category": "mains",
+      "price": 385000,
+      "tags": ["پرفروش"],
+      "calories": 620,
+      "desc": "برنج ایرانی با زرشک و زعفران، همراه ران مرغ زعفرانی."
+    },
+    {
+      "id": "ghormeh-sabzi",
+      "name": "قورمه‌سبزی",
+      "category": "mains",
+      "price": 420000,
+      "tags": ["سنتی"],
+      "calories": 710,
+      "desc": "خورش سبزی معطر با گوشت گوسفندی و لوبیا قرمز."
+    },
+    {
+      "id": "kabab-koobideh",
+      "name": "کباب کوبیده",
+      "category": "mains",
+      "price": 465000,
+      "tags": ["گریل"],
+      "calories": 780,
+      "desc": "دو سیخ کباب کوبیده گوشت گوسفندی، سرو با برنج زعفرانی و گوجه گریل."
+    },
+    {
+      "id": "faloodeh",
+      "name": "فالوده شیرازی",
+      "category": "desserts",
+      "price": 85000,
+      "tags": ["سرد"],
+      "desc": "فالوده رشته‌ای با شربت گلاب و آبلیمو."
+    },
+    {
+      "id": "bastani-sonati",
+      "name": "بستنی سنتی زعفرانی",
+      "category": "desserts",
+      "price": 78000,
+      "tags": ["زعفرانی"],
+      "desc": "بستنی سنتی با زعفران، خامه و تکه‌های پسته."
+    }
+  ]
+}
