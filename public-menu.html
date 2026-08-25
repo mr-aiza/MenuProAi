@@ -1573,15 +1573,6 @@ waiterConfirm.addEventListener('click', async () => {
   waiterConfirm.disabled = true;
   waiterConfirm.textContent = 'در حال ارسال…';
 
-  if (DEMO_MODE){
-    await new Promise(r => setTimeout(r, 500));
-    waiterOverlay.classList.add('hidden');
-    waiterConfirm.disabled = false;
-    waiterConfirm.textContent = 'خبرش کن';
-    alert('این یه نمونه‌کاره — تو نسخه‌ی واقعی، گارسون همین الان برای میز ' + tableNumber + ' خبر می‌شد.');
-    return;
-  }
-
   try{
     const res = await fetch(MENUPROAI_API + '/api/menu/call-waiter', {
       method: 'POST',
