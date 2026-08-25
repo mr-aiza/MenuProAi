@@ -10,18 +10,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
+  /* پالت «سالن زیبایی»: بلاش روشن + رزی-یاسی — عمداً سبک و روشنه،
+     جدا از تیرگی کافه و بقیه‌ی قالب‌ها. */
   :root{
-    --bg: #1E2420;
-    --bg-panel: #171B18;
-    --bg-panel-2: #232B26;
-    --chalk: #F2EDE4;
-    --chalk-dim: #98A69C;
-    --amber: #D9A566;
-    --amber-dim: #8A6C42;
-    --sage: #8FB89C;
-    --rust: #C1694A;
-    --line: rgba(242,237,228,0.16);
-    --radius: 14px;
+    --bg: #FBF1F0;
+    --bg-panel: #FFFFFF;
+    --bg-panel-2: #F5E2E1;
+    --chalk: #37282B;
+    --chalk-dim: #93797E;
+    --amber: #B85C7A;
+    --amber-dim: #DDAFC0;
+    --sage: #9C8AA8;
+    --rust: #A6432B;
+    --line: rgba(55,40,43,0.10);
+    --radius: 18px;
   }
 
   *{ box-sizing: border-box; }
@@ -32,12 +34,12 @@
     color: var(--chalk);
     font-family: 'Vazirmatn', sans-serif;
     min-height: 100vh;
-    /* subtle chalkboard grain */
+    /* بافت ظریفِ روشن، به‌جای گرینِ تخته‌سیاه کافه */
     background-image:
-      radial-gradient(rgba(242,237,228,0.035) 1px, transparent 1px);
+      radial-gradient(rgba(55,40,43,0.03) 1px, transparent 1px);
     background-size: 3px 3px;
   }
-  ::selection{ background: var(--amber); color:#1E2420; }
+  ::selection{ background: var(--amber); color:#FBF1F0; }
   button{ font-family: inherit; }
 
   /* ---------- header ---------- */
@@ -47,48 +49,35 @@
     position: relative;
   }
   .cup-wrap{
-    width: 56px; height:56px; margin: 0 auto 10px;
+    width: 56px; height:64px; margin: 0 auto 8px;
     position: relative;
   }
-  .steam{
-    position:absolute; top:-14px; width:3px; height:16px;
-    background: var(--chalk-dim); border-radius: 2px;
-    opacity:.55;
-    animation: rise 2.6s ease-in-out infinite;
-  }
-  .steam.s1{ right: 18px; animation-delay: 0s;}
-  .steam.s2{ right: 27px; animation-delay: .5s;}
-  .steam.s3{ right: 36px; animation-delay: 1s;}
-  @keyframes rise{
-    0%{ transform: translateY(4px) scaleY(.7); opacity:0; }
-    35%{ opacity:.6; }
-    100%{ transform: translateY(-14px) scaleY(1.1); opacity:0; }
-  }
+  .steam{ display:none; }
+  /* نشان سرِ صفحه: یه آینه‌ی دستی مینیمال به‌جای فنجون قهوه — زبانِ
+     خودِ سالن زیبایی. */
   .cup{
-    width:56px; height:40px; margin-top:14px;
+    width:32px; height:32px; margin: 0 auto;
     border: 2.5px solid var(--chalk);
-    border-top:none;
-    border-radius: 0 0 16px 16px;
+    border-radius: 50%;
     position: relative;
   }
   .cup::before{
     content:'';
-    position:absolute; top:-2.5px; left:-13px;
-    width:14px; height:16px;
-    border:2.5px solid var(--chalk);
-    border-left:none;
-    border-radius: 0 10px 10px 0;
+    position:absolute; bottom:-19px; left:50%;
+    width:2.5px; height:19px; margin-left:-1.25px;
+    background: var(--chalk);
   }
   .cup::after{
     content:'';
-    position:absolute; top:-2.5px; left:0; right:0;
-    height:2.5px; background: var(--chalk); opacity:.9;
+    position:absolute; bottom:-22px; left:50%;
+    width:14px; height:2.5px; margin-left:-7px;
+    background: var(--chalk); border-radius:2px;
   }
   h1.cafe-name{
     font-weight: 800;
-    font-size: 30px;
+    font-size: 28px;
     letter-spacing: .5px;
-    margin: 4px 0 6px;
+    margin: 14px 0 6px;
   }
   .tagline{
     color: var(--chalk-dim);
@@ -569,7 +558,6 @@
   <p class="tagline" id="tagline">خدمات رو مرور کن یا از دستیار بپرس چی بهت میاد</p>
   <div class="header-actions">
     <button class="orders-link" id="ordersBtn">🧾 سفارش‌های قبلی من</button>
-    <button class="waiter-link" id="waiterBtn">🔔 صدا زدن گارسون</button>
     <button class="waiter-link" id="favFilterBtn">♥ علاقه‌مندی‌ها</button>
   </div>
 </header>
@@ -652,21 +640,6 @@
     <div class="id-actions">
       <button class="id-cancel" id="idCancel">انصراف</button>
       <button class="id-confirm" id="idConfirm">تایید</button>
-    </div>
-  </div>
-</div>
-
-<!-- مودال صدا زدن گارسون -->
-<div class="id-overlay hidden" id="waiterOverlay">
-  <div class="id-modal">
-    <h3>صدا زدن گارسون</h3>
-    <p>شماره میزت رو بنویس تا گارسون خبر بشه بیاد سراغت.</p>
-    <label>شماره میز</label>
-    <input type="text" id="waiterTable" inputmode="numeric" placeholder="مثلاً 4">
-    <div class="id-err" id="waiterErr"></div>
-    <div class="id-actions">
-      <button class="id-cancel" id="waiterCancel">انصراف</button>
-      <button class="id-confirm" id="waiterConfirm">خبرش کن</button>
     </div>
   </div>
 </div>
@@ -1556,45 +1529,6 @@ ordersBtn.addEventListener('click', () => {
 });
 ordersClose.addEventListener('click', closeOrdersPanel);
 ordersOverlay.addEventListener('click', closeOrdersPanel);
-
-/* ---------------------- صدا زدن گارسون ---------------------- */
-const waiterBtn = document.getElementById('waiterBtn');
-const waiterOverlay = document.getElementById('waiterOverlay');
-const waiterTable = document.getElementById('waiterTable');
-const waiterErr = document.getElementById('waiterErr');
-const waiterCancel = document.getElementById('waiterCancel');
-const waiterConfirm = document.getElementById('waiterConfirm');
-
-waiterBtn.addEventListener('click', () => {
-  waiterErr.textContent = '';
-  waiterTable.value = '';
-  waiterOverlay.classList.remove('hidden');
-});
-waiterCancel.addEventListener('click', () => waiterOverlay.classList.add('hidden'));
-waiterOverlay.addEventListener('click', (e) => { if (e.target === waiterOverlay) waiterOverlay.classList.add('hidden'); });
-
-waiterConfirm.addEventListener('click', async () => {
-  const tableNumber = waiterTable.value.trim();
-  if (!tableNumber){ waiterErr.textContent = 'شماره میز رو بنویس.'; return; }
-  waiterConfirm.disabled = true;
-  waiterConfirm.textContent = 'در حال ارسال…';
-
-  try{
-    const res = await fetch(MENUPROAI_API + '/api/menu/call-waiter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: MENU.slug, tableNumber }),
-    });
-    const data = await res.json().catch(()=>({}));
-    if (!res.ok) throw new Error(data.error || 'ارسال نشد.');
-    waiterOverlay.classList.add('hidden');
-    alert('گارسون خبر شد! تا چند لحظه دیگه میاد سراغت.');
-  }catch(e){
-    waiterErr.textContent = e.message;
-  }
-  waiterConfirm.disabled = false;
-  waiterConfirm.textContent = 'خبرش کن';
-});
 
 updateCartBadge();
 </script>
