@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بوتیک آرمان | محصولات</title>
+<meta name="description" content="فروشگاه آنلاین بوتیک آرمان — لباس، کیف و اکسسوری. یک دستیار هوش مصنوعی هم کمک می‌کند انتخاب کنید.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  /* پالت «لوک‌بوک بوتیک»: کرمِ گرم روشن + جوهری تیره + زیتونی کدر —
+     عمداً روشنه و ساختارش گرید عکس‌محورِ دوستونه‌ست، نه لیست تیره‌ی کافه. */
+  :root{
+    --bg: #F6F1E7;
+    --bg-panel: #FFFFFF;
+    --bg-panel-2: #ECE3D2;
+    --chalk: #221E1A;
+    --chalk-dim: #948A7A;
+    --amber: #5B6B4C;
+    --amber-dim: #A6A088;
+    --sage: #6E6350;
+    --rust: #A6432B;
+    --line: rgba(34,30,26,0.12);
+    --radius: 18px;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  .hidden{ display:none !important; }
+  body{
+    background: var(--bg);
+    color: var(--chalk);
+    font-family: 'Vazirmatn', sans-serif;
+    min-height: 100vh;
+    /* بافت ظریف کاغذ کرم، به‌جای گرینِ تخته‌سیاه کافه */
+    background-image:
+      radial-gradient(rgba(34,30,26,0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+  ::selection{ background: var(--amber); color:#F6F1E7; }
+  button{ font-family: inherit; }
+
+  /* ---------- header ---------- */
+  header.top{
+    padding: 34px 20px 18px;
+    text-align: center;
+    position: relative;
+  }
+  .cup-wrap{
+    width: 56px; height:56px; margin: 0 auto 10px;
+    position: relative;
+  }
+  .steam{ display:none; }
+  /* نشان سرِ صفحه: یه کیف/ساک مینیمال به‌جای فنجون قهوه — دسته‌ی
+     قوسی روی یه جعبه‌ی ذوزنقه‌ای، زبانِ خودِ بوتیک. */
+  .cup{
+    width:34px; height:26px; margin-top:16px;
+    border: 2px solid var(--chalk);
+    border-radius: 0 0 4px 4px;
+    position: relative;
+  }
+  .cup::before{
+    content:'';
+    position:absolute; top:-9px; left:50%;
+    width:16px; height:11px;
+    margin-left:-8px;
+    border: 2px solid var(--chalk);
+    border-bottom:none;
+    border-radius: 9px 9px 0 0;
+  }
+  .cup::after{
+    content:'';
+    position:absolute; top:-1px; left:50%;
+    width:1px; height:12px;
+    background: var(--bg);
+  }
+  h1.cafe-name{
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 12px 0 6px;
+  }
+  .tagline{
+    color: var(--chalk-dim);
+    font-size: 13px;
+    letter-spacing: .2px;
+    margin: 0;
+  }
+
+  /* ---------- category nav ---------- */
+  .menu-search-wrap{ padding: 4px 18px 0; max-width: 640px; margin: 0 auto; }
+  .menu-search-input{
+    width:100%; background: var(--bg-panel); border:1px solid var(--line);
+    border-radius: 999px; padding: 11px 16px; font-family:inherit; font-size:13.5px;
+    color: var(--chalk); outline:none;
+  }
+  .menu-search-input::placeholder{ color: var(--chalk-dim); }
+  .menu-search-input:focus{ border-color: var(--amber); }
+  .search-empty{ text-align:center; color:var(--chalk-dim); padding-top:40px; font-size:13.5px; }
+
+  nav.cats{
+    position: sticky; top:0; z-index: 20;
+    display:flex; gap:8px; overflow-x:auto;
+    padding: 12px 16px;
+    background: linear-gradient(var(--bg) 78%, transparent);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav.cats::-webkit-scrollbar{ display:none; }
+  nav.cats a{
+    flex: 0 0 auto;
+    text-decoration:none;
+    color: var(--chalk-dim);
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  nav.cats a.active{
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* ---------- menu sections ---------- */
+  main{ max-width: 640px; margin: 0 auto; padding: 6px 18px 120px; }
+  section.cat{ margin-top: 30px; }
+  h2.cat-title{
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--chalk);
+    display:flex; align-items:center; gap:10px;
+    margin: 0 0 14px;
+  }
+  h2.cat-title::before{
+    content:'';
+    width:16px; height:1.5px;
+    background: var(--amber);
+    flex: 0 0 auto;
+  }
+
+  /* کارت لوک‌بوک — چیدمان دوستونه با عکس تمام‌عرض، به‌جای ردیف‌های
+     لیستی؛ برای فروشگاهی که محصولش با عکس شناخته می‌شه، نه با توضیح. */
+  .item-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:16px;
+  }
+  .item{
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .item-inner{ display:flex; flex-direction:column; }
+  .item-photo{ position:relative; }
+  .item-thumb{
+    width:100%; aspect-ratio: 1 / 1;
+    display:block; object-fit:cover;
+    background: var(--bg-panel-2);
+  }
+  .item-thumb-empty{
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, var(--bg-panel-2), var(--bg-panel));
+  }
+  .item-thumb-empty::after{
+    content:'🖼️'; font-size:28px; opacity:.35;
+  }
+  .item-content{ padding: 10px 12px 14px; }
+  .item.sold-out{ opacity:.55; }
+  .soldout-badge{
+    position:absolute; top:9px; right:9px;
+    font-size:10.5px; font-weight:700; color: var(--bg-panel);
+    background: rgba(34,30,26,.72); padding:4px 10px; border-radius:3px;
+    white-space:nowrap;
+  }
+  .item-name{ display:block; font-weight:700; font-size:13.5px; line-height:1.5; margin-bottom:4px; }
+  .leader{ display:none; }
+  .price-tag{
+    position:absolute; bottom:9px; right:9px;
+    font-weight:700; font-size:11.5px; color: var(--chalk);
+    background: var(--bg-panel); border:1px solid var(--line);
+    white-space:nowrap; padding: 4px 9px; border-radius: 3px;
+  }
+  .price-tag b{ font-weight:600; font-size:9.5px; opacity:.6; margin-right:2px; }
+  .price{ display:none; } /* قیمت رو برچسبِ روی عکس (price-tag) نشون می‌ده */
+  .add-btn{
+    position:absolute; bottom:9px; left:9px;
+    width:30px; height:30px; border-radius:50%;
+    border: none;
+    background: var(--chalk); color: var(--bg);
+    font-size:16px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 2px 8px rgba(34,30,26,.22);
+    transition: background .15s, transform .15s;
+  }
+  .add-btn.added{
+    background: var(--amber);
+    transform: scale(1.1);
+  }
+  .fav-btn{
+    position:absolute; top:9px; left:9px;
+    width:28px; height:28px; border-radius:50%;
+    border: none;
+    background: rgba(255,255,255,.85); color: var(--chalk-dim);
+    font-size:13px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: color .15s, transform .15s;
+  }
+  .fav-btn.active{
+    color: #C43A56;
+    transform: scale(1.08);
+  }
+  .item-desc{
+    color: var(--chalk-dim); font-size:11.5px;
+    margin-top:2px; line-height:1.6;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .tags{ margin-top:6px; display:flex; flex-wrap:wrap; gap:5px; }
+  .tag{
+    font-size:9.5px; color: var(--sage);
+    border:1px solid var(--line);
+    padding: 2px 7px; border-radius: 3px;
+  }
+  .cal-badge{
+    font-weight:600; font-size:10px; color: var(--rust);
+    white-space:nowrap;
+    background: transparent;
+    padding: 0; margin-inline-start:0;
+  }
+  .ingredients-line{
+    color: var(--chalk-dim); font-size:11.5px;
+    margin-top:6px; line-height:1.7;
+  }
+  .ingredients-line b{ color: var(--chalk); font-weight:600; }
+
+  .recipe{ margin-top:8px; }
+  .recipe summary{
+    cursor:pointer; font-size:12px; color: var(--amber);
+    list-style:none; display:inline-flex; align-items:center; gap:4px;
+  }
+  .recipe summary::-webkit-details-marker{ display:none; }
+  .recipe summary::before{ content:'📋'; font-size:11px; }
+  .recipe[open] summary::before{ content:'📖'; }
+  .recipe-body{
+    margin-top:8px; padding: 10px 12px;
+    background: rgba(0,0,0,0.18); border-radius: 8px;
+    font-size:12px; line-height:1.9; color: var(--chalk-dim);
+  }
+  .recipe-body b{ color: var(--chalk); font-size:12px; }
+  .recipe-body ul, .recipe-body ol{ margin: 4px 0 10px; padding-right: 18px; }
+  .recipe-body ol{ margin-bottom:0; }
+
+  .item.highlight{
+    animation: glow 1.6s ease;
+    border-radius: 10px;
+  }
+  @keyframes glow{
+    0%{ background: rgba(217,165,102,0.28); }
+    100%{ background: transparent; }
+  }
+
+  /* ---------- chat launcher ---------- */
+  .chat-btn{
+    position: fixed; bottom: 20px; left: 20px;
+    width:56px; height:56px; border-radius:50%;
+    background: var(--amber); color: var(--bg);
+    border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    z-index: 40;
+    font-size: 22px;
+  }
+
+  /* ---------- chat panel ---------- */
+  .chat-overlay{
+    position: fixed; inset:0; background: rgba(0,0,0,.5);
+    z-index: 50; opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .chat-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .chat-panel{
+    position: fixed; left:0; right:0; bottom:0;
+    max-width: 640px; margin: 0 auto;
+    background: var(--bg-panel);
+    border-radius: 18px 18px 0 0;
+    border: 1px solid var(--line);
+    z-index: 51;
+    display:flex; flex-direction:column;
+    height: 78vh; max-height: 640px;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+  }
+  .chat-panel.open{ transform: translateY(0); }
+
+  .chat-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 18px; border-bottom:1px solid var(--line);
+  }
+  .chat-head strong{ font-size:15px; }
+  .chat-head span{ display:block; font-size:11.5px; color:var(--chalk-dim); margin-top:2px; }
+  .chat-close{
+    background:none; border:none; color: var(--chalk-dim);
+    font-size:20px; cursor:pointer; padding:4px 8px;
+  }
+
+  .chat-msgs{
+    flex:1; overflow-y:auto; padding: 16px 18px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .msg{
+    max-width: 84%; padding: 10px 14px; border-radius: 14px;
+    font-size: 13.8px; line-height:1.8;
+  }
+  .msg.bot{
+    background: var(--bg-panel-2); align-self:flex-start;
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    background: var(--amber); color: var(--bg); align-self:flex-end;
+    border-bottom-right-radius:4px; font-weight:500;
+  }
+  .msg.typing{ color: var(--chalk-dim); font-style: italic; }
+
+  .sugg-list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .sugg-list .item{ background: var(--bg-panel-2); border-radius: 10px; padding: 11px 12px; border-bottom:none; }
+  .sugg-reason{ color: var(--sage); font-size:11.5px; margin-top:6px; }
+
+  .chat-input-row{
+    display:flex; gap:8px; padding: 12px 14px;
+    border-top:1px solid var(--line);
+  }
+  .chat-input-row input{
+    flex:1; background: var(--bg-panel-2); border:1px solid var(--line);
+    color: var(--chalk); border-radius: 999px; padding: 11px 16px;
+    font-size:14px; outline:none;
+  }
+  .chat-input-row button{
+    background: var(--amber); color: var(--bg); border:none;
+    width:44px; height:44px; border-radius:50%; font-size:17px; cursor:pointer;
+  }
+  .chat-input-row button:disabled{ opacity:.5; }
+
+  .hint-chips{ display:flex; flex-wrap:wrap; gap:6px; padding: 0 18px 12px; }
+  .hint-chip{
+    font-size:12px; color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding: 5px 12px; background:none; cursor:pointer;
+  }
+
+  /* ---------- دکمه‌ی سفارش‌های قبلی ---------- */
+  .header-actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+  .orders-link{
+    display:inline-flex; align-items:center; gap:6px; margin-top:0;
+    background: var(--bg-panel-2); color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .waiter-link{
+    display:inline-flex; align-items:center; gap:6px; margin-top:0;
+    background: var(--bg-panel-2); color: var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  #favFilterBtn.active{ color:#ff6b81; border-color:#ff6b81; }
+  .order-hist-card{
+    background: var(--bg-panel-2); border-radius:12px; padding:14px;
+    margin-bottom:12px; font-family:'Vazirmatn', sans-serif;
+  }
+  .order-hist-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .order-hist-head b{ font-size:13.5px; }
+  .order-hist-status{ font-size:11px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.06); color:var(--chalk-dim); }
+  .order-hist-status.done{ color:var(--sage); }
+  .order-hist-meta{ font-size:11.5px; color:var(--chalk-dim); margin-bottom:8px; }
+  .order-hist-items{ font-size:12.5px; color:var(--chalk-dim); line-height:1.9; margin-bottom:8px; }
+  .order-hist-total{ display:flex; justify-content:space-between; font-weight:800; font-size:13.5px; margin-bottom:10px; }
+  .order-hist-total span.amt{ color:var(--amber); }
+  .order-hist-pdf-btn{
+    width:100%; background:var(--amber); color:var(--bg); border:none;
+    border-radius:999px; padding:9px; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .order-hist-pdf-btn:disabled{ opacity:.5; }
+  .order-hist-empty, .order-hist-loading{ text-align:center; color:var(--chalk-dim); font-size:13px; padding:40px 10px; }
+
+  /* ---------- cart launcher ---------- */
+  .cart-btn{
+    position: fixed; bottom: 20px; right: 20px;
+    width:56px; height:56px; border-radius:50%;
+    background: var(--bg-panel-2); color: var(--chalk);
+    border: 1.5px solid var(--amber);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    z-index: 40;
+    font-size: 20px;
+  }
+  .cart-badge{
+    position:absolute; top:-4px; left:-4px;
+    background: var(--rust); color:#fff;
+    font-size:11px; font-weight:700;
+    min-width:20px; height:20px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    padding: 0 4px;
+  }
+
+  /* ---------- cart panel (reuses chat-panel look) ---------- */
+  .cart-msgs{ flex:1; overflow-y:auto; padding: 14px 18px; }
+  .cart-row{
+    display:flex; align-items:center; gap:10px;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .cart-row-name{ flex:1; }
+  .cart-row-name b{ font-size:14px; display:block; }
+  .cart-row-name span{ color:var(--chalk-dim); font-size:12px; }
+  .qty-stepper{
+    display:flex; align-items:center; gap:8px;
+    background: var(--bg-panel-2); border-radius:999px; padding:4px 6px;
+  }
+  .qty-stepper button{
+    width:24px; height:24px; border-radius:50%; border:none;
+    background: var(--amber); color:var(--bg); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qty-stepper .qty-num{ font-size:13.5px; min-width:16px; text-align:center; }
+  .cart-empty{ text-align:center; color:var(--chalk-dim); font-size:13px; padding: 40px 10px; }
+
+  .cart-footer{
+    border-top:1px solid var(--line); padding: 14px 18px;
+  }
+  .cart-total-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:14.5px; font-weight:700; margin-bottom:12px;
+  }
+  .cart-total-row span.amt{ color: var(--amber); }
+  .invoice-btn{
+    width:100%; background: var(--amber); color: var(--bg);
+    border:none; border-radius:999px; padding:12px; font-size:14.5px;
+    font-weight:700; cursor:pointer;
+  }
+  .invoice-btn:disabled{ opacity:.4; }
+
+  /* ---------- invoice / receipt view ---------- */
+  .invoice{
+    background: var(--bg-panel-2); border-radius:12px; padding:18px;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+  .invoice h3{ margin:0 0 4px; font-size:16px; text-align:center; }
+  .invoice .inv-meta{ text-align:center; color:var(--chalk-dim); font-size:11.5px; margin-bottom:14px; }
+  .invoice .inv-divider{ border-top:2px dashed var(--amber-dim); margin:12px 0; }
+  .inv-row{ display:flex; justify-content:space-between; font-size:13px; padding:5px 0; }
+  .inv-row span:first-child{ color:var(--chalk-dim); }
+  .inv-total{ display:flex; justify-content:space-between; font-size:16px; font-weight:800; margin-top:6px; }
+  .inv-total span.amt{ color: var(--amber); }
+  .new-order-btn{
+    margin-top:16px; width:100%; background:none; color:var(--chalk-dim);
+    border:1px solid var(--line); border-radius:999px; padding:10px;
+    font-size:13px; cursor:pointer;
+  }
+  .submit-order-btn{
+    margin-top:10px; width:100%; background: var(--sage); color:#1E2420;
+    border:none; border-radius:999px; padding:12px; font-weight:800;
+    font-size:14px; cursor:pointer;
+  }
+  .disc-row{ display:flex; gap:8px; margin-top:14px; }
+  .disc-row input{
+    flex:1; background: var(--bg-panel); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:10px 12px; font-size:13px;
+    font-family:'JetBrains Mono',monospace; direction:ltr; text-align:left; outline:none; box-sizing:border-box;
+  }
+  .disc-row button{
+    flex:0 0 auto; background: var(--amber); color:#1E2420; border:none;
+    border-radius:999px; padding:0 16px; font-weight:800; font-size:12.5px; cursor:pointer;
+  }
+  .disc-row button:disabled{ opacity:.5; cursor:default; }
+  .disc-msg{ font-size:12px; margin-top:6px; min-height:14px; }
+  .disc-msg.ok{ color: var(--sage); }
+  .disc-msg.err{ color: var(--rust); }
+  .inv-row.disc-line span:first-child{ color: var(--sage); }
+  .inv-row.disc-line span:last-child{ color: var(--sage); }
+  .order-note-label{ display:block; font-size:11.5px; color:var(--chalk-dim); margin:14px 0 6px; }
+  .order-note-input{
+    width:100%; background: var(--bg-panel); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:10px 12px; font-size:13px;
+    font-family:inherit; resize:vertical; min-height:52px; box-sizing:border-box; outline:none;
+  }
+  .order-status-track{
+    margin-top:12px; padding:10px 12px; background: rgba(0,0,0,0.18); border-radius:10px;
+    font-size:12.5px; color: var(--chalk-dim); text-align:center;
+  }
+  .order-status-track b{ color: var(--sage); }
+  .submit-order-btn:disabled{ opacity:.5; cursor:default; }
+  .order-confirmed{
+    margin-top:10px; text-align:center; color:var(--sage);
+    font-size:13px; font-weight:700;
+  }
+  .pdf-btn{
+    margin-top:8px; width:100%; background:var(--amber); color:#1E2420;
+    border:none; border-radius:999px; padding:10px; font-weight:800;
+    font-size:13px; cursor:pointer;
+  }
+  .pdf-btn:disabled{ opacity:.5; cursor:default; }
+  /* ---------- مودال دریافت نام/شماره مشتری ---------- */
+  .id-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .id-modal{
+    width:100%; max-width:360px; background: var(--bg-panel);
+    border:1px solid var(--line); border-radius: 16px; padding:22px;
+  }
+  .id-modal h3{ margin:0 0 4px; font-size:16px; }
+  .id-modal p{ margin:0 0 16px; color:var(--chalk-dim); font-size:12.5px; line-height:1.8; }
+  .id-modal label{ display:block; font-size:12px; color:var(--chalk-dim); margin: 12px 0 6px; }
+  .id-modal input{
+    width:100%; background: var(--bg-panel-2); border:1px solid var(--line);
+    color: var(--chalk); border-radius:10px; padding:11px 13px; font-size:14px;
+    font-family:inherit; outline:none; box-sizing:border-box;
+  }
+  .id-modal .id-err{ color: var(--rust); font-size:12px; margin-top:8px; min-height:14px; }
+  .id-modal .id-actions{ display:flex; gap:8px; margin-top:16px; }
+  .id-modal .id-actions button{
+    flex:1; border:none; border-radius:999px; padding:11px; font-size:13.5px; cursor:pointer;
+  }
+  .id-modal .id-confirm{ background: var(--amber); color: var(--bg); font-weight:800; }
+  .id-modal .id-cancel{ background:none; color: var(--chalk-dim); border:1px solid var(--line) !important; }
+  /* ---------- قالب چاپی فاکتور PDF (خارج از دید، فقط برای html2pdf) ---------- */
+  #pdfInvoiceHolder{ position:absolute; top:0; left:-9999px; }
+  #pdfInvoice{
+    width:480px; background:#fff; color:#1a1a1a; direction:rtl;
+    font-family:'Vazirmatn', sans-serif; padding:26px; box-sizing:border-box;
+  }
+  #pdfInvoice .pv-head{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px; }
+  #pdfInvoice .pv-head .brand{ font-size:19px; font-weight:800; }
+  #pdfInvoice .pv-head .brand small{ display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px; }
+  #pdfInvoice .pv-badge{ background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px; }
+  #pdfInvoice .pv-meta{ display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px; }
+  #pdfInvoice table{ width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px; }
+  #pdfInvoice th{ background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600; }
+  #pdfInvoice td{ padding:8px; border-bottom:1px solid #e5e7eb; }
+  #pdfInvoice .pv-summary{ width:220px; margin-inline-start:auto; font-size:12px; }
+  #pdfInvoice .pv-summary .line{ display:flex; justify-content:space-between; padding:4px 0; color:#4b5563; }
+  #pdfInvoice .pv-summary .line.total{ font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px; }
+  #pdfInvoice .pv-footer{ margin-top:18px; padding-top:10px; border-top:1px solid #e5e7eb; font-size:10.5px; color:#6b7280; text-align:center; }
+</style>
+</head>
+<body>
+
+<div style="text-align:center;background:var(--amber);color:#06120f;font-size:11.5px;font-weight:800;padding:6px 10px;">
+  نسخه نمایشی MenuProAI — این یه نمونه‌کاره، سفارش و پیام‌ها واقعی ثبت نمی‌شن
+</div>
+
+<header class="top">
+  <div class="cup-wrap">
+    <div class="steam s1"></div><div class="steam s2"></div><div class="steam s3"></div>
+    <div class="cup"></div>
+  </div>
+  <h1 class="cafe-name" id="cafeName">بوتیک آرمان</h1>
+  <p class="tagline" id="tagline">لوک‌بوک رو مرور کن یا از دستیار بپرس چی به سلیقه‌ت میاد</p>
+  <div class="header-actions">
+    <button class="orders-link" id="ordersBtn">🧾 سفارش‌های قبلی من</button>
+    <button class="waiter-link" id="waiterBtn">🔔 صدا زدن گارسون</button>
+    <button class="waiter-link" id="favFilterBtn">♥ علاقه‌مندی‌ها</button>
+  </div>
+</header>
+
+<div class="menu-search-wrap">
+  <input type="text" id="menuSearchInput" class="menu-search-input" placeholder="🔍 تو منو جستجو کن…">
+</div>
+
+<nav class="cats" id="catsNav"></nav>
+
+<main id="menuRoot">
+  <p style="text-align:center; color:var(--chalk-dim); padding-top:40px;">در حال بارگذاری منو…</p>
+</main>
+
+<button class="chat-btn" id="chatBtn" aria-label="پرسیدن از دستیار">☕</button>
+<button class="cart-btn" id="cartBtn" aria-label="سبد خرید">
+  🧺<span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+</button>
+
+<div class="chat-overlay" id="chatOverlay"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div>
+      <strong>دستیار بوتیک</strong>
+      <span>بگو چی می‌خوای، پیشنهاد می‌دم</span>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="hint-chips" id="hintChips">
+    <button class="hint-chip">یه چیز مناسب مهمونی می‌خوام</button>
+    <button class="hint-chip">یه چیز شیرین با کیک شکلاتی</button>
+    <button class="hint-chip">پرانرژی و تلخ می‌خوام</button>
+  </div>
+  <div class="chat-input-row">
+    <input id="chatInput" type="text" placeholder="مثلا: یه چیز رسمی می‌خوام، یا کژوال و راحت...">
+    <button id="chatSend">➤</button>
+  </div>
+</div>
+
+<div class="chat-overlay" id="cartOverlay"></div>
+<div class="chat-panel" id="cartPanel">
+  <div class="chat-head">
+    <div>
+      <strong>سبد خرید</strong>
+      <span id="cartHeadSub">آیتم‌هایی که انتخاب کردی</span>
+    </div>
+    <button class="chat-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-msgs" id="cartMsgs"></div>
+  <div class="cart-footer" id="cartFooter">
+    <div class="cart-total-row"><span>جمع کل</span><span class="amt" id="cartTotal">۰ تومان</span></div>
+    <button class="invoice-btn" id="invoiceBtn">مشاهده فاکتور نهایی</button>
+  </div>
+</div>
+
+<!-- پنل تاریخچه‌ی سفارش‌های مشتری -->
+<div class="chat-overlay" id="ordersOverlay"></div>
+<div class="chat-panel" id="ordersPanel">
+  <div class="chat-head">
+    <div>
+      <strong>سفارش‌های قبلی من</strong>
+      <span>تاریخچه سفارش‌ها و فاکتور هر کدوم</span>
+    </div>
+    <button class="chat-close" id="ordersClose">✕</button>
+  </div>
+  <div class="cart-msgs" id="ordersMsgs"></div>
+</div>
+
+<!-- مودال دریافت نام/شماره مشتری — قبل از باز شدن چت یا ثبت سفارش نمایش داده می‌شه -->
+<div class="id-overlay hidden" id="idOverlay">
+  <div class="id-modal">
+    <h3 id="idModalTitle">قبل از شروع</h3>
+    <p id="idModalDesc">برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.</p>
+    <label>نام</label>
+    <input type="text" id="idName" placeholder="اسم شما">
+    <label>شماره تلفن</label>
+    <input type="text" id="idPhone" dir="ltr" inputmode="tel" placeholder="09xxxxxxxxx">
+    <div class="id-err" id="idErr"></div>
+    <div class="id-actions">
+      <button class="id-cancel" id="idCancel">انصراف</button>
+      <button class="id-confirm" id="idConfirm">تایید</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال صدا زدن گارسون -->
+<div class="id-overlay hidden" id="waiterOverlay">
+  <div class="id-modal">
+    <h3>صدا زدن گارسون</h3>
+    <p>شماره میزت رو بنویس تا گارسون خبر بشه بیاد سراغت.</p>
+    <label>شماره میز</label>
+    <input type="text" id="waiterTable" inputmode="numeric" placeholder="مثلاً 4">
+    <div class="id-err" id="waiterErr"></div>
+    <div class="id-actions">
+      <button class="id-cancel" id="waiterCancel">انصراف</button>
+      <button class="id-confirm" id="waiterConfirm">خبرش کن</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// تنظیمات — این صفحه دیگه استاتیک نیست: منو رو بر اساس اسلاگِ تو آدرس
+// از menuproai-worker.js (KV) می‌خونه، نه یه menu.json ثابت.
+//
+// آدرس نهایی هر کافه: menuproai.bytelabpro.xyz/USERS/{slug}/menu.html
+// (این بخش از مسیر رو Worker مرحله ۵ می‌سازه). برای تست دستی قبل از
+// وصل‌شدن دامنه، می‌تونی مستقیم با ?slug=... هم صداش کنی.
+//
+// ⚠️ بعد از دیپلوی menuproai-worker.js، آدرس MENUPROAI_API رو با آدرس
+// واقعی Workerت جایگزین کن (همون که تو dashboard.html هم گذاشتی).
+// =====================================================================
+// =====================================================================
+// این فایل منو رو بر اساس اسلاگِ تو آدرس، زنده از menuproai-worker.js
+// (KV) می‌خونه — نسخه‌ی نمایشی/دمو نیست.
+//
+// آدرس نهایی هر کافه/فروشگاه: menuproai.bytelabpro.xyz/USERS/{slug}/menu.html
+// برای تست دستی هم می‌شه با ?slug=... صداش کرد.
+// =====================================================================
+const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
+
+function detectSlug(){
+  // ۱) از مسیر /USERS/{slug}/menu.html
+  const pathMatch = location.pathname.match(/\/USERS\/([^/]+)\/menu\.html/i);
+  if (pathMatch) return decodeURIComponent(pathMatch[1]);
+  // ۲) برای تست دستی: ?slug=...
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('slug')) return qs.get('slug');
+  return null;
+}
+
+let MENU = null;
+let AI_ENDPOINT = null; // مرحله ۴ پرش می‌کنه (فعلاً چت غیرفعال می‌مونه اگه نیاد)
+const itemsById = {};
+
+// برچسب‌های وابسته به نوع کسب‌وکار (پلتفرم یونیورسال — دمو). هم‌سو با public-menu.html.
+const BTYPE_COPY = {
+  cafe:       { pageTitle: 'منو',        placeName: 'کافه',   submitBtn: 'ثبت سفارش برای کافه',   idPurpose: 'برای ثبت سفارش نزد کافه، لطفاً نام و شماره تماست رو وارد کن.',   newOrderBtn: 'شروع سفارش جدید' },
+  restaurant: { pageTitle: 'منو',        placeName: 'رستوران', submitBtn: 'ثبت سفارش برای رستوران', idPurpose: 'برای ثبت سفارش نزد رستوران، لطفاً نام و شماره تماست رو وارد کن.', newOrderBtn: 'شروع سفارش جدید' },
+  shop:       { pageTitle: 'محصولات',    placeName: 'فروشگاه', submitBtn: 'ثبت سفارش خرید',          idPurpose: 'برای ثبت سفارش، لطفاً نام و شماره تماست رو وارد کن.',              newOrderBtn: 'شروع خرید جدید' },
+  salon:      { pageTitle: 'خدمات',      placeName: 'سالن',    submitBtn: 'ثبت درخواست نوبت',        idPurpose: 'برای ثبت درخواست نوبت، لطفاً نام و شماره تماست رو وارد کن.',       newOrderBtn: 'ثبت نوبت جدید' },
+};
+function btypeCopy(){
+  return BTYPE_COPY[(MENU && MENU.businessType) || 'cafe'] || BTYPE_COPY.cafe;
+}
+
+async function loadMenu(){
+  const slug = detectSlug();
+  if (!slug){
+    document.getElementById('menuRoot').innerHTML =
+      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">آدرس منو مشخص نیست. لینک کاملش رو استفاده کن (…/USERS/اسلاگ/menu.html).</p>';
+    return;
+  }
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/public/' + encodeURIComponent(slug), { cache: 'no-store' });
+    const data = await res.json();
+    if (!res.ok || !data.menu) throw new Error(data.error || 'منو پیدا نشد');
+    MENU = data.menu;
+  }catch(e){
+    document.getElementById('menuRoot').innerHTML =
+      '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">این منو پیدا نشد یا فعلاً در دسترس نیست.</p>';
+    return;
+  }
+
+  const copy = btypeCopy();
+  document.title = (MENU.cafeName || copy.placeName) + ' | ' + copy.pageTitle;
+  document.getElementById('cafeName').textContent = MENU.cafeName || copy.placeName;
+  AI_ENDPOINT = AI_WORKER_URL; // حالا که MENU.slug معتبره، دستیار رو فعال می‌کنیم
+  const taglineEl = document.getElementById('tagline');
+  if (taglineEl && MENU.tagline) taglineEl.textContent = MENU.tagline;
+
+  MENU.items.forEach(it => itemsById[it.id] = it);
+  renderNav();
+  renderMenu();
+}
+
+function renderNav(){
+  const nav = document.getElementById('catsNav');
+  nav.innerHTML = MENU.categories.map((c,i) =>
+    `<a href="#cat-${c.id}" class="${i===0?'active':''}" data-cat="${c.id}">${c.title}</a>`
+  ).join('');
+  nav.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', ()=>{
+      nav.querySelectorAll('a').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+    });
+  });
+}
+
+function renderMenu(){
+  const root = document.getElementById('menuRoot');
+  root.innerHTML = MENU.categories.map(cat => {
+    const items = MENU.items.filter(it => it.category === cat.id);
+    if(!items.length) return '';
+    return `
+      <section class="cat" id="cat-${cat.id}">
+        <h2 class="cat-title">${cat.title}</h2>
+        <div class="item-grid">${items.map(renderItem).join('')}</div>
+      </section>`;
+  }).join('');
+}
+
+/* ---------------------- جستجوی زنده تو منو (سمت مشتری) ---------------------- */
+const menuSearchInput = document.getElementById('menuSearchInput');
+const catsNavEl = document.getElementById('catsNav');
+
+function runMenuSearch(query){
+  const q = query.trim().toLowerCase();
+  const root = document.getElementById('menuRoot');
+
+  if (!q){
+    menuFilterMode = 'all';
+    if (favBtnHeader) favBtnHeader.classList.remove('active');
+    catsNavEl.classList.remove('hidden');
+    renderMenu();
+    return;
+  }
+  menuFilterMode = 'search';
+  if (favBtnHeader) favBtnHeader.classList.remove('active');
+  catsNavEl.classList.add('hidden');
+
+  const results = MENU.items.filter(it =>
+    (it.name || '').toLowerCase().includes(q) ||
+    (it.desc || '').toLowerCase().includes(q) ||
+    (it.tags || []).some(t => t.toLowerCase().includes(q))
+  );
+
+  if (!results.length){
+    root.innerHTML = `<p class="search-empty">چیزی برای «${query.trim()}» پیدا نشد.</p>`;
+    return;
+  }
+  root.innerHTML = `<section class="cat"><div class="item-grid">${results.map(renderItem).join('')}</div></section>`;
+}
+
+if (menuSearchInput){
+  menuSearchInput.addEventListener('input', (e) => runMenuSearch(e.target.value));
+}
+
+function renderItem(it){
+  const recipeHtml = it.recipe ? `
+      <details class="recipe">
+        <summary>نمایش رسپی</summary>
+        <div class="recipe-body">
+          <b>مواد لازم:</b>
+          <ul>${it.recipe.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <b>طرز تهیه:</b>
+          <ol>${it.recipe.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        </div>
+      </details>` : '';
+  const ingredientsHtml = (it.ingredients && it.ingredients.length)
+    ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.join('، ')}</div>` : '';
+  // کارت لوک‌بوک: عکس تمام‌عرض بالا با برچسب قیمت روی خودِ عکس (مثل
+  // برچسب آویز روی لباس)، جزئیات پایین کارت.
+  return `
+    <div class="item${it.available === false ? ' sold-out' : ''}" id="item-${it.id}">
+      <div class="item-inner">
+        <div class="item-photo">
+          ${it.image ? `<img class="item-thumb" src="${it.image}" alt="${it.name}" loading="lazy">` : '<div class="item-thumb item-thumb-empty"></div>'}
+          <button class="fav-btn${isFavorite(it.id) ? ' active' : ''}" data-fav="${it.id}" aria-label="علاقه‌مندی">♥</button>
+          ${it.available === false ? '<span class="soldout-badge">ناموجود</span>' : `<button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>`}
+          <span class="price-tag">${it.price.toLocaleString('fa-IR')} <b>تومان</b></span>
+        </div>
+        <div class="item-content">
+          <span class="item-name">${it.name}</span>
+          ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
+          <p class="item-desc">${it.desc || ''}</p>
+          <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          ${ingredientsHtml}
+          ${recipeHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+function highlightItem(id){
+  const el = document.getElementById('item-'+id);
+  if(!el) return;
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  el.classList.remove('highlight');
+  void el.offsetWidth;
+  el.classList.add('highlight');
+}
+
+// ---------------------- علاقه‌مندی‌ها (ذخیره محلی رو گوشی مشتری) ----------------------
+const FAV_KEY = 'bolut_favorites_' + (detectSlug() || 'x');
+function getFavorites(){
+  try{ return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }catch(e){ return []; }
+}
+function isFavorite(id){ return getFavorites().includes(id); }
+function toggleFavorite(id){
+  const favs = getFavorites();
+  const idx = favs.indexOf(id);
+  if (idx === -1) favs.push(id); else favs.splice(idx, 1);
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+  return favs.includes(id);
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.fav-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  const active = toggleFavorite(btn.dataset.fav);
+  btn.classList.toggle('active', active);
+  if (!active && catsNavEl.classList.contains('hidden') && menuFilterMode === 'favorites'){
+    runFavoritesView();
+  }
+});
+
+let menuFilterMode = 'all'; // 'all' | 'favorites' | 'search'
+const favBtnHeader = document.getElementById('favFilterBtn');
+
+function runFavoritesView(){
+  menuFilterMode = 'favorites';
+  if (menuSearchInput) menuSearchInput.value = '';
+  catsNavEl.classList.add('hidden');
+  favBtnHeader.classList.add('active');
+  const root = document.getElementById('menuRoot');
+  const favIds = getFavorites();
+  const results = MENU.items.filter(it => favIds.includes(it.id));
+  if (!results.length){
+    root.innerHTML = '<p class="search-empty">هنوز چیزی رو لایک نکردی — روی ♥ کنار هر آیتم بزن.</p>';
+    return;
+  }
+  root.innerHTML = `<section class="cat"><div class="item-grid">${results.map(renderItem).join('')}</div></section>`;
+}
+
+function exitFavoritesView(){
+  menuFilterMode = 'all';
+  favBtnHeader.classList.remove('active');
+  catsNavEl.classList.remove('hidden');
+  renderMenu();
+}
+
+if (favBtnHeader){
+  favBtnHeader.addEventListener('click', () => {
+    if (menuFilterMode === 'favorites') exitFavoritesView();
+    else runFavoritesView();
+  });
+}
+
+loadMenu();
+
+// ---------------------- chat ----------------------
+// ---------------------- هویت مشتری (نام + شماره) ----------------------
+const ID_KEY = 'bolut_identity_' + (detectSlug() || 'x');
+function getIdentity(){
+  try{ return JSON.parse(localStorage.getItem(ID_KEY) || 'null'); }catch(e){ return null; }
+}
+function saveIdentity(name, phone){
+  localStorage.setItem(ID_KEY, JSON.stringify({ name, phone }));
+}
+
+const idOverlay = document.getElementById('idOverlay');
+const idName = document.getElementById('idName');
+const idPhone = document.getElementById('idPhone');
+const idErr = document.getElementById('idErr');
+const idConfirm = document.getElementById('idConfirm');
+const idCancel = document.getElementById('idCancel');
+const idModalTitle = document.getElementById('idModalTitle');
+const idModalDesc = document.getElementById('idModalDesc');
+
+let pendingIdentityCallback = null;
+
+// purpose: 'chat' یا 'order' — فقط برای متن مودال
+function requireIdentity(purpose, onReady){
+  const saved = getIdentity();
+  if (saved && saved.name && saved.phone){
+    onReady(saved);
+    return;
+  }
+  idModalTitle.textContent = purpose === 'chat' ? 'قبل از گفتگو با دستیار' : 'قبل از ثبت سفارش';
+  idModalDesc.textContent = purpose === 'chat'
+    ? 'برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.'
+    : btypeCopy().idPurpose;
+  idName.value = saved ? saved.name || '' : '';
+  idPhone.value = saved ? saved.phone || '' : '';
+  idErr.textContent = '';
+  pendingIdentityCallback = onReady;
+  idOverlay.classList.remove('hidden');
+  idName.focus();
+}
+
+function closeIdentityModal(){
+  idOverlay.classList.add('hidden');
+  pendingIdentityCallback = null;
+}
+
+idConfirm.addEventListener('click', () => {
+  const name = idName.value.trim();
+  const phone = idPhone.value.trim();
+  if (!name){ idErr.textContent = 'نام رو وارد کن.'; idName.focus(); return; }
+  if (!/^0?9\d{9}$/.test(phone.replace(/\s/g,''))){ idErr.textContent = 'شماره تلفن معتبر نیست.'; idPhone.focus(); return; }
+  saveIdentity(name, phone);
+  const cb = pendingIdentityCallback;
+  idOverlay.classList.add('hidden');
+  pendingIdentityCallback = null;
+  if (cb) cb({ name, phone });
+});
+idCancel.addEventListener('click', closeIdentityModal);
+idOverlay.addEventListener('click', (e) => { if (e.target === idOverlay) closeIdentityModal(); });
+
+// ---------------------- chat ----------------------
+const chatBtn = document.getElementById('chatBtn');
+const chatOverlay = document.getElementById('chatOverlay');
+const chatPanel = document.getElementById('chatPanel');
+const chatClose = document.getElementById('chatClose');
+const chatMsgs = document.getElementById('chatMsgs');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const hintChips = document.getElementById('hintChips');
+
+let history = [];
+let greeted = false;
+
+function openChat(){
+  if (!AI_ENDPOINT){
+    alert('دستیار هوش مصنوعی این فروشگاه هنوز فعال نشده.');
+    return;
+  }
+  requireIdentity('chat', () => {
+    chatOverlay.classList.add('open');
+    chatPanel.classList.add('open');
+    if(!greeted){
+      addMsg('bot', 'سلام، بفرمایید. لطفاً بگویید دنبال چه نوشیدنی یا دسری هستید تا با کمال میل پیشنهاد بدهم.');
+      greeted = true;
+    }
+  });
+}
+function closeChat(){
+  chatOverlay.classList.remove('open');
+  chatPanel.classList.remove('open');
+}
+chatBtn.addEventListener('click', openChat);
+chatClose.addEventListener('click', closeChat);
+chatOverlay.addEventListener('click', closeChat);
+
+function addMsg(role, text){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  chatMsgs.appendChild(div);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  return div;
+}
+
+function addSuggestions(list){
+  if(!list || !list.length) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'sugg-list';
+  list.forEach(s=>{
+    const item = itemsById[s.id];
+    if(!item) return;
+    const box = document.createElement('div');
+    box.innerHTML = renderItem(item) + (s.reason ? `<p class="sugg-reason">💬 ${s.reason}</p>` : '');
+    // چون این آیتم داخل چت تکرار می‌شود، شناسه اصلی را برای اسکرول نگه می‌داریم
+    box.querySelector('.item').id = 'sugg-item-' + item.id;
+    box.querySelector('.item').addEventListener('click', (e)=>{
+      if(e.target.closest('.add-btn') || e.target.closest('.recipe')) return;
+      closeChat(); highlightItem(item.id);
+    });
+    wrap.appendChild(box);
+  });
+  chatMsgs.appendChild(wrap);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+async function sendMessage(text){
+  if(!text.trim()) return;
+  addMsg('user', text);
+  chatInput.value = '';
+  chatSend.disabled = true;
+  const typingEl = addMsg('bot typing', 'در حال فکر کردن…');
+
+  history.push({ role: 'user', content: text });
+
+  try{
+    const res = await fetch(AI_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history, slug: MENU.slug, customerName: (getIdentity()||{}).name, customerPhone: (getIdentity()||{}).phone })
+    });
+    const data = await res.json();
+    typingEl.remove();
+    addMsg('bot', data.reply || 'ببخشید، نتونستم جواب بدم.');
+    addSuggestions(data.suggestions);
+    history.push({ role: 'assistant', content: data.reply || '' });
+  }catch(e){
+    typingEl.remove();
+    addMsg('bot', 'با عرض پوزش، در حال حاضر امکان اتصال نیست. لطفاً کمی بعد دوباره امتحان کنید.');
+  }
+  chatSend.disabled = false;
+}
+
+chatSend.addEventListener('click', ()=> sendMessage(chatInput.value));
+chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(chatInput.value); });
+hintChips.addEventListener('click', (e)=>{
+  if(e.target.classList.contains('hint-chip')) sendMessage(e.target.textContent);
+});
+
+// ---------------------- سبد خرید ----------------------
+let cart = {}; // { itemId: quantity }
+let appliedDiscount = null; // { code, discountAmount, total } یا null
+try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
+
+const cartBtn = document.getElementById('cartBtn');
+const cartBadge = document.getElementById('cartBadge');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartPanel = document.getElementById('cartPanel');
+const cartClose = document.getElementById('cartClose');
+const cartMsgs = document.getElementById('cartMsgs');
+const cartFooter = document.getElementById('cartFooter');
+const cartTotal = document.getElementById('cartTotal');
+const invoiceBtn = document.getElementById('invoiceBtn');
+let showingInvoice = false;
+
+function saveCart(){
+  localStorage.setItem('bolut_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function updateCartBadge(){
+  const count = Object.values(cart).reduce((a,b)=>a+b, 0);
+  if(count > 0){
+    cartBadge.style.display = 'flex';
+    cartBadge.textContent = count;
+  } else {
+    cartBadge.style.display = 'none';
+  }
+}
+
+function addToCart(id){
+  if(!itemsById[id]) return;
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+  if(cartPanel.classList.contains('open')) renderCart();
+}
+
+function changeQty(id, delta){
+  if(!cart[id]) return;
+  cart[id] += delta;
+  if(cart[id] <= 0) delete cart[id];
+  saveCart();
+  renderCart();
+}
+
+// دلگیشن کلیک برای همه دکمه‌های + (چه در منوی اصلی، چه در پیشنهادهای چت)
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.add-btn');
+  if(!btn) return;
+  e.stopPropagation();
+  addToCart(btn.dataset.add);
+  btn.classList.add('added');
+  btn.textContent = '✓';
+  setTimeout(()=>{ btn.classList.remove('added'); btn.textContent = '+'; }, 700);
+});
+
+function cartLines(){
+  return Object.entries(cart).map(([id, qty]) => ({ item: itemsById[id], qty })).filter(l => l.item);
+}
+
+function cartGrandTotal(){
+  return cartLines().reduce((sum, l) => sum + l.item.price * l.qty, 0);
+}
+
+function renderCart(){
+  showingInvoice = false;
+  const lines = cartLines();
+  if(!lines.length){
+    cartMsgs.innerHTML = '<p class="cart-empty">سبد خریدت خالیه. از منو چیزی اضافه کن.</p>';
+    cartFooter.style.display = 'none';
+    return;
+  }
+  cartFooter.style.display = 'block';
+  invoiceBtn.textContent = 'مشاهده فاکتور نهایی';
+  invoiceBtn.disabled = false;
+  cartMsgs.innerHTML = lines.map(l => `
+    <div class="cart-row">
+      <div class="cart-row-name">
+        <b>${l.item.name}</b>
+        <span>${(l.item.price * l.qty).toLocaleString('fa-IR')} تومان</span>
+      </div>
+      <div class="qty-stepper">
+        <button data-qty="${l.item.id}" data-delta="1">+</button>
+        <span class="qty-num">${l.qty}</span>
+        <button data-qty="${l.item.id}" data-delta="-1">−</button>
+      </div>
+    </div>`).join('');
+  cartTotal.textContent = cartGrandTotal().toLocaleString('fa-IR') + ' تومان';
+}
+
+cartMsgs.addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-qty]');
+  if(!btn) return;
+  changeQty(btn.dataset.qty, parseInt(btn.dataset.delta, 10));
+});
+
+function invoiceTotalsHtml(){
+  const subtotal = cartGrandTotal();
+  const discRow = appliedDiscount
+    ? `<div class="inv-row disc-line"><span>تخفیف (${escapeHtmlLocal(appliedDiscount.code)})</span><span>− ${appliedDiscount.discountAmount.toLocaleString('fa-IR')}</span></div>`
+    : '';
+  const finalTotal = appliedDiscount ? appliedDiscount.total : subtotal;
+  return `
+    <div class="inv-row"><span>جمع سبد</span><span>${subtotal.toLocaleString('fa-IR')}</span></div>
+    ${discRow}
+    <div class="inv-total"><span>جمع کل</span><span class="amt">${finalTotal.toLocaleString('fa-IR')} تومان</span></div>`;
+}
+
+function escapeHtmlLocal(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderInvoice(){
+  showingInvoice = true;
+  appliedDiscount = null;
+  const lines = cartLines();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fa-IR');
+  const timeStr = now.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' });
+  cartMsgs.innerHTML = `
+    <div class="invoice">
+      <h3>فاکتور ${MENU.cafeName || 'کافه'}</h3>
+      <div class="inv-meta">${dateStr} — ${timeStr}</div>
+      <div class="inv-divider"></div>
+      ${lines.map(l => `
+        <div class="inv-row">
+          <span>${l.item.name} × ${l.qty}</span>
+          <span>${(l.item.price * l.qty).toLocaleString('fa-IR')}</span>
+        </div>`).join('')}
+      <div class="inv-divider"></div>
+      <div class="disc-row">
+        <input type="text" id="discCodeInput" placeholder="کد تخفیف (اختیاری)" maxlength="20">
+        <button id="applyDiscBtn">اعمال</button>
+      </div>
+      <div class="disc-msg" id="discMsgBox"></div>
+      <div id="invTotalsBox">${invoiceTotalsHtml()}</div>
+      <label class="order-note-label" for="orderNote">توضیحات سفارش (اختیاری) — مثلاً کم‌شکر باشه، شماره میز ۴</label>
+      <textarea id="orderNote" class="order-note-input" placeholder="توضیح خاصی داری بنویس..." maxlength="200"></textarea>
+      <button class="submit-order-btn" id="submitOrderBtn">${btypeCopy().submitBtn}</button>
+      <div id="orderConfirmBox"></div>
+      <button class="pdf-btn" id="pdfInvoiceBtn">دانلود PDF فاکتور</button>
+      <button class="new-order-btn" id="newOrderBtn">${btypeCopy().newOrderBtn}</button>
+    </div>`;
+  cartFooter.style.display = 'none';
+  document.getElementById('newOrderBtn').addEventListener('click', ()=>{
+    if (orderTrackTimer) clearInterval(orderTrackTimer);
+    cart = {};
+    appliedDiscount = null;
+    saveCart();
+    renderCart();
+  });
+  document.getElementById('applyDiscBtn').addEventListener('click', applyDiscountCode);
+  document.getElementById('discCodeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){ e.preventDefault(); applyDiscountCode(); }
+  });
+  document.getElementById('pdfInvoiceBtn').addEventListener('click', downloadPdfInvoice);
+  document.getElementById('submitOrderBtn').addEventListener('click', () => {
+    requireIdentity('order', () => submitOrder());
+  });
+}
+
+async function applyDiscountCode(){
+  const input = document.getElementById('discCodeInput');
+  const msgBox = document.getElementById('discMsgBox');
+  const btn = document.getElementById('applyDiscBtn');
+  const code = input.value.trim().toUpperCase();
+  if (!code){ msgBox.textContent = 'یه کد وارد کن.'; msgBox.className = 'disc-msg err'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'در حال بررسی…';
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/discount/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: MENU.slug, code, subtotal: cartGrandTotal() }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'کد تخفیف نامعتبر است.');
+
+    appliedDiscount = { code: data.code, discountAmount: data.discountAmount, total: data.total };
+    msgBox.textContent = '✓ کد تخفیف اعمال شد.';
+    msgBox.className = 'disc-msg ok';
+    input.disabled = true;
+    btn.textContent = 'اعمال شد';
+  }catch(e){
+    appliedDiscount = null;
+    msgBox.textContent = e.message;
+    msgBox.className = 'disc-msg err';
+    btn.disabled = false;
+    btn.textContent = 'اعمال';
+  }
+  document.getElementById('invTotalsBox').innerHTML = invoiceTotalsHtml();
+}
+
+/* ---------------------- ثبت سفارش (تیکت برای صاحب کافه) ---------------------- */
+async function submitOrder(){
+  const identity = getIdentity() || {};
+  const btn = document.getElementById('submitOrderBtn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال…';
+
+  const noteEl = document.getElementById('orderNote');
+  const payload = {
+    slug: MENU.slug,
+    items: cartLines().map(l => ({ id: l.item.id, qty: l.qty })),
+    customerName: identity.name || '',
+    customerPhone: identity.phone || '',
+    note: noteEl ? noteEl.value.trim() : '',
+    discountCode: appliedDiscount ? appliedDiscount.code : undefined,
+  };
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
+    if (noteEl) noteEl.disabled = true;
+    const discBtn = document.getElementById('applyDiscBtn');
+    if (discBtn) discBtn.disabled = true;
+
+    btn.style.display = 'none';
+    document.getElementById('orderConfirmBox').innerHTML =
+      '<p class="order-confirmed">✓ سفارش برای کافه ثبت شد.</p>' +
+      '<div class="order-status-track" id="orderStatusTrack">در انتظار دیده‌شدن توسط کافه…</div>';
+    if (data.order && data.order.id) trackOrderStatus(data.order.id);
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = btypeCopy().submitBtn;
+    document.getElementById('orderConfirmBox').innerHTML =
+      `<p class="order-confirmed" style="color:var(--rust);">✕ ${e.message}</p>`;
+  }
+}
+
+/* ---------------------- پیگیری زنده‌ی وضعیت سفارش توسط مشتری ---------------------- */
+const ORDER_STATUS_LABEL = { new: 'در انتظار دیده‌شدن توسط کافه…', seen: 'کافه سفارشت رو دید 👀', done: 'سفارشت آماده‌ست ✅' };
+let orderTrackTimer = null;
+
+function trackOrderStatus(orderId){
+  if (orderTrackTimer) clearInterval(orderTrackTimer);
+  const poll = async () => {
+    const box = document.getElementById('orderStatusTrack');
+    if (!box) { clearInterval(orderTrackTimer); return; }
+    try{
+      const res = await fetch(MENUPROAI_API + '/api/menu/order/status/' + encodeURIComponent(MENU.slug) + '/' + encodeURIComponent(orderId), { cache: 'no-store' });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok) return;
+      box.innerHTML = ORDER_STATUS_LABEL[data.status] ? `وضعیت: <b>${ORDER_STATUS_LABEL[data.status]}</b>` : 'وضعیت: در حال بررسی…';
+      if (data.status === 'done') clearInterval(orderTrackTimer);
+    }catch(e){ /* بی‌سروصدا رد می‌شیم، دفعه بعد دوباره تلاش می‌کنیم */ }
+  };
+  poll();
+  orderTrackTimer = setInterval(poll, 8000);
+}
+
+/* ---------------------- خروجی PDF فاکتور (قابل استفاده هم برای سبد فعلی، هم برای سفارش‌های قبلی) ---------------------- */
+// data: { items:[{name, price, qty}], subtotal, discountCode, discountAmount, total, dateObj, orderNo, statusLabel, filename }
+function buildInvoiceHtml(data){
+  const itemsHtml = data.items.map(it => {
+    const lineTotal = it.price * it.qty;
+    return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.name}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${it.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${lineTotal.toLocaleString('fa-IR')}</td></tr>`;
+  }).join('');
+
+  return `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
+      <div>
+        <div style="font-size:19px; font-weight:800;">${MENU.cafeName || 'کافه'}
+          <div style="display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px;">menuproai.bytelabpro.xyz</div>
+        </div>
+      </div>
+      <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">فاکتور</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px;">
+      <span>${data.dateObj.toLocaleDateString('fa-IR')} — ${data.dateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
+      <span>سفارش #${data.orderNo}${data.statusLabel ? ' · ' + data.statusLabel : ''}</span>
+    </div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px;">
+      <thead>
+        <tr>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">شرح</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">تعداد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">قیمت واحد</th>
+          <th style="background:#1a1a1a; color:#fff; padding:8px; text-align:right; font-weight:600;">جمع</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHtml}</tbody>
+    </table>
+    <div style="width:220px; margin-inline-start:auto; font-size:12px;">
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span>جمع سبد</span>
+        <span>${data.subtotal.toLocaleString('fa-IR')}</span>
+      </div>
+      ${data.discountAmount ? `<div style="display:flex; justify-content:space-between; padding:3px 0; color:#0a7a4a;">
+        <span>تخفیف${data.discountCode ? ' (' + data.discountCode + ')' : ''}</span>
+        <span>− ${data.discountAmount.toLocaleString('fa-IR')}</span>
+      </div>` : ''}
+      <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
+        <span>جمع کل</span>
+        <span>${data.total.toLocaleString('fa-IR')} تومان</span>
+      </div>
+    </div>
+  `;
+}
+
+// خروجی PDF از یک شیء «داده‌ی فاکتور» عمومی (data ساختارش بالاست) — با btn اختیاری برای نمایش وضعیت روی دکمه
+async function generateInvoicePdf(data, btn){
+  const originalLabel = btn ? btn.textContent : '';
+  if (btn){ btn.disabled = true; btn.textContent = 'در حال ساخت PDF…'; }
+
+  // نکته‌ی مهم (علت اصلی باگ «PDF کاملاً سفید»): html2canvas موقع محاسبه‌ی موقعیت
+  // یک المان position:fixed از اسکرول واقعی پنجره استفاده می‌کنه. اگه کاربر صفحه رو
+  // اسکرول کرده باشه ولی ما به html2canvas بگیم scrollX/scrollY صفره، این دو با هم
+  // ناهماهنگ می‌شن و ناحیه‌ای که عکس ازش گرفته می‌شه با ناحیه‌ای که واقعاً محتوا توشه
+  // یکی نیست → خروجی یک عکس/PDF کاملاً خالی و سفید. راه‌حل قطعی: قبل از رندر، صفحه
+  // رو به بالا اسکرول می‌کنیم (پس اسکرول واقعی هم صفر می‌شه)، بعد از ساخت PDF هم
+  // اسکرول قبلی کاربر رو برمی‌گردونیم تا تجربه‌ی کاربری بهم نخوره.
+  const scrollBefore = window.scrollY || window.pageYOffset || 0;
+  window.scrollTo(0, 0);
+  await new Promise(r => setTimeout(r, 60));
+
+  // این المان باید داخل مرزهای قابل‌رندر صفحه بمونه (نه با left منفی خیلی زیاد)
+  // وگرنه html2canvas یک تصویر کاملاً سفید تولید می‌کنه. با z-index منفی پشت محتوای
+  // اصلی صفحه مخفی می‌مونه ولی برای رندرر قابل‌دیدنه.
+  const pdfHtml = document.createElement('div');
+  pdfHtml.style.cssText = 'width:480px; background:#fff; color:#1a1a1a; direction:rtl; font-family:"Vazirmatn",sans-serif; padding:26px; box-sizing:border-box; position:absolute; top:0; left:0; z-index:-99999; pointer-events:none;';
+  pdfHtml.innerHTML = buildInvoiceHtml(data);
+  document.body.appendChild(pdfHtml);
+
+  try{
+    // صبر برای لود کامل فونت Vazirmatn، وگرنه ممکنه متن اشتباه یا خالی رندر بشه
+    if (document.fonts && document.fonts.ready){ await document.fonts.ready; }
+    await new Promise(r => setTimeout(r, 250));
+
+    await html2pdf().set({
+      margin: 8,
+      filename: data.filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: pdfHtml.scrollWidth,
+        windowHeight: pdfHtml.scrollHeight
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(pdfHtml).save();
+  }catch(err){
+    console.error('❌ خطا در دانلود PDF:', err);
+    alert('دانلود فاکتور با خطا مواجه شد. لطفاً دوباره امتحان کن.');
+  }finally{
+    if (document.body.contains(pdfHtml)) document.body.removeChild(pdfHtml);
+    window.scrollTo(0, scrollBefore);
+    if (btn){ btn.disabled = false; btn.textContent = originalLabel || 'دانلود PDF فاکتور'; }
+  }
+}
+
+// دکمه‌ی «دانلود PDF فاکتور» داخل سبد خرید فعلی (پیش از ثبت سفارش)
+function downloadPdfInvoice(){
+  const lines = cartLines();
+  if(!lines.length){
+    alert('سبد خریدت خالیه!');
+    return;
+  }
+  const now = new Date();
+  const subtotal = cartGrandTotal();
+  const data = {
+    items: lines.map(l => ({ name: l.item.name, price: l.item.price, qty: l.qty })),
+    subtotal,
+    discountCode: appliedDiscount ? appliedDiscount.code : null,
+    discountAmount: appliedDiscount ? appliedDiscount.discountAmount : 0,
+    total: appliedDiscount ? appliedDiscount.total : subtotal,
+    dateObj: now,
+    orderNo: now.getTime().toString().slice(-6),
+    statusLabel: '',
+    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${now.getTime().toString().slice(-6)}.pdf`,
+  };
+  generateInvoicePdf(data, document.getElementById('pdfInvoiceBtn'));
+}
+
+invoiceBtn.addEventListener('click', renderInvoice);
+
+function openCart(){
+  cartOverlay.classList.add('open');
+  cartPanel.classList.add('open');
+  renderCart();
+}
+function closeCart(){
+  cartOverlay.classList.remove('open');
+  cartPanel.classList.remove('open');
+}
+cartBtn.addEventListener('click', openCart);
+cartClose.addEventListener('click', closeCart);
+cartOverlay.addEventListener('click', closeCart);
+
+/* ---------------------- تاریخچه سفارش‌های مشتری + فاکتور هر کدوم ---------------------- */
+const ordersBtn = document.getElementById('ordersBtn');
+const ordersOverlay = document.getElementById('ordersOverlay');
+const ordersPanel = document.getElementById('ordersPanel');
+const ordersClose = document.getElementById('ordersClose');
+const ordersMsgs = document.getElementById('ordersMsgs');
+
+function openOrdersPanel(){
+  ordersOverlay.classList.add('open');
+  ordersPanel.classList.add('open');
+}
+function closeOrdersPanel(){
+  ordersOverlay.classList.remove('open');
+  ordersPanel.classList.remove('open');
+}
+
+function orderHistCardHtml(order, idx){
+  const created = new Date(order.createdAt);
+  const statusKey = order.status || 'new';
+  const itemsLine = order.items.map(it => `${it.name} × ${it.qty}`).join('، ');
+  return `
+    <div class="order-hist-card" data-idx="${idx}">
+      <div class="order-hist-head">
+        <b>سفارش #${String(order.id || '').slice(-6) || (idx+1)}</b>
+        <span class="order-hist-status ${statusKey === 'done' ? 'done' : ''}">${ORDER_STATUS_LABEL[statusKey] ? (statusKey === 'done' ? 'آماده شد ✅' : (statusKey === 'seen' ? 'دیده شد 👀' : 'در انتظار')) : ''}</span>
+      </div>
+      <div class="order-hist-meta">${created.toLocaleDateString('fa-IR')} — ${created.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</div>
+      <div class="order-hist-items">${itemsLine}</div>
+      <div class="order-hist-total"><span>جمع کل</span><span class="amt">${(order.total || 0).toLocaleString('fa-IR')} تومان</span></div>
+      <button class="order-hist-pdf-btn" data-pdf-idx="${idx}">دانلود فاکتور PDF</button>
+    </div>`;
+}
+
+let lastLoadedOrders = [];
+
+async function loadOrderHistory(){
+  ordersMsgs.innerHTML = '<div class="order-hist-loading">در حال بارگذاری سفارش‌ها…</div>';
+  const identity = getIdentity();
+  if (!identity || !identity.phone){
+    ordersMsgs.innerHTML = '<div class="order-hist-empty">برای دیدن سفارش‌هات باید اول شناسه‌ات رو وارد کنی.</div>';
+    return;
+  }
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/order/history?slug=' + encodeURIComponent(MENU.slug) + '&phone=' + encodeURIComponent(identity.phone), { cache: 'no-store' });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'خطا در دریافت سفارش‌ها');
+    lastLoadedOrders = Array.isArray(data.orders) ? data.orders : [];
+    if (!lastLoadedOrders.length){
+      ordersMsgs.innerHTML = '<div class="order-hist-empty">هنوز سفارشی از این کافه ثبت نکردی.</div>';
+      return;
+    }
+    ordersMsgs.innerHTML = lastLoadedOrders.map((o, i) => orderHistCardHtml(o, i)).join('');
+  }catch(e){
+    ordersMsgs.innerHTML = `<div class="order-hist-empty">${e.message || 'خطا در دریافت سفارش‌ها'}</div>`;
+  }
+}
+
+ordersMsgs.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-pdf-idx]');
+  if (!btn) return;
+  const order = lastLoadedOrders[parseInt(btn.dataset.pdfIdx, 10)];
+  if (!order) return;
+  const created = new Date(order.createdAt);
+  const data = {
+    items: (order.items || []).map(it => ({ name: it.name, price: it.price, qty: it.qty })),
+    subtotal: order.subtotal || 0,
+    discountCode: order.discountCode || null,
+    discountAmount: order.discountAmount || 0,
+    total: order.total || 0,
+    dateObj: created,
+    orderNo: String(order.id || '').slice(-6),
+    statusLabel: ORDER_STATUS_LABEL[order.status] || '',
+    filename: `فاکتور-${(MENU.cafeName || 'menu').replace(/\s+/g,'-')}-${String(order.id || '').slice(-6)}.pdf`,
+  };
+  generateInvoicePdf(data, btn);
+});
+
+ordersBtn.addEventListener('click', () => {
+  requireIdentity('order', () => {
+    openOrdersPanel();
+    loadOrderHistory();
+  });
+});
+ordersClose.addEventListener('click', closeOrdersPanel);
+ordersOverlay.addEventListener('click', closeOrdersPanel);
+
+/* ---------------------- صدا زدن گارسون ---------------------- */
+const waiterBtn = document.getElementById('waiterBtn');
+const waiterOverlay = document.getElementById('waiterOverlay');
+const waiterTable = document.getElementById('waiterTable');
+const waiterErr = document.getElementById('waiterErr');
+const waiterCancel = document.getElementById('waiterCancel');
+const waiterConfirm = document.getElementById('waiterConfirm');
+
+waiterBtn.addEventListener('click', () => {
+  waiterErr.textContent = '';
+  waiterTable.value = '';
+  waiterOverlay.classList.remove('hidden');
+});
+waiterCancel.addEventListener('click', () => waiterOverlay.classList.add('hidden'));
+waiterOverlay.addEventListener('click', (e) => { if (e.target === waiterOverlay) waiterOverlay.classList.add('hidden'); });
+
+waiterConfirm.addEventListener('click', async () => {
+  const tableNumber = waiterTable.value.trim();
+  if (!tableNumber){ waiterErr.textContent = 'شماره میز رو بنویس.'; return; }
+  waiterConfirm.disabled = true;
+  waiterConfirm.textContent = 'در حال ارسال…';
+
+  try{
+    const res = await fetch(MENUPROAI_API + '/api/menu/call-waiter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: MENU.slug, tableNumber }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.error || 'ارسال نشد.');
+    waiterOverlay.classList.add('hidden');
+    alert('گارسون خبر شد! تا چند لحظه دیگه میاد سراغت.');
+  }catch(e){
+    waiterErr.textContent = e.message;
+  }
+  waiterConfirm.disabled = false;
+  waiterConfirm.textContent = 'خبرش کن';
+});
+
+updateCartBadge();
+</script>
+
+</body>
+</html>

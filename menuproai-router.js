@@ -19,6 +19,10 @@
 const TEMPLATE_FILES = {
   "classic-menu": "https://mr-aiza.github.io/MenuProAi/public-menu.html",
   "modern-grid": "https://mr-aiza.github.io/MenuProAi/public-menu-modern.html",
+  "shop-storefront": "https://mr-aiza.github.io/MenuProAi/public-menu-shop.html",
+  "shop-lookbook": "https://mr-aiza.github.io/MenuProAi/public-menu-shop2.html",
+  "salon-studio": "https://mr-aiza.github.io/MenuProAi/public-menu-salon.html",
+  "restaurant-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 

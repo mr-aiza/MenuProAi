@@ -147,16 +147,24 @@ async function handleCreateMenu(request, env) {
   const slug = slugify(body.slug || body.cafeName);
   const cafeName = String(body.cafeName || "").trim().slice(0, 60);
   const tagline = String(body.tagline || "").trim().slice(0, 160);
-  // فعلاً فقط یه قالب داریم ("classic-menu")؛ فیلد رو همینجا ذخیره می‌کنیم
-  // که وقتی قالب‌های بیشتری اضافه شد، هر کافه بدونه قالبش کدومه.
-  const template = String(body.template || "classic-menu").trim().slice(0, 60);
   const businessType = BUSINESS_TYPES.includes(body.businessType)
     ? body.businessType
     : DEFAULT_BUSINESS_TYPE;
+  // قالب پیش‌فرض هر نوع کسب‌وکار رو خودش تعیین می‌کنه (کافه/رستوران →
+  // classic-menu، فروشگاه → shop-storefront، سالن → salon-studio)، چون
+  // قالب‌های کافه نباید رو کسب‌وکارهای دیگه ست بشن.
+  const defaultTemplateFor = { cafe: "classic-menu", restaurant: "restaurant-classic", shop: "shop-storefront", salon: "salon-studio" };
+  const template = String(body.template || defaultTemplateFor[businessType] || "classic-menu").trim().slice(0, 60);
 
   if (!cafeName) return json({ error: "نام کافه/کسب‌وکار الزامی است." }, 400);
   if (!isValidSlug(slug)) {
     return json({ error: "آدرس انتخابی معتبر نیست. فقط حروف انگلیسی، عدد و خط تیره، حداقل ۳ کاراکتر." }, 400);
+  }
+  if (!KNOWN_TEMPLATES.includes(template)) {
+    return json({ error: "قالب انتخابی معتبر نیست." }, 400);
+  }
+  if (!templateMatchesBusinessType(template, businessType)) {
+    return json({ error: "این قالب مخصوص نوع کسب‌وکار دیگه‌ایه." }, 400);
   }
 
   const alreadyTaken = await env.MENU_KV.get("menu:" + slug);
@@ -242,7 +250,23 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic"];
+
+// هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
+// فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
+// نوع(های) کسب‌وکار مجازش رو مشخص کن.
+const TEMPLATE_BUSINESS_TYPES = {
+  "classic-menu": ["cafe"],
+  "modern-grid": ["cafe"],
+  "restaurant-classic": ["restaurant"],
+  "shop-storefront": ["shop"],
+  "shop-lookbook": ["shop"],
+  "salon-studio": ["salon"],
+};
+function templateMatchesBusinessType(template, businessType) {
+  const allowed = TEMPLATE_BUSINESS_TYPES[template];
+  return !allowed || allowed.includes(businessType);
+}
 
 async function handleUpdateInfo(request, env) {
   const phone = await getAuthedPhone(request, env);
@@ -266,6 +290,13 @@ async function handleUpdateInfo(request, env) {
   if (typeof body.template === "string") {
     if (!KNOWN_TEMPLATES.includes(body.template)) {
       return json({ error: "قالب انتخابی معتبر نیست." }, 400);
+    }
+    const effectiveBusinessType =
+      typeof body.businessType === "string" && BUSINESS_TYPES.includes(body.businessType)
+        ? body.businessType
+        : own.menu.businessType;
+    if (!templateMatchesBusinessType(body.template, effectiveBusinessType)) {
+      return json({ error: "این قالب مخصوص نوع کسب‌وکار دیگه‌ایه." }, 400);
     }
     own.menu.template = body.template;
   }

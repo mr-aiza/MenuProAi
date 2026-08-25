@@ -168,6 +168,7 @@
   .tmpl-card:hover{border-color:var(--violet);}
   .tmpl-card.selected{border-color:var(--cyan);}
   .tmpl-card img{display:block;width:100%;height:180px;object-fit:cover;object-position:top;}
+  .tmpl-img-placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:180px;font-size:56px;background:linear-gradient(135deg,var(--violet-dim,#2a2440),var(--panel-2));}
   .tmpl-card .tmpl-body{padding:12px 14px;}
   .tmpl-card .tmpl-name{font-weight:800;font-size:14px;margin-bottom:4px;}
   .tmpl-card .tmpl-desc{font-size:12px;color:var(--muted);margin-bottom:10px;}
@@ -766,29 +767,73 @@ document.getElementById('btypeChangeBtn').addEventListener('click', () => {
 renderBtypePicker();
 
 /* ============ انتخاب قالب ============ */
+// هر قالب فقط باید برای نوع(های) کسب‌وکار خودش نشون داده بشه — قالب
+// کافه رو نباید به فروشگاه/سالن پیشنهاد بدیم و برعکس. فیلد businessType
+// دقیقاً باید با TEMPLATE_BUSINESS_TYPES تو menuproai-worker.js یکی باشه.
 const TEMPLATES = [
   {
     id: 'classic-menu',
     name: 'قالب کلاسیک',
     desc: 'طراحی تیره و مدرن، با دستیار هوش مصنوعی و سبد خرید.',
     img: 'portfolio/templates/classic-menu/classic-menu.png',
+    businessType: ['cafe'],
   },
   {
     id: 'modern-grid',
     name: 'قالب مدرن روشن',
     desc: 'طراحی روشن و گرم با آیتم‌های کارتی، برای فضای دنج و امروزی.',
     img: 'portfolio/templates/modern-grid/modern-grid.png',
+    businessType: ['cafe'],
+  },
+  {
+    id: 'restaurant-classic',
+    name: 'قالب رستوران',
+    desc: 'طراحی اختصاصی رستوران — شرابی و طلایی، دسته‌ها با شماره‌ی سرو (پیش‌غذا، اصلی، دسر).',
+    icon: '🍽️',
+    businessType: ['restaurant'],
+  },
+  {
+    id: 'shop-storefront',
+    name: 'قالب فروشگاهی — کلاسیک',
+    desc: 'طراحی مخصوص نمایش محصولات فروشگاه با قیمت و دسته‌بندی، به‌صورت لیستی.',
+    icon: '🛍️',
+    businessType: ['shop'],
+  },
+  {
+    id: 'shop-lookbook',
+    name: 'قالب فروشگاهی — لوک‌بوک',
+    desc: 'چیدمان گرید عکس‌محور دوستونه، برای فروشگاه‌هایی که محصولشون با عکس دیده می‌شه.',
+    icon: '🖼️',
+    businessType: ['shop'],
+  },
+  {
+    id: 'salon-studio',
+    name: 'قالب سالن زیبایی',
+    desc: 'طراحی مخصوص نمایش خدمات آرایشگاه/سالن و دریافت درخواست نوبت.',
+    icon: '💇',
+    businessType: ['salon'],
   },
 ];
 
 let selectedTemplateId = null;
 const pendingTemplateFromUrl = new URLSearchParams(location.search).get('template');
 
+function templatesForBtype(btypeId){
+  return TEMPLATES.filter(t => t.businessType.includes(btypeId));
+}
+
+function tmplCardMedia(t){
+  return t.img
+    ? `<img src="${t.img}" alt="${t.name}" loading="lazy">`
+    : `<div class="tmpl-img-placeholder">${t.icon || '🎨'}</div>`;
+}
+
 function renderTemplatePicker(){
   const grid = document.getElementById('tmplGrid');
-  grid.innerHTML = TEMPLATES.map(t => `
+  const list = templatesForBtype(selectedBusinessType);
+  grid.innerHTML = list.map(t => `
     <div class="tmpl-card${t.id === selectedTemplateId ? ' selected' : ''}" data-tmpl="${t.id}">
-      <img src="${t.img}" alt="${t.name}" loading="lazy">
+      ${tmplCardMedia(t)}
       <div class="tmpl-body">
         <div class="tmpl-name">${t.name}</div>
         <div class="tmpl-desc">${t.desc}</div>
@@ -822,9 +867,11 @@ document.getElementById('tmplChangeBtn').addEventListener('click', () => {
 function renderSettingsTemplatePicker(){
   const grid = document.getElementById('tmplSettingsGrid');
   const activeId = (currentMenu && currentMenu.template) || 'classic-menu';
-  grid.innerHTML = TEMPLATES.map(t => `
+  const btypeId = (currentMenu && currentMenu.businessType) || 'cafe';
+  // فقط قالب‌های مخصوص همون نوع کسب‌وکار این کافه/فروشگاه/سالن رو نشون بده.
+  grid.innerHTML = templatesForBtype(btypeId).map(t => `
     <div class="tmpl-card${t.id === activeId ? ' selected' : ''}" data-tmpl="${t.id}">
-      <img src="${t.img}" alt="${t.name}" loading="lazy">
+      ${tmplCardMedia(t)}
       <div class="tmpl-body">
         <div class="tmpl-name">${t.name}${t.id === activeId ? ' <span style="color:var(--cyan);font-weight:700;">(فعال)</span>' : ''}</div>
         <div class="tmpl-desc">${t.desc}</div>
@@ -895,9 +942,11 @@ async function afterAuth(){
     if (e.status === 404){
       document.getElementById('introBlock').classList.remove('hidden');
       document.getElementById('createCard').classList.remove('hidden');
-      if (pendingTemplateFromUrl && TEMPLATES.some(t => t.id === pendingTemplateFromUrl)){
-        // لینک‌های «شروع با این قالب» از صفحه‌ی اصلی فعلاً فقط برای کافه/رستوران‌اند
-        selectBtype('cafe');
+      const pendingTmpl = TEMPLATES.find(t => t.id === pendingTemplateFromUrl);
+      if (pendingTmpl){
+        // نوع کسب‌وکار رو از رو خودِ قالب انتخاب‌شده تشخیص بده (هر قالب
+        // فقط مال یه نوع کسب‌وکاره)، نه اینکه همیشه «کافه» فرض بشه.
+        selectBtype(pendingTmpl.businessType[0]);
         selectTemplate(pendingTemplateFromUrl);
       }
     } else {
