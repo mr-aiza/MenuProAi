@@ -23,6 +23,7 @@ const TEMPLATE_FILES = {
   "shop-lookbook": "https://mr-aiza.github.io/MenuProAi/public-menu-shop2.html",
   "salon-studio": "https://mr-aiza.github.io/MenuProAi/public-menu-salon.html",
   "restaurant-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant.html",
+  "classic-receipt": "https://mr-aiza.github.io/MenuProAi/public-menu-receipt.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 
