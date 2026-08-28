@@ -250,7 +250,7 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "barber-classic", "clinic-appointment"];
 
 // هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
 // فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
@@ -263,6 +263,9 @@ const TEMPLATE_BUSINESS_TYPES = {
   "shop-lookbook": ["shop"],
   "salon-studio": ["salon"],
   "classic-receipt": ["cafe"],
+  "fastfood-combo": ["restaurant"],
+  "barber-classic": ["salon"],
+  "clinic-appointment": ["salon"],
 };
 function templateMatchesBusinessType(template, businessType) {
   const allowed = TEMPLATE_BUSINESS_TYPES[template];

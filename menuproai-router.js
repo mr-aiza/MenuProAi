@@ -24,6 +24,9 @@ const TEMPLATE_FILES = {
   "salon-studio": "https://mr-aiza.github.io/MenuProAi/public-menu-salon.html",
   "restaurant-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant.html",
   "classic-receipt": "https://mr-aiza.github.io/MenuProAi/public-menu-receipt.html",
+  "fastfood-combo": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood.html",
+  "barber-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-barber.html",
+  "clinic-appointment": "https://mr-aiza.github.io/MenuProAi/public-menu-clinic.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 
