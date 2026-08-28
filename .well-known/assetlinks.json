@@ -1,10 +1,22 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "xyz.bytelabpro.menuproai.twa",
-    "sha256_cert_fingerprints": [
-      "89:F8:43:39:44:B3:30:31:0F:04:9F:14:DD:F1:F1:F4:40:2D:45:52:3B:01:A9:60:87:9C:76:7A:48:12:52:38"
-    ]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.bytelabpro.menuproai",
+      "sha256_cert_fingerprints": [
+        "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "cafebazaar_twa",
+      "package_name": "xyz.bytelabpro.menuproai",
+      "sha256_cert_fingerprints": [
+        "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
+      ]
+    }
   }
-}]
+]
