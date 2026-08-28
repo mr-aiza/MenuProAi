@@ -1,0 +1,70 @@
+{
+  "name": "MenuProAI",
+  "short_name": "MenuPro",
+  "description": "پلتفرم منو و سفارش‌گیری هوشمند برای کافه، رستوران، فروشگاه و سالن",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait",
+  "lang": "fa",
+  "dir": "rtl",
+  "background_color": "#070D22",
+  "theme_color": "#0E1C42",
+  "categories": ["business", "food", "shopping", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "داشبورد",
+      "short_name": "داشبورد",
+      "description": "ورود سریع به پنل مدیریت",
+      "url": "/dashboard.html?source=pwa_shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "سفارش‌های جدید",
+      "short_name": "سفارش‌ها",
+      "description": "مشاهده سفارش‌های تازه",
+      "url": "/dashboard.html#orders?source=pwa_shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
