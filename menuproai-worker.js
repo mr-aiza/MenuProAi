@@ -1326,6 +1326,38 @@ export default {
       return new Response(null, { headers: corsHeaders() });
     }
 
+    // --------------------------------------------------------
+    // Digital Asset Links — برای تایید TWA (اپلیکیشن اندروید/
+    // کافه‌بازار) که این دامنه رو مالکه. باید همیشه قبل از هر
+    // روت دیگه چک بشه و مستقل از CORS/احراز هویت باشه.
+    // --------------------------------------------------------
+    if (url.pathname === "/.well-known/assetlinks.json") {
+      return new Response(JSON.stringify([
+        {
+          relation: ["delegate_permission/common.handle_all_urls"],
+          target: {
+            namespace: "android_app",
+            package_name: "xyz.bytelabpro.menuproai",
+            sha256_cert_fingerprints: [
+              "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
+            ]
+          }
+        },
+        {
+          relation: ["check_validation"],
+          target: {
+            namespace: "cafebazaar_twa",
+            package_name: "xyz.bytelabpro.menuproai",
+            sha256_cert_fingerprints: [
+              "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
+            ]
+          }
+        }
+      ]), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     try {
       if (url.pathname === "/api/menu/create" && request.method === "POST") {
         return await handleCreateMenu(request, env);
