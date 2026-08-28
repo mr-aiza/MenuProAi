@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "xyz.bytelabpro.menuproai.twa",
+    "sha256_cert_fingerprints": [
+      "89:F8:43:39:44:B3:30:31:0F:04:9F:14:DD:F1:F1:F4:40:2D:45:52:3B:01:A9:60:87:9C:76:7A:48:12:52:38"
+    ]
+  }
+}]
