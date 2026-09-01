@@ -27,6 +27,8 @@ const TEMPLATE_FILES = {
   "fastfood-combo": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood.html",
   "barber-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-barber.html",
   "clinic-appointment": "https://mr-aiza.github.io/MenuProAi/public-menu-clinic.html",
+  "carwash-shine": "https://mr-aiza.github.io/MenuProAi/public-menu-carwash.html",
+  "zoghali-noir": "https://mr-aiza.github.io/MenuProAi/public-menu-zoghali.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 

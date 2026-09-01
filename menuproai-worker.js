@@ -250,7 +250,7 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "barber-classic", "clinic-appointment"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "barber-classic", "clinic-appointment", "carwash-shine", "zoghali-noir"];
 
 // هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
 // فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
@@ -266,6 +266,8 @@ const TEMPLATE_BUSINESS_TYPES = {
   "fastfood-combo": ["restaurant"],
   "barber-classic": ["salon"],
   "clinic-appointment": ["salon"],
+  "carwash-shine": ["shop"],
+  "zoghali-noir": ["restaurant"],
 };
 function templateMatchesBusinessType(template, businessType) {
   const allowed = TEMPLATE_BUSINESS_TYPES[template];
@@ -1324,38 +1326,6 @@ export default {
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders() });
-    }
-
-    // --------------------------------------------------------
-    // Digital Asset Links — برای تایید TWA (اپلیکیشن اندروید/
-    // کافه‌بازار) که این دامنه رو مالکه. باید همیشه قبل از هر
-    // روت دیگه چک بشه و مستقل از CORS/احراز هویت باشه.
-    // --------------------------------------------------------
-    if (url.pathname === "/.well-known/assetlinks.json") {
-      return new Response(JSON.stringify([
-        {
-          relation: ["delegate_permission/common.handle_all_urls"],
-          target: {
-            namespace: "android_app",
-            package_name: "xyz.bytelabpro.menuproai",
-            sha256_cert_fingerprints: [
-              "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
-            ]
-          }
-        },
-        {
-          relation: ["check_validation"],
-          target: {
-            namespace: "cafebazaar_twa",
-            package_name: "xyz.bytelabpro.menuproai",
-            sha256_cert_fingerprints: [
-              "C6:C8:8F:59:FE:70:76:C8:03:EF:74:EA:28:9C:3E:39:44:B7:7F:A5:82:D0:86:D0:23:C4:40:F6:FC:8B:5D:BC"
-            ]
-          }
-        }
-      ]), {
-        headers: { "Content-Type": "application/json" },
-      });
     }
 
     try {
