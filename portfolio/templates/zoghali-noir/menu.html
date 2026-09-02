@@ -29,7 +29,7 @@
   }
 
   *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
+  html,body{ margin:0; padding:0; overflow-x:hidden; max-width:100%; }
   .hidden{ display:none !important; }
   body{
     background: var(--bg);
@@ -189,15 +189,20 @@
   .menu-search-input:focus{ border-color: var(--amber); }
   .search-empty{ text-align:center; color:var(--chalk-dim); padding-top:40px; font-size:13.5px; }
 
-  /* ---------- vertical floating category rail ---------- */
+  /* ---------- vertical floating category rail ----------
+     top به‌صورت جاوااسکریپتی (positionCatsNav) بر اساس ارتفاع واقعی
+     هدر محاسبه می‌شه، چون طول اسم/تگ‌لاین کافه متغیره و روی گوشی‌های
+     مختلف هدر ارتفاع متفاوتی می‌گیره؛ عدد ثابت باعث روی‌هم‌افتادگی می‌شد. */
   nav.cats{
     position: fixed;
-    top: 210px; bottom: 108px; right: 12px;
+    top: 210px; bottom: 108px;
+    right: calc(max(12px, env(safe-area-inset-right, 0px)) + max(0px, (100vw - 640px)/2));
     z-index: 25;
     display:flex; flex-direction:column; gap:10px;
     overflow-y:auto;
     scrollbar-width: none;
     padding: 2px;
+    transition: top .15s ease;
   }
   nav.cats::-webkit-scrollbar{ display:none; }
   nav.cats a{
@@ -335,7 +340,7 @@
 
   /* ---------- chat launcher (left, unaffected by sidebar) ---------- */
   .chat-btn{
-    position: fixed; bottom: 20px; left: 20px;
+    position: fixed; bottom: 20px; left: calc(20px + max(0px, (100vw - 640px)/2));
     width:54px; height:54px; border-radius:50%;
     background: var(--bg-panel); color: var(--amber);
     border: 1px solid var(--line);
@@ -436,7 +441,7 @@
 
   /* ---------- cart ---------- */
   .cart-btn{
-    position: fixed; bottom: 20px; right: 20px;
+    position: fixed; bottom: 20px; right: calc(20px + max(0px, (100vw - 640px)/2));
     width:54px; height:54px; border-radius:50%;
     background: linear-gradient(135deg, var(--amber), #C2461C); color: #0A0A0A;
     border: none;
@@ -791,7 +796,37 @@ async function loadMenu(){
   renderNav();
   renderMenu();
   setupSplash();
+  positionCatsNav();
+  // بعد از رندر کامل و بارگذاری فونت، یه بار دیگه هم چک می‌کنیم چون
+  // عرض اسم/تگ‌لاین واقعی ممکنه ارتفاع هدر رو نسبت به حالت placeholder عوض کنه.
+  requestAnimationFrame(() => requestAnimationFrame(positionCatsNav));
 }
+
+// ریل شناور دسته‌بندی رو دقیقاً زیر باکس جستجو می‌چینه، نه با عدد ثابت؛
+// چون روی گوشی‌های باریک‌تر یا اسم/تگ‌لاین بلندتر، هدر ارتفاع بیشتری می‌گیره
+// و عدد ثابت باعث می‌شد ریل روی متن هدر بیفته.
+// همچنین right رو نسبت به لبه‌ی راست ستون محتوا (main، که حداکثر 640px و
+// وسط‌چین‌شده) حساب می‌کنه، نه لبه‌ی راست کل مرورگر؛ وگرنه روی ویندوز/دسکتاپ
+// با پنجره‌ی عریض، ریل از محتوا فاصله می‌گرفت و انگار جدا افتاده بود.
+function positionCatsNav(){
+  const nav = document.getElementById('catsNav');
+  const searchWrap = document.querySelector('.menu-search-wrap');
+  const main = document.getElementById('menuRoot');
+  if (!nav || !searchWrap) return;
+  const bottom = searchWrap.getBoundingClientRect().bottom;
+  nav.style.top = Math.max(120, Math.round(bottom + 10)) + 'px';
+
+  if (main){
+    const mainRect = main.getBoundingClientRect();
+    const viewportW = window.innerWidth;
+    const gapFromMainEdge = 12; // فاصله‌ی کوچیک تا لبه‌ی راست ستون محتوا
+    const rightOffset = Math.max(12, Math.round(viewportW - mainRect.right + gapFromMainEdge));
+    nav.style.right = rightOffset + 'px';
+  }
+}
+window.addEventListener('resize', positionCatsNav);
+window.addEventListener('orientationchange', () => setTimeout(positionCatsNav, 200));
+document.fonts && document.fonts.ready && document.fonts.ready.then(positionCatsNav).catch(()=>{});
 
 // حدس ایموجی مناسب برای هر دسته، بر اساس کلیدواژه‌های موجود در اسمش
 function catIcon(title){

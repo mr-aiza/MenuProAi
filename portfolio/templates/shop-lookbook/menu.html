@@ -27,7 +27,7 @@
   }
 
   *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
+  html,body{ margin:0; padding:0; overflow-x:hidden; max-width:100%; }
   .hidden{ display:none !important; }
   body{
     background: var(--bg);
@@ -269,7 +269,7 @@
 
   /* ---------- chat launcher ---------- */
   .chat-btn{
-    position: fixed; bottom: 20px; left: 20px;
+    position: fixed; bottom: 20px; left: calc(20px + max(0px, (100vw - 640px)/2));
     width:56px; height:56px; border-radius:50%;
     background: var(--amber); color: var(--bg);
     border:none; cursor:pointer;
@@ -391,7 +391,7 @@
 
   /* ---------- cart launcher ---------- */
   .cart-btn{
-    position: fixed; bottom: 20px; right: 20px;
+    position: fixed; bottom: 20px; right: calc(20px + max(0px, (100vw - 640px)/2));
     width:56px; height:56px; border-radius:50%;
     background: var(--bg-panel-2); color: var(--chalk);
     border: 1.5px solid var(--amber);
