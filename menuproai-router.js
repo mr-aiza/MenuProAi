@@ -25,10 +25,14 @@ const TEMPLATE_FILES = {
   "restaurant-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant.html",
   "classic-receipt": "https://mr-aiza.github.io/MenuProAi/public-menu-receipt.html",
   "fastfood-combo": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood.html",
+  "fastfood-cards": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood-cards.html",
   "barber-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-barber.html",
   "clinic-appointment": "https://mr-aiza.github.io/MenuProAi/public-menu-clinic.html",
   "carwash-shine": "https://mr-aiza.github.io/MenuProAi/public-menu-carwash.html",
   "zoghali-noir": "https://mr-aiza.github.io/MenuProAi/public-menu-zoghali.html",
+  "bubble-pop": "https://mr-aiza.github.io/MenuProAi/public-menu-bubble-pop.html",
+  "editorial-leaf": "https://mr-aiza.github.io/MenuProAi/public-menu-editorial-leaf.html",
+  "diet-filter": "https://mr-aiza.github.io/MenuProAi/public-menu-diet-filter.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 

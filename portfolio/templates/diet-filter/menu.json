@@ -1,0 +1,212 @@
+{
+  "slug": "portfolio-demo-diet",
+  "cafeName": "کافه پاک",
+  "tagline": "منویی که با فیلتر رژیم غذایی، دقیقاً چیزی رو نشونت می‌ده که می‌تونی بخوری",
+  "businessType": "cafe",
+  "categories": [
+    {
+      "id": "bowls",
+      "title": "باول و سالاد"
+    },
+    {
+      "id": "mains",
+      "title": "غذای اصلی"
+    },
+    {
+      "id": "snacks",
+      "title": "میان‌وعده"
+    },
+    {
+      "id": "drinks",
+      "title": "نوشیدنی"
+    }
+  ],
+  "items": [
+    {
+      "id": "buddha-bowl",
+      "name": "بودا باول",
+      "category": "bowls",
+      "price": 210000,
+      "dietTags": [
+        "vegan",
+        "gluten-free"
+      ],
+      "tags": [
+        "پرفروش"
+      ],
+      "desc": "کینوا، نخود بو داده، آووکادو، سبزیجات فصلی و سس طحینه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I3RTRDNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJGOUU2MyIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WXPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "greek-salad",
+      "name": "سالاد یونانی",
+      "category": "bowls",
+      "price": 180000,
+      "dietTags": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "tags": [],
+      "desc": "خیار، گوجه، پنیر فتا، زیتون کالاماتا و روغن‌زیتون.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I3RTRDNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJGOUU2MyIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WZPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "vegan-chickpea-bowl",
+      "name": "باول نخود و سبزیجات",
+      "category": "bowls",
+      "price": 195000,
+      "dietTags": [
+        "vegan",
+        "gluten-free",
+        "dairy-free"
+      ],
+      "tags": [
+        "کم‌کالری"
+      ],
+      "desc": "نخود کبابی با فلفل دلمه، اسفناج و سس لیمو.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I3RTRDNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJGOUU2MyIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6uYPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "grilled-chicken",
+      "name": "مرغ گریل با سبزیجات",
+      "category": "mains",
+      "price": 260000,
+      "dietTags": [
+        "gluten-free",
+        "dairy-free"
+      ],
+      "tags": [
+        "پرپروتئین"
+      ],
+      "desc": "سینه‌ی مرغ گریل‌شده با بروکلی بخارپز و سیب‌زمینی شیرین.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDlBOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NzgyRSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42XPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "spicy-tofu",
+      "name": "توفوی تند سرخ‌شده",
+      "category": "mains",
+      "price": 220000,
+      "dietTags": [
+        "vegan",
+        "dairy-free",
+        "spicy"
+      ],
+      "tags": [
+        "گیاهی"
+      ],
+      "desc": "توفوی سرخ‌شده با سس تند آسیایی و برنج قهوه‌ای.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDlBOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NzgyRSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4y277iPPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "salmon-plate",
+      "name": "سالمون گریل",
+      "category": "mains",
+      "price": 390000,
+      "dietTags": [
+        "gluten-free",
+        "dairy-free",
+        "low-cal"
+      ],
+      "tags": [
+        "امگا۳"
+      ],
+      "desc": "فیله‌ی سالمون گریل‌شده با کینوا و سبزیجات بخارپز.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDlBOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NzgyRSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5CfPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "energy-balls",
+      "name": "انرژی‌بال خرما و بادام",
+      "category": "snacks",
+      "price": 85000,
+      "dietTags": [
+        "vegan",
+        "gluten-free",
+        "dairy-free"
+      ],
+      "tags": [
+        "بدون شکر افزوده"
+      ],
+      "desc": "خرما، بادام، دانه‌ی چیا و پودر کاکائوی خام.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q5QzlGMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhCNkZDOSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42rPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "hummus-veggies",
+      "name": "حمص با سبزیجات خام",
+      "category": "snacks",
+      "price": 95000,
+      "dietTags": [
+        "vegan",
+        "gluten-free",
+        "dairy-free",
+        "low-cal"
+      ],
+      "tags": [],
+      "desc": "حمص خانگی با هویج، خیار و کرفس تازه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q5QzlGMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhCNkZDOSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "protein-bar",
+      "name": "پروتئین‌بار خانگی",
+      "category": "snacks",
+      "price": 110000,
+      "dietTags": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "tags": [
+        "پرپروتئین"
+      ],
+      "desc": "جو دوسر، پروتئین وی، کره‌بادوم‌زمینی و عسل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0Q5QzlGMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhCNkZDOSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42qPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "green-smoothie",
+      "name": "اسموتی سبز",
+      "category": "drinks",
+      "price": 120000,
+      "dietTags": [
+        "vegan",
+        "gluten-free",
+        "dairy-free",
+        "low-cal"
+      ],
+      "tags": [
+        "دیتاکس"
+      ],
+      "desc": "اسفناج، سیب سبز، خیار و زنجبیل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I3RTRDNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJGOUU2MyIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WkPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "golden-milk",
+      "name": "شیر طلایی زردچوبه",
+      "category": "drinks",
+      "price": 95000,
+      "dietTags": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "tags": [
+        "گرم"
+      ],
+      "desc": "شیر بادام، زردچوبه، دارچین و عسل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDlBOCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NzgyRSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WbPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "kombucha",
+      "name": "کامبوچای خانگی",
+      "category": "drinks",
+      "price": 90000,
+      "dietTags": [
+        "vegan",
+        "gluten-free",
+        "dairy-free",
+        "low-cal"
+      ],
+      "tags": [
+        "پروبیوتیک"
+      ],
+      "desc": "چای تخمیرشده با طعم زنجبیل و لیموترش.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I3RTRDNyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJGOUU2MyIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn425PC90ZXh0Pgo8L3N2Zz4="
+    }
+  ]
+}

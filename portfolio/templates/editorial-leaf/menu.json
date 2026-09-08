@@ -1,0 +1,154 @@
+{
+  "slug": "portfolio-demo-editorial",
+  "cafeName": "رستوران برگ",
+  "tagline": "مواد اولیه‌ی فصلی، طبخ ساده، طعم اصیل",
+  "businessType": "restaurant",
+  "categories": [
+    {
+      "id": "starters",
+      "title": "پیش‌غذا"
+    },
+    {
+      "id": "mains",
+      "title": "غذای اصلی"
+    },
+    {
+      "id": "dessert",
+      "title": "دسر"
+    },
+    {
+      "id": "drinks",
+      "title": "نوشیدنی"
+    }
+  ],
+  "items": [
+    {
+      "id": "burrata",
+      "name": "بوراتای تازه",
+      "category": "starters",
+      "price": 320000,
+      "tags": [
+        "گیاهی"
+      ],
+      "chefPick": true,
+      "desc": "بوراتای ایتالیایی با گوجه‌ی خیابانی، ریحان تازه و روغن‌زیتون فرابکر.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0RFQzciLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTlBNkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+ngDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "beet-salad",
+      "name": "سالاد چغندر و گردو",
+      "category": "starters",
+      "price": 210000,
+      "tags": [
+        "گیاهی",
+        "بدون گلوتن"
+      ],
+      "desc": "چغندر کبابی، پنیر بز، گردوی برشته و سس عسل‌و‌سرکه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0RFQzciLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTlBNkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+llzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "soup-of-day",
+      "name": "سوپ روز",
+      "category": "starters",
+      "price": 150000,
+      "tags": [
+        "گرم"
+      ],
+      "desc": "سوپ فصلی بر اساس بهترین محصول امروز بازار.",
+      "image": null
+    },
+    {
+      "id": "lamb-shank",
+      "name": "ماهیچه‌ی بره",
+      "category": "mains",
+      "price": 890000,
+      "tags": [
+        "ویژه"
+      ],
+      "chefPick": true,
+      "desc": "ماهیچه‌ی آرام‌پز شده با روزماری و شراب قرمز، سرو با پوره‌ی سیب‌زمینی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNFQUQyQkMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNTY1MUQiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NljwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "seabass",
+      "name": "ماهی سی‌باس گریل",
+      "category": "mains",
+      "price": 650000,
+      "tags": [
+        "بدون گلوتن"
+      ],
+      "desc": "فیله‌ی سی‌باس گریل‌شده با سبزیجات فصلی و سس لیمو-کره.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0RFQzciLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4QTlBNkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+QnzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "mushroom-risotto",
+      "name": "ریزوتوی قارچ وحشی",
+      "category": "mains",
+      "price": 420000,
+      "tags": [
+        "گیاهی"
+      ],
+      "desc": "برنج آربوریو با قارچ وحشی، پارمزان و ترافل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGMUU5RDgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOUE5NkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NmjwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "steak-frites",
+      "name": "استیک با سیب‌زمینی",
+      "category": "mains",
+      "price": 780000,
+      "tags": [],
+      "desc": "راسته‌ی گوساله‌ی گریل‌شده با سیب‌زمینی سرخ‌شده‌ی دستی و سس فلفل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNFQUQyQkMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNTY1MUQiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+lqTwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "panna-cotta",
+      "name": "پاناکوتای وانیل",
+      "category": "dessert",
+      "price": 150000,
+      "tags": [
+        "بدون گلوتن"
+      ],
+      "desc": "پاناکوتای نرم با وانیل ماداگاسکار و سس توت قرمز.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGMUU5RDgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOUE5NkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NrjwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "tiramisu",
+      "name": "تیرامیسو خانگی",
+      "category": "dessert",
+      "price": 170000,
+      "tags": [],
+      "chefPick": true,
+      "desc": "تیرامیسوی سنتی با قهوه‌ی اسپرسو و ماسکارپونه‌ی تازه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGMUU5RDgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOUE5NkUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NsDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "espresso",
+      "name": "اسپرسو",
+      "category": "drinks",
+      "price": 75000,
+      "tags": [],
+      "desc": "دان تازه‌آسیاب، عصاره‌ی غلیظ و معطر.",
+      "image": null
+    },
+    {
+      "id": "herbal-tea",
+      "name": "دمنوش گیاهی خانه",
+      "category": "drinks",
+      "price": 85000,
+      "tags": [
+        "گیاهی"
+      ],
+      "desc": "ترکیب فصلی گیاهان معطر باغچه‌ی رستوران.",
+      "image": null
+    },
+    {
+      "id": "housewine",
+      "name": "شراب بدون الکل خانه",
+      "category": "drinks",
+      "price": 110000,
+      "tags": [],
+      "desc": "ترکیب انگور قرمز و ادویه‌ی گرم، سرو خنک.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNFQUQyQkMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNTY1MUQiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc4IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NtzwvdGV4dD4KPC9zdmc+"
+    }
+  ]
+}
