@@ -1,0 +1,142 @@
+{
+  "slug": "portfolio-demo-fastfood-cards",
+  "cafeName": "فست‌فود کوچه",
+  "tagline": "کارت‌های خوشمزه با یک لمس تا سفارش — با دستیار هوش مصنوعی برای انتخاب بهتر",
+  "businessType": "restaurant",
+  "categories": [
+    {
+      "id": "burgers",
+      "title": "برگرها"
+    },
+    {
+      "id": "sandwich",
+      "title": "ساندویچ"
+    },
+    {
+      "id": "sides",
+      "title": "پیش‌غذا"
+    },
+    {
+      "id": "drinks",
+      "title": "نوشیدنی"
+    }
+  ],
+  "items": [
+    {
+      "id": "burger-classic",
+      "name": "برگر کلاسیک کوچه",
+      "category": "burgers",
+      "price": 195000,
+      "tags": [
+        "پرفروش"
+      ],
+      "calories": 650,
+      "desc": "گوشت گریل‌شده با کاهو، گوجه، خیارشور و سس مخصوص کوچه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGOUE1NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U1MzQyQSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42UPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "burger-double",
+      "name": "دوبل برگر پنیری",
+      "category": "burgers",
+      "price": 260000,
+      "tags": [
+        "دو لایه گوشت"
+      ],
+      "calories": 850,
+      "desc": "دو لایه گوشت آبدار با پنیر چدار مضاعف.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGOUE1NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U1MzQyQSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42UPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "burger-mushroom",
+      "name": "برگر قارچ و چدار",
+      "category": "burgers",
+      "price": 235000,
+      "tags": [
+        "ویژه"
+      ],
+      "calories": 720,
+      "desc": "قارچ سوته و سس چدار روی گوشت گریل‌شده.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGOUE1NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0U1MzQyQSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42UPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "sandwich-chicken",
+      "name": "ساندویچ مرغ کریسپی",
+      "category": "sandwich",
+      "price": 175000,
+      "tags": [
+        "ترد"
+      ],
+      "calories": 560,
+      "desc": "فیله مرغ سوخاری ترد با کاهو و سس تند.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGQzE1RSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0ZGN0EyOSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WqPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "sandwich-club",
+      "name": "کلاب ساندویچ",
+      "category": "sandwich",
+      "price": 195000,
+      "tags": [
+        "سه‌طبقه"
+      ],
+      "calories": 610,
+      "desc": "مرغ، ژامبون، پنیر و سبزیجات تازه، سه لایه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGQzE1RSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0ZGN0EyOSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WqPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "fries",
+      "name": "سیب‌زمینی سرخ‌کرده",
+      "category": "sides",
+      "price": 85000,
+      "tags": [
+        "مخصوص"
+      ],
+      "desc": "سیب‌زمینی ترد با ادویه مخصوص کوچه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDE2NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0YyQTkzQiIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42fPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "onion-rings",
+      "name": "پیاز حلقه‌ای سوخاری",
+      "category": "sides",
+      "price": 95000,
+      "tags": [
+        "ترد"
+      ],
+      "desc": "حلقه‌های پیاز با پوشش سوخاری طلایی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDE2NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0YyQTkzQiIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6eFPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "mozzarella-sticks",
+      "name": "چوب موزارلا",
+      "category": "sides",
+      "price": 120000,
+      "tags": [
+        "پنیری"
+      ],
+      "desc": "چوب‌های پنیر موزارلا با پوشش سوخاری و سس گوجه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRDE2NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0YyQTkzQiIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6eAPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "cola",
+      "name": "نوشابه قوطی",
+      "category": "drinks",
+      "price": 35000,
+      "tags": [
+        "سرد"
+      ],
+      "desc": "نوشابه خانواده کوکاکولا، سرو با یخ.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzZGQ0Y5NyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFGOUQ1NSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WkPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "lemonade",
+      "name": "لیموناد خانگی",
+      "category": "drinks",
+      "price": 55000,
+      "tags": [
+        "خانگی",
+        "خنک"
+      ],
+      "desc": "لیموناد تازه با نعنای خنک.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzZGQ0Y5NyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFGOUQ1NSIvPgo8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIHJ4PSIyOCIgZmlsbD0idXJsKCNnKSIvPgo8dGV4dCB4PSI4MCIgeT0iMTAwIiBmb250LXNpemU9IjcyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42LPC90ZXh0Pgo8L3N2Zz4="
+    }
+  ]
+}

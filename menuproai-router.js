@@ -33,6 +33,7 @@ const TEMPLATE_FILES = {
   "bubble-pop": "https://mr-aiza.github.io/MenuProAi/public-menu-bubble-pop.html",
   "editorial-leaf": "https://mr-aiza.github.io/MenuProAi/public-menu-editorial-leaf.html",
   "diet-filter": "https://mr-aiza.github.io/MenuProAi/public-menu-diet-filter.html",
+  "ultra-gold": "https://mr-aiza.github.io/MenuProAi/public-menu-ultra-gold.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 

@@ -1,0 +1,157 @@
+{
+  "slug": "portfolio-demo-ultra-gold",
+  "cafeName": "کافه زرین",
+  "tagline": "Your Menu. Your Brand. Ultra.",
+  "businessType": "cafe",
+  "categories": [
+    {
+      "id": "specialty-coffee",
+      "title": "قهوه ویژه"
+    },
+    {
+      "id": "dessert",
+      "title": "دسر پرمیوم"
+    },
+    {
+      "id": "cold",
+      "title": "نوشیدنی سرد"
+    },
+    {
+      "id": "breakfast",
+      "title": "صبحانه"
+    }
+  ],
+  "items": [
+    {
+      "id": "pistachio-latte",
+      "name": "لاته پسته",
+      "category": "specialty-coffee",
+      "price": 180000,
+      "tags": [
+        "پرفروش"
+      ],
+      "desc": "اسپرسو ایتالیایی با شیر بخارداده و شربت پسته‌ی خانگی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7imJU8L3RleHQ+Cjwvc3ZnPg=="
+    },
+    {
+      "id": "single-origin-espresso",
+      "name": "اسپرسو سینگل‌اورجین",
+      "category": "specialty-coffee",
+      "price": 140000,
+      "tags": [
+        "ویژه"
+      ],
+      "desc": "دان تک‌مبدأ اتیوپی، برشته‌کاری سبک، عطر مرکبات.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7imJU8L3RleHQ+Cjwvc3ZnPg=="
+    },
+    {
+      "id": "gold-cappuccino",
+      "name": "کاپوچینوی طلایی",
+      "category": "specialty-coffee",
+      "price": 165000,
+      "tags": [],
+      "desc": "کاپوچینو با فوم مخملی و پودر طلای خوراکی روی سطح.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7imJU8L3RleHQ+Cjwvc3ZnPg=="
+    },
+    {
+      "id": "saffron-latte",
+      "name": "لاته زعفرانی",
+      "category": "specialty-coffee",
+      "price": 175000,
+      "tags": [
+        "ایرانی"
+      ],
+      "desc": "اسپرسو، شیر بخارداده و عصاره‌ی زعفران اصل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7imJU8L3RleHQ+Cjwvc3ZnPg=="
+    },
+    {
+      "id": "nystyle-cheesecake",
+      "name": "چیزکیک نیویورکی",
+      "category": "dessert",
+      "price": 210000,
+      "tags": [
+        "پرفروش"
+      ],
+      "calories": 480,
+      "desc": "چیزکیک کلاسیک نیویورکی با سس توت وحشی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42wPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "gold-leaf-tart",
+      "name": "تارت شکلات با ورقه‌ی طلا",
+      "category": "dessert",
+      "price": 250000,
+      "tags": [
+        "ویژه"
+      ],
+      "calories": 520,
+      "desc": "تارت شکلات تلخ بلژیکی با یک ورقه‌ی طلای خوراکی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42rPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "tiramisu-gold",
+      "name": "تیرامیسوی زرین",
+      "category": "dessert",
+      "price": 220000,
+      "tags": [],
+      "desc": "تیرامیسوی سنتی ایتالیایی با پودر کاکائوی تلخ.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42uPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "iced-pistachio",
+      "name": "آیس‌لاته پسته",
+      "category": "cold",
+      "price": 190000,
+      "tags": [
+        "خنک"
+      ],
+      "desc": "اسپرسو سرد با شیر و شربت پسته، سرو با یخ.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6eKPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "cold-brew",
+      "name": "کلدبرو ۱۲ ساعته",
+      "category": "cold",
+      "price": 155000,
+      "tags": [
+        "تلخ"
+      ],
+      "desc": "دان مخصوص، دم‌کرد سرد ۱۲ ساعته، بدون تلخی زیاد.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WkPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "rose-lemonade",
+      "name": "لیموناد گلاب",
+      "category": "cold",
+      "price": 120000,
+      "tags": [
+        "گیاهی"
+      ],
+      "desc": "لیموناد خانگی با گلاب و برگ نعنای تازه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42LPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "gold-croissant",
+      "name": "کروسان زعفرانی",
+      "category": "breakfast",
+      "price": 135000,
+      "tags": [
+        "تازه"
+      ],
+      "desc": "کروسان کره‌ای با گلیز عسل و زعفران.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WQPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "eggs-royale",
+      "name": "تخم‌مرغ رویال",
+      "category": "breakfast",
+      "price": 260000,
+      "tags": [
+        "ویژه"
+      ],
+      "calories": 420,
+      "desc": "تخم‌مرغ پوشه با سالمون دودی و سس هالندیز روی نان تست.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDOUEyNEIiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KPHRleHQgeD0iODAiIHk9Ijk4IiBmb250LXNpemU9IjYyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42zPC90ZXh0Pgo8L3N2Zz4="
+    }
+  ]
+}

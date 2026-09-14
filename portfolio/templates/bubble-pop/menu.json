@@ -1,0 +1,162 @@
+{
+  "slug": "portfolio-demo-bubble",
+  "cafeName": "کافه حبابی",
+  "tagline": "چای حبابی، اسموتی و دسر — رنگی، بامزه و خنک",
+  "businessType": "cafe",
+  "categories": [
+    {
+      "id": "bubble-tea",
+      "title": "چای حبابی"
+    },
+    {
+      "id": "smoothie",
+      "title": "اسموتی"
+    },
+    {
+      "id": "dessert",
+      "title": "دسر"
+    },
+    {
+      "id": "hot",
+      "title": "نوشیدنی گرم"
+    }
+  ],
+  "items": [
+    {
+      "id": "classic-milk-tea",
+      "name": "چای حبابی شیر کلاسیک",
+      "category": "bubble-tea",
+      "price": 135000,
+      "tags": [
+        "پرفروش"
+      ],
+      "desc": "چای سیاه، شیر و مروارید تاپیوکای جویدنی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkMxREUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjVGQTIiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+nizwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "taro-bubble",
+      "name": "چای حبابی تارو بنفش",
+      "category": "bubble-tea",
+      "price": 145000,
+      "tags": [
+        "رنگی"
+      ],
+      "desc": "طعم تارو بنفش با مروارید تاپیوکا.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0NCRkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QjYxRkYiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+nizwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "matcha-bubble",
+      "name": "چای حبابی ماچا",
+      "category": "bubble-tea",
+      "price": 150000,
+      "tags": [
+        "ماچای ژاپنی"
+      ],
+      "desc": "ماچای اصل با شیر و مروارید تاپیوکا.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNCOEY1RTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxN0IzOTkiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NtTwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "brown-sugar-bubble",
+      "name": "چای حبابی شکر قهوه‌ای",
+      "category": "bubble-tea",
+      "price": 155000,
+      "tags": [
+        "ویژه"
+      ],
+      "desc": "مروارید کاراملی با شیر و شکر قهوه‌ای.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkUwQjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjlGNDUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+nizwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "mango-smoothie",
+      "name": "اسموتی انبه",
+      "category": "smoothie",
+      "price": 140000,
+      "tags": [
+        "میوه‌ای",
+        "خنک"
+      ],
+      "desc": "انبه تازه با یخ و ماست.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkUwQjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjlGNDUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+lrTwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "strawberry-smoothie",
+      "name": "اسموتی توت‌فرنگی",
+      "category": "smoothie",
+      "price": 140000,
+      "tags": [
+        "میوه‌ای"
+      ],
+      "desc": "توت‌فرنگی تازه با یخ و ماست.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkMxREUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjVGQTIiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NkzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "blue-lagoon-smoothie",
+      "name": "اسموتی آبی اقیانوسی",
+      "category": "smoothie",
+      "price": 150000,
+      "tags": [
+        "رنگی",
+        "خنک"
+      ],
+      "desc": "آناناس و بلوکاراسائو با یخ خرد.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNDRkU4RkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0RkExRkYiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+rkDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "bubble-waffle",
+      "name": "وافل حبابی با بستنی",
+      "category": "dessert",
+      "price": 175000,
+      "tags": [
+        "گرم و سرد"
+      ],
+      "calories": 520,
+      "desc": "وافل هنگ‌کنگی داغ با یک اسکوپ بستنی وانیل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkUwQjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjlGNDUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+nhzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "rainbow-cheesecake",
+      "name": "چیزکیک رنگین‌کمانی",
+      "category": "dessert",
+      "price": 165000,
+      "tags": [
+        "رنگی"
+      ],
+      "calories": 410,
+      "desc": "چیزکیک لایه‌ای با رنگ‌های طبیعی میوه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0NCRkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QjYxRkYiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NsDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "mochi-icecream",
+      "name": "موچی بستنی",
+      "category": "dessert",
+      "price": 95000,
+      "tags": [
+        "ژاپنی"
+      ],
+      "desc": "سه عدد موچی با مغز بستنی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkMxREUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjVGQTIiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NoTwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "hot-chocolate",
+      "name": "شکلات داغ حبابی",
+      "category": "hot",
+      "price": 110000,
+      "tags": [
+        "گرم"
+      ],
+      "desc": "شکلات داغ با مارشمالو و مروارید ژله‌ای.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkUwQjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRjlGNDUiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "lavender-latte",
+      "name": "لاته اسطوخودوس",
+      "category": "hot",
+      "price": 120000,
+      "tags": [
+        "ملایم"
+      ],
+      "desc": "اسپرسو با شیر بخارداده و شربت اسطوخودوس.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNEN0NCRkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3QjYxRkYiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9Ijc2IiBmaWxsPSJ1cmwoI2cpIi8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    }
+  ]
+}

@@ -56,16 +56,28 @@
   .section-head h2{font-size:22px;font-weight:800;margin-bottom:8px;}
   .section-head p{color:var(--muted);font-size:13.5px;}
 
-  .template-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:340px;margin:0 auto;}
-  .templates-grid{display:grid;grid-template-columns:repeat(2,340px);justify-content:center;gap:20px;}
-  @media(max-width:740px){.templates-grid{grid-template-columns:1fr;max-width:340px;margin:0 auto;}}
+  .template-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .tier-heading{
+    display:flex; align-items:center; gap:10px;
+    font-size:15px; font-weight:800; color:var(--paper);
+    margin: 36px 0 16px; padding-top: 10px;
+  }
+  .tier-heading:first-of-type{ margin-top: 0; }
+  .tier-heading::after{ content:''; flex:1; height:1px; background:var(--line); }
+  .tier-heading.tier-premium{ color:#B8860B; }
+  .premium-grid:empty::after{
+    content:'به‌زودی قالب‌های ویژه اینجا اضافه می‌شن.';
+    display:block; text-align:center; color:var(--muted); font-size:13px;
+    padding: 18px; border:1px dashed var(--line); border-radius:var(--radius); max-width:280px; margin:0 auto;
+  }
   .template-preview{background:linear-gradient(160deg,var(--panel-2),var(--ink));padding:0;border-bottom:1px solid var(--line);}
-  .template-preview img{display:block;width:100%;height:auto;}
-  .template-preview.no-img{display:flex;align-items:center;justify-content:center;height:170px;font-size:40px;}
-  .template-body{padding:22px;}
-  .template-body .badge{display:inline-block;background:rgba(77,240,201,.12);color:var(--cyan);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px;}
-  .template-body h3{font-size:16px;font-weight:800;margin-bottom:8px;}
-  .template-body p{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .template-preview img{display:block;width:100%;height:120px;object-fit:cover;object-position:top center;}
+  .template-preview.no-img{display:flex;align-items:center;justify-content:center;height:120px;font-size:32px;}
+  .template-body{padding:10px 10px 12px;}
+  .template-body .badge{display:inline-block;background:rgba(77,240,201,.12);color:var(--cyan);font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;margin-bottom:6px;}
+  .template-body h3{font-size:12px;font-weight:800;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .template-body p{font-size:10.5px;color:var(--muted);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;min-height:29px;}
   .feature-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
   .feature-list li{list-style:none;font-size:12.5px;color:var(--paper);display:flex;align-items:center;gap:8px;}
   .feature-list li::before{content:"✓";color:var(--cyan);font-weight:800;}
@@ -73,6 +85,7 @@
   .btn-primary{background:var(--cyan);color:#06120f;}
   .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--paper);}
   .template-body .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .template-body .row .btn{flex:1;padding:7px 6px;font-size:10px;border-radius:8px;white-space:nowrap;}
 
   footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;color:var(--muted);font-size:12px;}
   footer a{color:var(--cyan);}
@@ -204,6 +217,23 @@
     <p>هر نوع کسب‌وکار قالب مخصوص خودش رو داره — طراحی، چیدمان و متن‌ها کاملاً برای همون کسب‌وکار ساخته شده‌ان.</p>
   </div>
 
+  <h3 class="tier-heading tier-premium">✨ ویژه</h3>
+  <div class="templates-grid premium-grid" id="premiumTemplatesGrid">
+    <div class="template-card">
+      <div class="template-preview"><a href="portfolio/templates/ultra-gold/menu.html"><img src="portfolio/templates/ultra-gold/ultra-gold.png" alt="پیش‌نمایش قالب Ultra Gold کافه زرین" loading="lazy"></a></div>
+      <div class="template-body">
+        <span class="badge">ویژه ⭐</span>
+        <h3>Ultra Gold — کافه زرین</h3>
+        <p>پرمیوم و لوکس — تم مشکی/طلایی با اسپلش‌اسکرین برندی، نوار اطلاعات شیشه‌ای (ساعت کاری، امتیاز، فاصله) و کارت‌های مسطح با لهجه‌ی طلایی کنترل‌شده.</p>
+        <div class="row">
+          <a href="portfolio/templates/ultra-gold/menu.html" class="btn btn-primary">پیش‌نمایش زنده</a>
+          <a href="dashboard.html?template=ultra-gold" class="btn btn-ghost">شروع با این قالب</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="tier-heading">🆓 رایگان</h3>
   <div class="templates-grid">
     <div class="template-card">
       <div class="template-preview"><a href="portfolio/templates/restaurant-classic/menu.html"><img src="portfolio/templates/restaurant-classic/restaurant-classic.png" alt="پیش‌نمایش قالب رستوران" loading="lazy"></a></div>
