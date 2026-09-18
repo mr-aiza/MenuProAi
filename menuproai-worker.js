@@ -325,9 +325,55 @@ async function handleUpdateInfo(request, env) {
 }
 
 // ============================================================
-// دسته‌بندی‌ها
-// POST /api/menu/categories        body: { title }
-// POST /api/menu/categories/delete body: { id }
+// میزها (QR اختصاصی هر میز — ابزار حرفه‌ای داشبورد)
+// GET  /api/menu/tables         — لیست میزهای کافه
+// POST /api/menu/tables         body: { label }         — افزودن میز
+// POST /api/menu/tables/delete  body: { id }             — حذف میز
+// ============================================================
+async function handleGetTables(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+  return json({ tables: own.menu.tables || [], slug: own.slug }, 200);
+}
+
+async function handleAddTable(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const label = typeof body.label === "string" ? body.label.trim().slice(0, 40) : "";
+  if (!label) return json({ error: "اسم میز رو وارد کن." }, 400);
+
+  if (!Array.isArray(own.menu.tables)) own.menu.tables = [];
+  if (own.menu.tables.length >= 60) return json({ error: "حداکثر تعداد میزها (۶۰ تا) پر شده." }, 400);
+  const id = "t_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  own.menu.tables.push({ id, label });
+  own.menu.updatedAt = new Date().toISOString();
+  await saveMenu(own.slug, own.menu, env);
+  return json({ ok: true, tables: own.menu.tables, slug: own.slug }, 200);
+}
+
+async function handleDeleteTable(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const id = typeof body.id === "string" ? body.id : "";
+  own.menu.tables = (own.menu.tables || []).filter(t => t.id !== id);
+  own.menu.updatedAt = new Date().toISOString();
+  await saveMenu(own.slug, own.menu, env);
+  return json({ ok: true, tables: own.menu.tables }, 200);
+}
+
+
 // ============================================================
 async function handleAddCategory(request, env) {
   const phone = await getAuthedPhone(request, env);
@@ -965,7 +1011,7 @@ async function handleUpdateOrderStatus(request, env) {
 
   const id = String(body.id || "");
   const status = String(body.status || "");
-  if (!["new", "seen", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
+  if (!["new", "seen", "preparing", "ready", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
 
   const orders = await loadOrders(own.slug, env);
   const idx = orders.findIndex((o) => o.id === id);
@@ -1304,7 +1350,7 @@ async function handleAdminUpdateOrderStatus(request, env) {
   const slug = slugify(body.slug);
   const id = String(body.id || "");
   const status = String(body.status || "");
-  if (!["new", "seen", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
+  if (!["new", "seen", "preparing", "ready", "done"].includes(status)) return json({ error: "وضعیت نامعتبر است." }, 400);
   const orders = await loadOrders(slug, env);
   const idx = orders.findIndex((o) => o.id === id);
   if (idx === -1) return json({ error: "سفارش پیدا نشد." }, 404);
@@ -1347,6 +1393,15 @@ export default {
       }
       if (url.pathname === "/api/menu/update-info" && request.method === "POST") {
         return await handleUpdateInfo(request, env);
+      }
+      if (url.pathname === "/api/menu/tables" && request.method === "GET") {
+        return await handleGetTables(request, env);
+      }
+      if (url.pathname === "/api/menu/tables" && request.method === "POST") {
+        return await handleAddTable(request, env);
+      }
+      if (url.pathname === "/api/menu/tables/delete" && request.method === "POST") {
+        return await handleDeleteTable(request, env);
       }
       if (url.pathname === "/api/menu/categories" && request.method === "POST") {
         return await handleAddCategory(request, env);

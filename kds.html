@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نمایشگر آشپزخانه (KDS) | MenuProAI</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="assets/bytelab-auth.js"></script>
+<style>
+  :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--panel-3:#1a2434;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  .hidden{display:none !important;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--ink);color:var(--paper);font-family:'Vazirmatn',sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- ورود (همون قفل بایت‌لب) ---------- */
+  #gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .gate-box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px 22px;max-width:360px;width:100%;text-align:center;}
+  .gate-box h1{font-size:18px;margin-bottom:8px;}
+  .gate-box p{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .gate-box a.btn{display:inline-block;background:var(--cyan);color:#06120f;font-weight:800;padding:11px 22px;border-radius:999px;font-size:14px;}
+
+  /* ---------- هدر ---------- */
+  header{position:sticky;top:0;z-index:20;background:rgba(7,11,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  header h1{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+  header .cafe{color:var(--muted);font-size:12px;font-weight:500;}
+  .hdr-actions{display:flex;align-items:center;gap:10px;}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .hdr-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--paper);font-size:12px;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer;}
+  .hdr-btn:hover{border-color:var(--cyan);}
+
+  /* ---------- بورد ---------- */
+  #board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:16px;max-width:1400px;margin:0 auto;}
+  @media(max-width:900px){#board{grid-template-columns:1fr;}}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-height:200px;}
+  .col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .col-head h2{font-size:15px;font-weight:800;}
+  .col-new h2{color:#ff8a8a;}
+  .col-preparing h2{color:#ffc266;}
+  .col-ready h2{color:var(--cyan);}
+  .col-count{background:var(--panel-3);border-radius:999px;padding:2px 10px;font-size:12px;font-family:'JetBrains Mono',monospace;}
+  .empty-hint{color:var(--muted);font-size:12.5px;text-align:center;padding:30px 6px;}
+
+  .kcard{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+  .kcard.new{border-color:rgba(255,138,138,.5);}
+  .kcard.preparing{border-color:rgba(255,194,102,.4);}
+  .kcard.ready{border-color:rgba(77,240,201,.5);}
+  .kcard .khead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .kcard .ktable{font-size:15px;font-weight:800;}
+  .kcard .ktime{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .kcard .kitems{font-size:13.5px;line-height:1.9;margin-bottom:10px;}
+  .kcard .kitems b{font-weight:800;}
+  .kcard .knote{background:rgba(255,194,102,.1);color:#ffc266;font-size:12px;padding:6px 9px;border-radius:8px;margin-bottom:10px;}
+  .kcard .kbtn{display:block;width:100%;border:none;border-radius:10px;padding:11px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+  .kbtn.to-preparing{background:#ffc266;color:#3a2600;}
+  .kbtn.to-ready{background:var(--cyan);color:#06120f;}
+  .kbtn.to-done{background:var(--panel-3);color:var(--paper);border:1px solid var(--line) !important;}
+
+  .waiter-card{background:rgba(156,123,255,.1);border:1px solid rgba(156,123,255,.4);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .waiter-card b{color:var(--violet);}
+
+  #wcCol{max-width:1400px;margin:0 auto;padding:0 16px 24px;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-box">
+    <h1>🍳 نمایشگر آشپزخانه</h1>
+    <p>برای دیدن سفارش‌های زنده، اول باید تو داشبورد وارد حساب کافه‌ت بشی.</p>
+    <a class="btn" href="dashboard.html">ورود به داشبورد</a>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div>
+      <h1><span class="live-dot"></span> نمایشگر آشپزخانه</h1>
+      <div class="cafe" id="hdrCafeName"></div>
+    </div>
+    <div class="hdr-actions">
+      <button class="hdr-btn" id="soundBtn">🔔 فعال‌سازی صدا</button>
+      <a class="hdr-btn" href="dashboard.html">↩ بازگشت به داشبورد</a>
+    </div>
+  </header>
+
+  <div id="wcCol"></div>
+
+  <div id="board">
+    <div class="col col-new">
+      <div class="col-head"><h2>🆕 سفارش جدید</h2><span class="col-count" id="cntNew">0</span></div>
+      <div id="colNew"></div>
+    </div>
+    <div class="col col-preparing">
+      <div class="col-head"><h2>🔥 در حال آماده‌سازی</h2><span class="col-count" id="cntPreparing">0</span></div>
+      <div id="colPreparing"></div>
+    </div>
+    <div class="col col-ready">
+      <div class="col-head"><h2>✅ آماده</h2><span class="col-count" id="cntReady">0</span></div>
+      <div id="colReady"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
+const POLL_MS = 8000;
+let soundOn = false;
+let knownIds = null;
+
+async function apiCall(path, body){
+  const token = BytelabAuth.getToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(MENUPROAI_API + path, {
+    method: body ? 'POST' : 'GET',
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.error || 'خطا'), { status: res.status, data });
+  return data;
+}
+
+function beep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.16);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.18);
+    });
+  }catch(e){ /* بی‌صدا رد شو */ }
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function timeAgo(iso){
+  const diff = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (diff < 60) return diff + ' ثانیه پیش';
+  if (diff < 3600) return Math.floor(diff/60) + ' دقیقه پیش';
+  return Math.floor(diff/3600) + ' ساعت پیش';
+}
+
+function renderFoodCard(o){
+  const items = o.items.map(l => `<div>× ${l.qty} — <b>${escapeHtml(l.name)}</b></div>`).join('');
+  const table = o.tableNumber ? `میز ${escapeHtml(o.tableNumber)}` : (o.customerName ? escapeHtml(o.customerName) : 'بدون میز');
+  const noteHtml = o.note ? `<div class="knote">📝 ${escapeHtml(o.note)}</div>` : '';
+  let btn = '';
+  if (o.status === 'new') btn = `<button class="kbtn to-preparing" data-order="${o.id}" data-next="preparing">شروع آماده‌سازی 🔥</button>`;
+  else if (o.status === 'preparing') btn = `<button class="kbtn to-ready" data-order="${o.id}" data-next="ready">آماده شد ✅</button>`;
+  else if (o.status === 'ready') btn = `<button class="kbtn to-done" data-order="${o.id}" data-next="done">تحویل داده شد</button>`;
+  return `
+    <div class="kcard ${o.status}">
+      <div class="khead"><span class="ktable">${table}</span><span class="ktime">${timeAgo(o.createdAt)}</span></div>
+      <div class="kitems">${items}</div>
+      ${noteHtml}
+      ${btn}
+    </div>`;
+}
+
+function renderWaiterCalls(waiterOrders){
+  const wrap = document.getElementById('wcCol');
+  const pending = waiterOrders.filter(o => o.status !== 'done');
+  if (!pending.length){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = pending.map(o => `
+    <div class="waiter-card">
+      <span>🔔 صدا زدن گارسون — <b>میز ${escapeHtml(o.tableNumber || '—')}</b> · ${timeAgo(o.createdAt)}</span>
+      <button class="hdr-btn" data-order="${o.id}" data-next="done">رسیدگی شد</button>
+    </div>`).join('');
+  wrap.querySelectorAll('[data-order]').forEach(b => {
+    b.addEventListener('click', () => setStatus(b.dataset.order, b.dataset.next));
+  });
+}
+
+async function setStatus(id, status){
+  try{
+    await apiCall('/api/menu/orders/status', { id, status });
+    await tick(true);
+  }catch(e){ alert(e.message); }
+}
+
+function render(orders){
+  const food = orders.filter(o => o.type !== 'call-waiter');
+  const waiterCalls = orders.filter(o => o.type === 'call-waiter');
+
+  const byStatus = { new: [], preparing: [], ready: [] };
+  food.forEach(o => { if (byStatus[o.status]) byStatus[o.status].push(o); });
+
+  document.getElementById('cntNew').textContent = byStatus.new.length;
+  document.getElementById('cntPreparing').textContent = byStatus.preparing.length;
+  document.getElementById('cntReady').textContent = byStatus.ready.length;
+
+  ['new','preparing','ready'].forEach(st => {
+    const col = document.getElementById('col' + st[0].toUpperCase() + st.slice(1));
+    col.innerHTML = byStatus[st].length
+      ? byStatus[st].map(renderFoodCard).join('')
+      : '<div class="empty-hint">چیزی اینجا نیست</div>';
+  });
+
+  document.querySelectorAll('.kbtn[data-order]').forEach(b => {
+    b.addEventListener('click', () => setStatus(b.dataset.order, b.dataset.next));
+  });
+
+  renderWaiterCalls(waiterCalls);
+}
+
+async function tick(silent){
+  try{
+    const data = await apiCall('/api/menu/orders');
+    const orders = data.orders || [];
+
+    const currentIds = new Set(orders.filter(o => o.status === 'new').map(o => o.id));
+    if (knownIds !== null && soundOn){
+      let hasNew = false;
+      currentIds.forEach(id => { if (!knownIds.has(id)) hasNew = true; });
+      if (hasNew) beep();
+    }
+    knownIds = currentIds;
+
+    render(orders);
+  }catch(e){
+    if (!silent) console.error(e);
+  }
+}
+
+document.getElementById('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔔 صدا فعاله' : '🔕 فعال‌سازی صدا';
+  if (soundOn) beep();
+});
+
+(async function init(){
+  if (!BytelabAuth.isLoggedIn()){
+    document.getElementById('gate').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  try{
+    const token = BytelabAuth.getToken();
+    const res = await fetch(MENUPROAI_API + '/api/menu/mine', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json().catch(() => ({}));
+    if (data && data.menu) document.getElementById('hdrCafeName').textContent = data.menu.cafeName || '';
+  }catch(e){ /* مهم نیست، فقط اسم کافه رو نشون نمی‌ده */ }
+
+  await tick();
+  setInterval(tick, POLL_MS);
+})();
+</script>
+</body>
+</html>

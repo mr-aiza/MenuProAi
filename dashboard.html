@@ -193,6 +193,21 @@
   .tmpl-selected-note{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:12.5px;}
   .tmpl-selected-note .tmpl-change{color:var(--cyan);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;font-size:12px;}
   .qr-box{display:flex;justify-content:center;align-items:center;background:#fff;border-radius:14px;padding:18px;}
+
+  /* ---- ابزارهای حرفه‌ای: میزها و کارت‌های ابزار ---- */
+  .table-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .table-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;}
+  .table-card .qr-mini{background:#fff;border-radius:8px;padding:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+  .table-card .qr-mini img, .table-card .qr-mini canvas{width:100%;height:auto;display:block;}
+  .table-card .label{font-size:12.5px;font-weight:700;margin-bottom:8px;}
+  .table-card .actions{display:flex;gap:6px;}
+  .table-card .actions button{flex:1;font-size:10px;padding:6px 0;border-radius:8px;background:var(--panel);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-family:inherit;}
+  .table-card .actions .del{color:var(--danger);}
+  .tool-grid{display:flex;flex-direction:column;gap:8px;}
+  .tool-card{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;position:relative;}
+  .tool-card.disabled{opacity:.55;}
+  .tool-card .ti{font-size:18px;}
+  .tool-card .soon{margin-inline-start:auto;font-size:10px;font-weight:700;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:3px 9px;border-radius:999px;}
   .qr-box img, .qr-box canvas{display:block;}
 </style>
 </head>
@@ -490,6 +505,32 @@
       <button class="btn-ghost btn-block" id="logoutBtn">خروج از حساب</button>
     </div>
 
+    <!-- ---- تب ابزارهای حرفه‌ای ---- -->
+    <div class="hidden" id="proPane">
+      <div class="card">
+        <h2>میزها و QR اختصاصی</h2>
+        <p class="sub" style="margin-bottom:14px;">برای هر میز یه QR جدا بساز. وقتی مشتری اسکنش کنه، شماره‌ی میز خودکار با سفارشش همراه می‌شه.</p>
+        <div class="msg" id="tablesMsg"></div>
+        <div class="row add-cat-row">
+          <input type="text" id="newTableLabel" placeholder="مثلاً میز ۱۲">
+          <button class="btn-ghost btn-sm" id="addTableBtn">افزودن</button>
+        </div>
+        <div class="table-grid" id="tableGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>ابزارهای بیشتر</h2>
+        <p class="sub" style="margin-bottom:14px;">این‌ها به‌زودی فعال می‌شن.</p>
+        <div class="tool-grid">
+          <a class="tool-card" href="kds.html"><span class="ti">🍳</span>نمایشگر آشپزخانه (KDS)</a>
+          <div class="tool-card disabled"><span class="ti">🏬</span>چندشعبه‌ای و کارکنان<span class="soon">به‌زودی</span></div>
+          <div class="tool-card disabled"><span class="ti">🎁</span>باشگاه مشتریان<span class="soon">به‌زودی</span></div>
+          <div class="tool-card disabled"><span class="ti">🎨</span>هویت برند اختصاصی<span class="soon">به‌زودی</span></div>
+          <div class="tool-card disabled"><span class="ti">🤖</span>ساخت منو با هوش مصنوعی<span class="soon">به‌زودی</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -500,6 +541,7 @@
   <button class="nav-btn" data-maintab="discounts"><span class="ic">🏷️</span>تخفیف‌ها</button>
   <button class="nav-btn" data-maintab="analytics"><span class="ic">📊</span>آمار</button>
   <button class="nav-btn" data-maintab="settings"><span class="ic">⚙️</span>تنظیمات</button>
+  <button class="nav-btn" data-maintab="pro"><span class="ic">🧩</span>ابزارها</button>
 </div>
 
 <script>
@@ -572,6 +614,7 @@ function switchMainTab(which){
   document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
   document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
   document.getElementById('settingsPane').classList.toggle('hidden', which !== 'settings');
+  document.getElementById('proPane').classList.toggle('hidden', which !== 'pro');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
   if (which === 'orders'){
@@ -581,6 +624,7 @@ function switchMainTab(which){
   }
   if (which === 'discounts') loadDiscounts();
   if (which === 'analytics') loadAnalytics();
+  if (which === 'pro') loadTables();
 }
 
 /* ============ کدهای تخفیف ============ */
@@ -1089,6 +1133,84 @@ document.getElementById('downloadQrBtn').addEventListener('click', () => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+});
+
+/* ============ میزها و QR اختصاصی (تب ابزارهای حرفه‌ای) ============ */
+let myTables = [];
+
+async function loadTables(){
+  try{
+    const data = await apiCall('/api/menu/tables');
+    myTables = data.tables || [];
+    renderTables();
+  }catch(e){
+    showMsg('tablesMsg', e.message, 'err');
+  }
+}
+
+function renderTables(){
+  const grid = document.getElementById('tableGrid');
+  if (!currentMenu || !currentMenu.slug){ grid.innerHTML = ''; return; }
+  if (!myTables.length){
+    grid.innerHTML = '<p class="sub" style="grid-column:1/-1;">هنوز میزی اضافه نکردی.</p>';
+    return;
+  }
+  grid.innerHTML = myTables.map(t => `
+    <div class="table-card">
+      <div class="qr-mini" id="tableQr-${t.id}"></div>
+      <div class="label">${t.label}</div>
+      <div class="actions">
+        <button data-tbl-dl="${t.id}">دانلود</button>
+        <button class="del" data-tbl-del="${t.id}">حذف</button>
+      </div>
+    </div>`).join('');
+
+  myTables.forEach(t => {
+    const box = document.getElementById('tableQr-' + t.id);
+    if (!box || typeof QRCode === 'undefined') return;
+    const link = PUBLIC_BASE + currentMenu.slug + '/menu.html?table=' + encodeURIComponent(t.id);
+    new QRCode(box, { text: link, width: 130, height: 130, colorDark: '#000000', colorLight: '#ffffff' });
+  });
+
+  grid.querySelectorAll('[data-tbl-dl]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.tblDl;
+      const box = document.getElementById('tableQr-' + id);
+      const canvas = box && box.querySelector('canvas');
+      if (!canvas) return;
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = 'qr-table-' + id + '.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+  });
+  grid.querySelectorAll('[data-tbl-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('این میز حذف بشه؟')) return;
+      try{
+        const data = await apiCall('/api/menu/tables/delete', { id: btn.dataset.tblDel });
+        myTables = data.tables || [];
+        renderTables();
+      }catch(e){
+        showMsg('tablesMsg', e.message, 'err');
+      }
+    });
+  });
+}
+
+document.getElementById('addTableBtn').addEventListener('click', async () => {
+  const input = document.getElementById('newTableLabel');
+  const label = input.value.trim();
+  if (!label){ showMsg('tablesMsg', 'اسم میز رو بنویس.', 'err'); return; }
+  try{
+    const data = await apiCall('/api/menu/tables', { label });
+    myTables = data.tables || [];
+    input.value = '';
+    hideMsg('tablesMsg');
+    renderTables();
+  }catch(e){
+    showMsg('tablesMsg', e.message, 'err');
+  }
 });
 
 renderTemplatePicker();
@@ -1610,7 +1732,7 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
 });
 
 /* ============ سفارش‌ها ============ */
-const STATUS_LABEL = { new: 'جدید', seen: 'دیده‌شد', done: 'انجام‌شد' };
+const STATUS_LABEL = { new: 'جدید', seen: 'دیده‌شد', preparing: 'در حال آماده‌سازی', ready: 'آماده', done: 'انجام‌شد' };
 
 function timeAgo(iso){
   const diffSec = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));

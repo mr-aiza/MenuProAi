@@ -866,6 +866,9 @@ function detectSlug(){
   return 'portfolio-demo';
 }
 
+// شماره میزی که از لینک QR روی میز اومده (اگه اومده باشه)
+const urlTableNumber = new URLSearchParams(location.search).get('table') || '';
+
 let MENU = null;
 let AI_ENDPOINT = null;
 const itemsById = {};
@@ -2003,7 +2006,7 @@ const waiterConfirm = document.getElementById('waiterConfirm');
 
 waiterBtn.addEventListener('click', () => {
   waiterErr.textContent = '';
-  waiterTable.value = '';
+  waiterTable.value = urlTableNumber;
   waiterOverlay.classList.remove('hidden');
 });
 waiterCancel.addEventListener('click', () => waiterOverlay.classList.add('hidden'));
