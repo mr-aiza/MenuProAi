@@ -2128,7 +2128,7 @@ function openToolModal(title, bodyHtml, onReady){
   m.innerHTML='<h3>'+title+'</h3>'+bodyHtml; bd.classList.remove('hidden'); if(onReady) onReady(m);
 }
 function closeToolModal(){document.getElementById('toolModalBackdrop').classList.add('hidden');}
-document.getElementById('toolModalBackdrop').addEventListener('click',e=>{if(e.target.id==='toolModalBackdrop')closeToolModal();});
+document.addEventListener('click',e=>{if(e.target && e.target.id==='toolModalBackdrop')closeToolModal();});
 function openAddProductTool(){
   closeToolModal();
   if(!(currentMenu.categories||[]).length){alert('اول یک دسته‌بندی بساز.');return;}
