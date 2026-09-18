@@ -85,6 +85,15 @@
   .quickadd-header .qa-cat-name{color:var(--paper);}
   .details-toggle{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0 0 12px;text-decoration:underline;display:inline-block;}
   .details-body{display:none;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--paper,#fff);cursor:pointer;margin:10px 0;}
+  .checkbox-row input{width:auto;margin:0;}
+  .opt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .opt-row input{margin:0;}
+  .opt-row input.opt-name{flex:2;}
+  .opt-row input.opt-price{flex:1;}
+  .opt-row .opt-default-lbl{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);white-space:nowrap;}
+  .opt-row .opt-default-lbl input{width:auto;}
+  .opt-row-remove{background:none;border:none;color:var(--danger,#ff6b6b);font-size:16px;cursor:pointer;padding:2px 6px;}
   .details-body.show{display:block;}
   .qa-actions{display:flex;gap:8px;}
   .qa-actions button{flex:1;}
@@ -332,6 +341,26 @@
           <input type="text" id="itCalories" dir="ltr" inputmode="numeric" placeholder="مثلاً 250">
           <label>اجزای تشکیل‌دهنده (با کاما جدا کن، اختیاری)</label>
           <input type="text" id="itIngredients" placeholder="تخم‌مرغ, گوجه‌فرنگی, پنیر">
+
+          <label>امتیاز محصول (اختیاری، بین ۰ تا ۵ — برای بخش «محبوب‌ترین‌ها»)</label>
+          <input type="text" id="itRating" dir="ltr" inputmode="decimal" placeholder="مثلاً 4.8">
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="itFeatured">
+            <span>پیشنهاد ویژه‌ی امروز باشه (کارت هیرو بالای منو)</span>
+          </label>
+          <div id="featuredDiscountWrap" class="hidden">
+            <label>درصد تخفیف نمایشی روی کارت ویژه (اختیاری)</label>
+            <input type="text" id="itDiscountPercent" dir="ltr" inputmode="numeric" placeholder="مثلاً 15">
+          </div>
+
+          <label>سایزها (اختیاری — اگه محصول چند سایز داره)</label>
+          <div id="sizesList"></div>
+          <button type="button" class="btn-ghost btn-sm" id="addSizeRowBtn">+ افزودن سایز</button>
+
+          <label style="margin-top:14px;">افزودنی‌ها (اختیاری)</label>
+          <div id="addonsList"></div>
+          <button type="button" class="btn-ghost btn-sm" id="addAddonRowBtn">+ افزودن افزودنی</button>
         </div>
 
         <div class="qa-actions">
@@ -484,6 +513,8 @@ let editItemId = null;
 let selectedCatId = null; // دسته‌ای که الان تو منوساز فعاله
 let searchQuery = '';
 let currentItemImage = ''; // data URL عکس محصولِ در حال افزودن/ویرایش (اگه باشه)
+let sizeRows = []; // [{ name, price, isDefault }] — سایزهای محصولِ در حال افزودن/ویرایش
+let addonRows = []; // [{ name, price }] — افزودنی‌های محصولِ در حال افزودن/ویرایش
 let orders = [];
 let ordersPollTimer = null;
 let knownOrderIds = null; // null یعنی هنوز اولین بار لود نشده
@@ -864,6 +895,14 @@ const TEMPLATES = [
     name: 'قالب Ultra Gold — کافه زرین',
     desc: 'قالب ویژه‌ی پرمیوم — تم مشکی/طلایی با اسپلش‌اسکرین برندی، نوار اطلاعات شیشه‌ای (ساعت کاری/امتیاز/فاصله) و کارت‌های مسطح با لهجه‌ی طلایی کنترل‌شده.',
     img: 'portfolio/templates/ultra-gold/ultra-gold.png',
+    businessType: ['cafe'],
+    tier: 'premium',
+  },
+  {
+    id: 'luna-grid',
+    name: 'قالب Luna — کافه لونا',
+    desc: 'قالب ویژه‌ی پرمیوم — کارت «ویژه‌ی امروز»، گرید دوستونه‌ی محبوب‌ترین‌ها، و شیت پایین‌کشوی جزئیات محصول با انتخاب سایز و افزودنی (مثل اپ‌های سفارش غذای حرفه‌ای).',
+    img: 'portfolio/templates/luna-grid/luna-grid.png',
     businessType: ['cafe'],
     tier: 'premium',
   },
@@ -1266,8 +1305,8 @@ function renderCatItemsList(){
     <div class="item-row${it.id === editItemId ? ' editing' : ''}${it.available === false ? ' unavailable' : ''}">
       ${it.image ? `<img class="item-thumb" src="${it.image}" alt="">` : ''}
       <div class="meta">
-        <div class="name">${escapeHtml(it.name)}${it.available === false ? ' <span class="sold-out-pill">ناموجود</span>' : ''}</div>
-        <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
+        <div class="name">${escapeHtml(it.name)}${it.available === false ? ' <span class="sold-out-pill">ناموجود</span>' : ''}${it.featured ? ' <span class="mini-pill mini-pill-gold">⭐ ویژه</span>' : ''}${(it.sizes && it.sizes.length) ? ' <span class="mini-pill">سایز</span>' : ''}${(it.addons && it.addons.length) ? ' <span class="mini-pill">افزودنی</span>' : ''}</div>
+        <div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان${it.calories ? ' · 🔥 ' + it.calories + ' کالری' : ''}${it.rating ? ' · ★ ' + it.rating : ''}${it.desc ? ' · ' + escapeHtml(it.desc) : ''}</div>
       </div>
       <div class="item-actions">
         <button class="btn-ghost btn-sm avail-toggle" data-avail="${it.id}" data-cur="${it.available === false ? '0' : '1'}">${it.available === false ? '✅ موجود کن' : '🚫 ناموجود کن'}</button>
@@ -1288,6 +1327,8 @@ function renderCatItemsList(){
           id, name: item.name, category: item.category, price: item.price, desc: item.desc,
           tags: item.tags, calories: item.calories, ingredients: item.ingredients,
           image: item.image, available: nextAvailable,
+          rating: item.rating, featured: item.featured, discountPercent: item.discountPercent,
+          sizes: item.sizes, addons: item.addons,
         });
         currentMenu = data.menu;
         renderCatItemsList();
@@ -1422,6 +1463,59 @@ document.getElementById('itImageFile').addEventListener('change', async (e) => {
 document.getElementById('removeImageBtn').addEventListener('click', () => setItemImagePreview(''));
 
 /* ============ حالت ویرایش آیتم ============ */
+function renderSizeRows(){
+  const wrap = document.getElementById('sizesList');
+  wrap.innerHTML = sizeRows.map((s, i) => `
+    <div class="opt-row" data-size-idx="${i}">
+      <input type="text" class="opt-name" placeholder="اسم سایز (مثلاً بزرگ)" value="${escapeHtml(s.name)}">
+      <input type="text" class="opt-price" dir="ltr" inputmode="numeric" placeholder="اختلاف قیمت (تومان)" value="${s.price || ''}">
+      <label class="opt-default-lbl"><input type="checkbox" class="opt-default"${s.isDefault ? ' checked' : ''}> پیش‌فرض</label>
+      <button type="button" class="opt-row-remove" data-size-remove="${i}">✕</button>
+    </div>`).join('');
+  wrap.querySelectorAll('[data-size-idx]').forEach(row => {
+    const i = Number(row.dataset.sizeIdx);
+    row.querySelector('.opt-name').addEventListener('input', e => sizeRows[i].name = e.target.value);
+    row.querySelector('.opt-price').addEventListener('input', e => sizeRows[i].price = e.target.value);
+    row.querySelector('.opt-default').addEventListener('change', e => {
+      sizeRows.forEach((s, j) => s.isDefault = (j === i) ? e.target.checked : false);
+      renderSizeRows();
+    });
+  });
+  wrap.querySelectorAll('[data-size-remove]').forEach(btn => {
+    btn.addEventListener('click', () => { sizeRows.splice(Number(btn.dataset.sizeRemove), 1); renderSizeRows(); });
+  });
+}
+document.getElementById('addSizeRowBtn').addEventListener('click', () => {
+  sizeRows.push({ name: '', price: '', isDefault: sizeRows.length === 0 });
+  renderSizeRows();
+});
+
+function renderAddonRows(){
+  const wrap = document.getElementById('addonsList');
+  wrap.innerHTML = addonRows.map((a, i) => `
+    <div class="opt-row" data-addon-idx="${i}">
+      <input type="text" class="opt-name" placeholder="اسم افزودنی (مثلاً شات اضافه)" value="${escapeHtml(a.name)}">
+      <input type="text" class="opt-price" dir="ltr" inputmode="numeric" placeholder="قیمت (تومان)" value="${a.price || ''}">
+      <button type="button" class="opt-row-remove" data-addon-remove="${i}">✕</button>
+    </div>`).join('');
+  wrap.querySelectorAll('[data-addon-idx]').forEach(row => {
+    const i = Number(row.dataset.addonIdx);
+    row.querySelector('.opt-name').addEventListener('input', e => addonRows[i].name = e.target.value);
+    row.querySelector('.opt-price').addEventListener('input', e => addonRows[i].price = e.target.value);
+  });
+  wrap.querySelectorAll('[data-addon-remove]').forEach(btn => {
+    btn.addEventListener('click', () => { addonRows.splice(Number(btn.dataset.addonRemove), 1); renderAddonRows(); });
+  });
+}
+document.getElementById('addAddonRowBtn').addEventListener('click', () => {
+  addonRows.push({ name: '', price: '' });
+  renderAddonRows();
+});
+
+document.getElementById('itFeatured').addEventListener('change', (e) => {
+  document.getElementById('featuredDiscountWrap').classList.toggle('hidden', !e.target.checked);
+});
+
 function enterEditMode(id){
   const it = currentMenu.items.find(x => x.id === id);
   if (!it) return;
@@ -1432,10 +1526,18 @@ function enterEditMode(id){
   document.getElementById('itTags').value = (it.tags || []).join(', ');
   document.getElementById('itCalories').value = it.calories != null ? it.calories : '';
   document.getElementById('itIngredients').value = (it.ingredients || []).join(', ');
+  document.getElementById('itRating').value = it.rating != null ? it.rating : '';
+  document.getElementById('itFeatured').checked = !!it.featured;
+  document.getElementById('featuredDiscountWrap').classList.toggle('hidden', !it.featured);
+  document.getElementById('itDiscountPercent').value = it.discountPercent != null ? it.discountPercent : '';
+  sizeRows = (it.sizes || []).map(s => ({ name: s.name || '', price: s.price || '', isDefault: !!s.default }));
+  renderSizeRows();
+  addonRows = (it.addons || []).map(a => ({ name: a.name || '', price: a.price || '' }));
+  renderAddonRows();
   setItemImagePreview(it.image || '');
   document.getElementById('addItemBtn').textContent = 'ذخیره تغییرات';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
-  if (it.desc || (it.tags && it.tags.length) || it.calories || (it.ingredients && it.ingredients.length)){
+  if (it.desc || (it.tags && it.tags.length) || it.calories || (it.ingredients && it.ingredients.length) || it.rating || it.featured || (it.sizes && it.sizes.length) || (it.addons && it.addons.length)){
     document.getElementById('detailsBody').classList.add('show');
     document.getElementById('detailsToggleBtn').textContent = '− بستن جزئیات بیشتر';
   }
@@ -1450,6 +1552,14 @@ function exitEditMode(silent){
   document.getElementById('itTags').value = '';
   document.getElementById('itCalories').value = '';
   document.getElementById('itIngredients').value = '';
+  document.getElementById('itRating').value = '';
+  document.getElementById('itFeatured').checked = false;
+  document.getElementById('featuredDiscountWrap').classList.add('hidden');
+  document.getElementById('itDiscountPercent').value = '';
+  sizeRows = [];
+  renderSizeRows();
+  addonRows = [];
+  renderAddonRows();
   setItemImagePreview('');
   document.getElementById('addItemBtn').textContent = 'افزودن محصول';
   document.getElementById('cancelEditBtn').classList.add('hidden');
@@ -1466,17 +1576,28 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
   const caloriesRaw = document.getElementById('itCalories').value.trim();
   const calories = caloriesRaw ? Number(caloriesRaw) : null;
   const ingredients = document.getElementById('itIngredients').value.split(',').map(t => t.trim()).filter(Boolean);
+  const ratingRaw = document.getElementById('itRating').value.trim();
+  const rating = ratingRaw ? Number(ratingRaw) : null;
+  const featured = document.getElementById('itFeatured').checked;
+  const discountRaw = document.getElementById('itDiscountPercent').value.trim();
+  const discountPercent = featured && discountRaw ? Number(discountRaw) : null;
+  const sizes = sizeRows
+    .filter(s => s.name.trim())
+    .map(s => ({ name: s.name.trim(), price: Number(s.price) || 0, default: !!s.isDefault }));
+  const addons = addonRows
+    .filter(a => a.name.trim())
+    .map(a => ({ name: a.name.trim(), price: Number(a.price) || 0 }));
 
   if (!name){ showMsg('itemMsg', 'نام محصول الزامیه.', 'err'); return; }
 
   try{
     if (editItemId){
-      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage });
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, rating, featured, discountPercent, sizes, addons });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
       exitEditMode(true);
     } else {
-      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage });
+      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, rating, featured, discountPercent, sizes, addons });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ «' + name + '» اضافه شد. محصول بعدی رو وارد کن.', 'ok');
       exitEditMode(true);

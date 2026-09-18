@@ -34,6 +34,7 @@ const TEMPLATE_FILES = {
   "editorial-leaf": "https://mr-aiza.github.io/MenuProAi/public-menu-editorial-leaf.html",
   "diet-filter": "https://mr-aiza.github.io/MenuProAi/public-menu-diet-filter.html",
   "ultra-gold": "https://mr-aiza.github.io/MenuProAi/public-menu-ultra-gold.html",
+  "luna-grid": "https://mr-aiza.github.io/MenuProAi/public-menu-luna-grid.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 

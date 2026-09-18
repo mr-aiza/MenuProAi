@@ -1,0 +1,209 @@
+{
+  "slug": "portfolio-demo-luna-grid",
+  "cafeName": "کافه لونا",
+  "tagline": "طعم خوب، حال خوب",
+  "businessType": "cafe",
+  "categories": [
+    {
+      "id": "coffee",
+      "title": "قهوه"
+    },
+    {
+      "id": "cold",
+      "title": "نوشیدنی سرد"
+    },
+    {
+      "id": "dessert",
+      "title": "دسر"
+    },
+    {
+      "id": "breakfast",
+      "title": "صبحانه"
+    }
+  ],
+  "items": [
+    {
+      "id": "pistachio-latte",
+      "name": "لاته پسته‌ای",
+      "category": "coffee",
+      "price": 185000,
+      "rating": 4.9,
+      "featured": true,
+      "discountPercent": 16,
+      "calories": 280,
+      "desc": "ترکیبی بی‌نظیر از اسپرسو تازه، شیر گرم و کرم پسته‌ی طبیعی.",
+      "sizes": [
+        {
+          "name": "کوچک",
+          "price": 0
+        },
+        {
+          "name": "متوسط",
+          "price": 0,
+          "default": true
+        },
+        {
+          "name": "بزرگ",
+          "price": 35000
+        }
+      ],
+      "addons": [
+        {
+          "name": "شات اضافه",
+          "price": 50000
+        },
+        {
+          "name": "کارامل",
+          "price": 30000
+        },
+        {
+          "name": "خامه",
+          "price": 25000
+        }
+      ],
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "espresso",
+      "name": "اسپرسو دوبل",
+      "category": "coffee",
+      "price": 110000,
+      "rating": 4.7,
+      "calories": 10,
+      "desc": "دان تازه‌آسیاب، عصاره‌ی غلیظ.",
+      "sizes": [
+        {
+          "name": "سینگل",
+          "price": -20000
+        },
+        {
+          "name": "دوبل",
+          "price": 0,
+          "default": true
+        }
+      ],
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "cappuccino",
+      "name": "کاپوچینو",
+      "category": "coffee",
+      "price": 145000,
+      "rating": 4.8,
+      "calories": 150,
+      "desc": "کف شیر ابریشمی روی اسپرسو غلیظ.",
+      "addons": [
+        {
+          "name": "دارچین",
+          "price": 10000
+        },
+        {
+          "name": "شات اضافه",
+          "price": 50000
+        }
+      ],
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "saffron-latte",
+      "name": "لاته زعفرانی",
+      "category": "coffee",
+      "price": 175000,
+      "rating": 4.9,
+      "calories": 260,
+      "desc": "اسپرسو، شیر بخارداده و عصاره‌ی زعفران اصل.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+4piVPC90ZXh0Pgo8L3N2Zz4="
+    },
+    {
+      "id": "iced-caramel",
+      "name": "آیس کارامل ماکیاتو",
+      "category": "cold",
+      "price": 190000,
+      "rating": 4.8,
+      "calories": 240,
+      "desc": "اسپرسو، شیر سرد، سس کارامل و یخ.",
+      "sizes": [
+        {
+          "name": "متوسط",
+          "price": 0,
+          "default": true
+        },
+        {
+          "name": "بزرگ",
+          "price": 30000
+        }
+      ],
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+nijwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "cold-brew",
+      "name": "کلدبرو ۱۲ ساعته",
+      "category": "cold",
+      "price": 155000,
+      "rating": 4.6,
+      "calories": 15,
+      "desc": "دم‌کرد سرد ۱۲ ساعته، ملایم و کم‌تلخی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+lpDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "berry-smoothie",
+      "name": "اسموتی توت‌های وحشی",
+      "category": "cold",
+      "price": 165000,
+      "rating": 4.7,
+      "calories": 190,
+      "desc": "میکس توت‌فرنگی، تمشک و بلوبری با ماست یخ.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NkzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "cheesecake",
+      "name": "چیزکیک نیویورکی",
+      "category": "dessert",
+      "price": 175000,
+      "rating": 4.9,
+      "calories": 480,
+      "desc": "یک تکه، با سس توت قرمز و بیسکوییت گرام.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NsDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "chocolate-tart",
+      "name": "تارت شکلات تلخ",
+      "category": "dessert",
+      "price": 195000,
+      "rating": 4.8,
+      "calories": 510,
+      "desc": "شکلات بلژیکی تلخ روی خمیر کره‌ای.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NqzwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "tiramisu",
+      "name": "تیرامیسو",
+      "category": "dessert",
+      "price": 180000,
+      "rating": 4.7,
+      "calories": 420,
+      "desc": "لایه‌های نرم مسکارپونه و قهوه.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NrjwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "croissant",
+      "name": "کروسان کره‌ای",
+      "category": "breakfast",
+      "price": 95000,
+      "rating": 4.6,
+      "calories": 320,
+      "desc": "تازه از فر، با روکش کره‌ی فرانسوی.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+lkDwvdGV4dD4KPC9zdmc+"
+    },
+    {
+      "id": "eggs-benedict",
+      "name": "تخم‌مرغ بندیکت",
+      "category": "breakfast",
+      "price": 220000,
+      "rating": 4.8,
+      "calories": 410,
+      "desc": "تخم‌مرغ پوشه، ژامبون، سس هالندیز روی نان تست.",
+      "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIj4KPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMzUlIiBjeT0iMzAlIiByPSI3NSUiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyQTI3MjAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTE0MUEiLz4KPC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMjQiIGZpbGw9InVybCgjZykiLz4KPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE1OCIgaGVpZ2h0PSIxNTgiIHJ4PSIyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRCIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+Cjx0ZXh0IHg9IjgwIiB5PSI5OCIgZm9udC1zaXplPSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+NszwvdGV4dD4KPC9zdmc+"
+    }
+  ]
+}
