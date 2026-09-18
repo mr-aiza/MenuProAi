@@ -240,6 +240,64 @@ async function saveMenu(slug, menu, env) {
   await env.MENU_KV.put("menu:" + slug, JSON.stringify(menu));
 }
 
+async function addActivity(slug, env, action, detail) {
+  const key = "activity:" + slug;
+  const raw = await env.MENU_KV.get(key);
+  const list = raw ? JSON.parse(raw) : [];
+  list.push({ id: randomId("act"), action: String(action || "").slice(0,80), detail: String(detail || "").slice(0,240), createdAt: new Date().toISOString() });
+  await env.MENU_KV.put(key, JSON.stringify(list.slice(-100)));
+}
+
+async function handleGetActivity(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+  const raw = await env.MENU_KV.get("activity:" + own.slug);
+  const activity = raw ? JSON.parse(raw) : [];
+  activity.sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+  return json({ ok:true, activity: activity.slice(0,100) }, 200);
+}
+
+async function loadInventory(slug, env) {
+  const raw = await env.MENU_KV.get("inventory:" + slug);
+  return raw ? JSON.parse(raw) : [];
+}
+
+async function handleGetInventory(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+  return json({ ok:true, inventory: await loadInventory(own.slug, env) }, 200);
+}
+
+async function handleAddInventory(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ error: "لطفاً ابتدا وارد حساب کاربری شو." }, 401);
+  const own = await loadOwnMenu(phone, env);
+  if (!own) return json({ error: "هنوز منویی نساخته‌اید." }, 404);
+  let body; try { body = await request.json(); } catch(e) { return json({error:"بدنه درخواست نامعتبر است."},400); }
+  const name=String(body.name||"").trim().slice(0,60), unit=String(body.unit||"عدد").trim().slice(0,20);
+  const qty=Math.max(0, Number(body.qty)||0), minQty=Math.max(0, Number(body.minQty)||0);
+  if(!name) return json({error:"نام ماده اولیه الزامی است."},400);
+  const list=await loadInventory(own.slug,env);
+  const item={id:randomId("inv"),name,unit,qty,minQty,updatedAt:new Date().toISOString()};
+  list.push(item); await env.MENU_KV.put("inventory:"+own.slug,JSON.stringify(list.slice(-200)));
+  await addActivity(own.slug,env,"افزودن ماده اولیه",name+" — "+qty+" "+unit);
+  return json({ok:true,item,inventory:list},200);
+}
+
+async function handleDeleteInventory(request, env) {
+  const phone=await getAuthedPhone(request,env); if(!phone)return json({error:"لطفاً ابتدا وارد حساب کاربری شو."},401);
+  const own=await loadOwnMenu(phone,env); if(!own)return json({error:"هنوز منویی نساخته‌اید."},404);
+  let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
+  const id=String(body.id||""); const list=await loadInventory(own.slug,env); const item=list.find(x=>x.id===id);
+  const next=list.filter(x=>x.id!==id); await env.MENU_KV.put("inventory:"+own.slug,JSON.stringify(next));
+  if(item) await addActivity(own.slug,env,"حذف ماده اولیه",item.name);
+  return json({ok:true,inventory:next},200);
+}
+
 function randomId(prefix) {
   return (prefix ? prefix + "-" : "") + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
 }
@@ -374,6 +432,17 @@ async function handleDeleteTable(request, env) {
 }
 
 
+async function handleUpdateTable(request, env) {
+  const phone=await getAuthedPhone(request,env); if(!phone)return json({error:"لطفاً ابتدا وارد حساب کاربری شو."},401);
+  const own=await loadOwnMenu(phone,env); if(!own)return json({error:"هنوز منویی نساخته‌اید."},404);
+  let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
+  const id=String(body.id||""); const label=String(body.label||"").trim().slice(0,40);
+  const tables=own.menu.tables||[]; const idx=tables.findIndex(t=>t.id===id); if(idx<0)return json({error:"میز پیدا نشد."},404);
+  if(!label)return json({error:"نام میز الزامی است."},400); tables[idx].label=label; own.menu.tables=tables; await saveMenu(own.slug,own.menu,env);
+  await addActivity(own.slug,env,"ویرایش میز",label); return json({ok:true,tables},200);
+}
+
+
 // ============================================================
 async function handleAddCategory(request, env) {
   const phone = await getAuthedPhone(request, env);
@@ -391,6 +460,7 @@ async function handleAddCategory(request, env) {
   const id = randomId("cat");
   own.menu.categories.push({ id, title });
   await saveMenu(own.slug, own.menu, env);
+  await addActivity(own.slug, env, "افزودن دسته", title);
   return json({ ok: true, category: { id, title }, menu: own.menu }, 200);
 }
 
@@ -454,6 +524,7 @@ function sanitizeItemInput(body) {
   const calories = Number(body.calories);
   return {
     name: String(body.name || "").trim().slice(0, 60),
+    nameEn: String(body.nameEn || "").trim().slice(0, 80),
     category: String(body.category || "").trim().slice(0, 40),
     price: Number.isFinite(price) && price >= 0 ? Math.round(price) : 0,
     desc: String(body.desc || "").trim().slice(0, 240),
@@ -463,6 +534,12 @@ function sanitizeItemInput(body) {
     ingredients: Array.isArray(body.ingredients) ? body.ingredients.map((i) => String(i).trim().slice(0, 40)).filter(Boolean).slice(0, 15) : [],
     image: typeof body.image === "string" ? body.image.trim() : "",
     available: body.available === false ? false : true,
+    availabilityUntil: body.availabilityUntil ? String(body.availabilityUntil).slice(0,40) : null,
+    rating: Number.isFinite(Number(body.rating)) ? Math.max(0, Math.min(5, Number(body.rating))) : null,
+    featured: !!body.featured,
+    discountPercent: Number.isFinite(Number(body.discountPercent)) ? Math.max(0, Math.min(100, Number(body.discountPercent))) : null,
+    sizes: Array.isArray(body.sizes) ? body.sizes.map(x => ({name:String(x.name||"").trim().slice(0,30),price:Number(x.price)||0,default:!!x.default})).filter(x=>x.name).slice(0,10) : [],
+    addons: Array.isArray(body.addons) ? body.addons.map(x => ({name:String(x.name||"").trim().slice(0,40),price:Number(x.price)||0})).filter(x=>x.name).slice(0,15) : [],
   };
 }
 
@@ -501,6 +578,7 @@ async function handleAddItem(request, env) {
   const item = { id, ...data };
   own.menu.items.push(item);
   await saveMenu(own.slug, own.menu, env);
+  await addActivity(own.slug, env, "افزودن محصول", item.name);
   return json({ ok: true, item, menu: own.menu }, 200);
 }
 
@@ -523,8 +601,12 @@ async function handleUpdateItem(request, env) {
   const imgCheck = validateItemImage(data.image);
   if (!imgCheck.ok) return json({ error: imgCheck.error }, 400);
 
+  const oldItem = own.menu.items[idx];
   own.menu.items[idx] = { id, ...data };
   await saveMenu(own.slug, own.menu, env);
+  if (Number(oldItem.price) !== Number(data.price)) await addActivity(own.slug, env, "تغییر قیمت", `${oldItem.name}: ${oldItem.price} → ${data.price}`);
+  else if (oldItem.available !== data.available) await addActivity(own.slug, env, data.available ? "موجود کردن محصول" : "ناموجود کردن محصول", data.name);
+  else await addActivity(own.slug, env, "ویرایش محصول", data.name);
   return json({ ok: true, item: own.menu.items[idx], menu: own.menu }, 200);
 }
 
@@ -539,8 +621,10 @@ async function handleDeleteItem(request, env) {
   try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
 
   const id = String(body.id || "");
+  const removedItem = own.menu.items.find(it => it.id === id);
   own.menu.items = own.menu.items.filter((it) => it.id !== id);
   await saveMenu(own.slug, own.menu, env);
+  if (removedItem) await addActivity(own.slug, env, "حذف محصول", removedItem.name);
   return json({ ok: true, menu: own.menu }, 200);
 }
 
@@ -614,6 +698,7 @@ async function handleAddDiscount(request, env) {
   };
   discounts.push(discount);
   await saveDiscounts(own.slug, discounts, env);
+  await addActivity(own.slug, env, "ساخت کد تخفیف", code);
   return json({ ok: true, discount, discounts }, 200);
 }
 
@@ -767,6 +852,7 @@ async function handleCreateOrder(request, env) {
   const order = {
     id: randomId("order"),
     type: "order",
+    tableNumber: String(body.tableNumber || "").trim().slice(0, 40),
     items: lines,
     subtotal,
     discountCode,
@@ -1017,9 +1103,11 @@ async function handleUpdateOrderStatus(request, env) {
   const idx = orders.findIndex((o) => o.id === id);
   if (idx === -1) return json({ error: "سفارش پیدا نشد." }, 404);
 
+  const previousStatus = orders[idx].status;
   orders[idx].status = status;
   orders[idx].updatedAt = new Date().toISOString();
   await saveOrders(own.slug, orders, env);
+  await addActivity(own.slug, env, "تغییر وضعیت سفارش", `${String(orders[idx].id).slice(-6)}: ${previousStatus} → ${status}`);
   return json({ ok: true, order: orders[idx] }, 200);
 }
 
@@ -1402,6 +1490,21 @@ export default {
       }
       if (url.pathname === "/api/menu/tables/delete" && request.method === "POST") {
         return await handleDeleteTable(request, env);
+      }
+      if (url.pathname === "/api/menu/tables/update" && request.method === "POST") {
+        return await handleUpdateTable(request, env);
+      }
+      if (url.pathname === "/api/menu/inventory" && request.method === "GET") {
+        return await handleGetInventory(request, env);
+      }
+      if (url.pathname === "/api/menu/inventory" && request.method === "POST") {
+        return await handleAddInventory(request, env);
+      }
+      if (url.pathname === "/api/menu/inventory/delete" && request.method === "POST") {
+        return await handleDeleteInventory(request, env);
+      }
+      if (url.pathname === "/api/menu/activity" && request.method === "GET") {
+        return await handleGetActivity(request, env);
       }
       if (url.pathname === "/api/menu/categories" && request.method === "POST") {
         return await handleAddCategory(request, env);

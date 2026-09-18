@@ -209,6 +209,21 @@
   .tool-card .ti{font-size:18px;}
   .tool-card .soon{margin-inline-start:auto;font-size:10px;font-weight:700;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:3px 9px;border-radius:999px;}
   .qr-box img, .qr-box canvas{display:block;}
+
+  /* ============ ابزارهای مدیریتی جدید ============ */
+  .quick-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px;}
+  .quick-tool{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px 10px;color:var(--paper);font-family:inherit;font-weight:700;font-size:12px;text-align:center;cursor:pointer;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+  .quick-tool .qi{font-size:20px;line-height:1;}.quick-tool:active{transform:scale(.98)}
+  .toolbar{display:flex;gap:7px;overflow:auto;padding-bottom:2px;margin-bottom:10px}.toolbar>*{flex:0 0 auto}
+  .filter-chip{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 11px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer}.filter-chip.active{color:var(--cyan);border-color:var(--cyan);background:rgba(77,240,201,.07)}
+  .stock-toggle{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer}.stock-toggle input{width:38px;height:22px;margin:0;accent-color:var(--cyan)}
+  .table-state{font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:999px;display:inline-block}.table-state.free{color:var(--cyan);background:rgba(77,240,201,.09)}.table-state.busy{color:#ff8a8a;background:rgba(255,138,138,.09)}.table-state.pay{color:#ffd36b;background:rgba(255,211,107,.09)}
+  .table-card .status-line{display:flex;justify-content:center;align-items:center;gap:5px;margin-bottom:8px}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:80;display:flex;align-items:flex-end;justify-content:center;padding:12px}.modal{width:min(640px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 70px rgba(0,0,0,.35)}.modal h3{font-size:16px;margin-bottom:12px;color:var(--cyan)}.modal-actions{display:flex;gap:8px;margin-top:8px}.modal-actions>*{flex:1}.modal-row{display:flex;gap:8px;align-items:center}.modal-row>*{flex:1}
+  .price-change-row{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:7px}.price-change-row .pc-name{flex:1;min-width:0;font-weight:700;font-size:12px}.price-change-row input{width:130px;margin:0}.price-change-row .pc-old{font-size:10px;color:var(--muted);white-space:nowrap}
+  .inventory-row,.activity-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}.inventory-row .meta,.activity-row .meta{flex:1;min-width:0}.inventory-row .name,.activity-row .name{font-weight:700;font-size:12.5px}.inventory-row .sub,.activity-row .sub{font-size:10.5px;color:var(--muted)}.low-stock{color:#ffd36b!important}.activity-row .time{font-size:10px;color:var(--muted);white-space:nowrap}
+  .stat-grid.three{grid-template-columns:repeat(3,1fr)}
+  @media(min-width:641px){.wrap,.topbar-inner{max-width:760px}.quick-tools{grid-template-columns:repeat(4,1fr)}.modal-backdrop{align-items:center}.bottom-nav{padding-left:max(6px,calc((100vw - 760px)/2));padding-right:max(6px,calc((100vw - 760px)/2))}}
 </style>
 </head>
 <body>
@@ -304,6 +319,19 @@
     <!-- ---- تب منوساز ---- -->
     <div id="menuPane">
       <div class="card">
+        <h2>ابزارهای سریع <span class="h2-hint">کارهای روزمره</span></h2>
+        <div class="quick-tools">
+          <button class="quick-tool" data-tool="add-product"><span class="qi">➕</span>افزودن محصول</button>
+          <button class="quick-tool" data-tool="availability"><span class="qi">⚡</span>موجودی سریع</button>
+          <button class="quick-tool" data-tool="price"><span class="qi">💰</span>تغییر قیمت</button>
+          <button class="quick-tool" data-tool="preview"><span class="qi">👁️</span>پیش‌نمایش منو</button>
+          <button class="quick-tool" data-tool="tables"><span class="qi">🪑</span>مدیریت میزها</button>
+          <button class="quick-tool" data-tool="inventory"><span class="qi">📦</span>مواد اولیه</button>
+          <button class="quick-tool" data-tool="export"><span class="qi">📥</span>خروجی اطلاعات</button>
+          <button class="quick-tool" data-tool="activity"><span class="qi">📝</span>تاریخچه فعالیت</button>
+        </div>
+      </div>
+      <div class="card">
         <h2>دسته‌بندی‌ها <span class="h2-hint">با ▲▼ ترتیبشون رو عوض کن</span></h2>
         <div class="msg" id="catMsg"></div>
         <div class="cat-list" id="catList"></div>
@@ -332,8 +360,19 @@
 
         <label>نام محصول</label>
         <input type="text" id="itName" placeholder="مثلاً اسپرسو">
+        <label>نام انگلیسی (اختیاری)</label>
+        <input type="text" id="itNameEn" dir="ltr" placeholder="Espresso">
         <label>قیمت (تومان)</label>
         <input type="text" id="itPrice" dir="ltr" inputmode="numeric" placeholder="55000">
+
+        <label>وضعیت موجودی</label>
+        <select id="itAvailabilityMode">
+          <option value="available">موجود</option>
+          <option value="unavailable">ناموجود</option>
+          <option value="until">ناموجود تا زمان مشخص</option>
+          <option value="today">ناموجود تا پایان امروز</option>
+        </select>
+        <input type="datetime-local" id="itAvailabilityUntil" class="hidden" dir="ltr">
 
         <label>عکس محصول (اختیاری)</label>
         <div class="item-img-row">
@@ -409,6 +448,16 @@
           </div>
         </div>
         <div class="msg" id="ordersMsg"></div>
+        <div class="toolbar" id="orderFilters">
+          <button class="filter-chip active" data-order-filter="all">همه</button>
+          <button class="filter-chip" data-order-filter="new">جدید</button>
+          <button class="filter-chip" data-order-filter="preparing">آماده‌سازی</button>
+          <button class="filter-chip" data-order-filter="ready">آماده</button>
+          <button class="filter-chip" data-order-filter="done">تحویل‌شده</button>
+        </div>
+        <div class="toolbar">
+          <input type="search" id="orderSearch" placeholder="جستجوی سفارش، مشتری یا میز..." style="margin:0;flex:1;min-width:180px;">
+        </div>
         <div id="ordersList"></div>
       </div>
     </div>
@@ -465,6 +514,15 @@
       </div>
 
       <div class="card">
+        <h2>شاخص‌های فروش</h2>
+        <div class="stat-grid three">
+          <div class="stat-box"><div class="num" id="statAvgOrder">۰</div><div class="lbl">میانگین سفارش</div></div>
+          <div class="stat-box"><div class="num" id="statItemsSold">۰</div><div class="lbl">تعداد آیتم فروخته‌شده</div></div>
+          <div class="stat-box"><div class="num" id="statDiscountUses">۰</div><div class="lbl">استفاده از تخفیف</div></div>
+        </div>
+      </div>
+
+      <div class="card">
         <h2>مشتری‌های تکراری</h2>
         <div id="repeatCustomersBox"><p class="sub">هنوز مشتری تکراری‌ای ثبت نشده.</p></div>
       </div>
@@ -502,14 +560,9 @@
         <div id="tmplSettingsGrid"></div>
       </div>
 
-      <button class="btn-ghost btn-block" id="logoutBtn">خروج از حساب</button>
-    </div>
-
-    <!-- ---- تب ابزارهای حرفه‌ای ---- -->
-    <div class="hidden" id="proPane">
       <div class="card">
         <h2>میزها و QR اختصاصی</h2>
-        <p class="sub" style="margin-bottom:14px;">برای هر میز یه QR جدا بساز. وقتی مشتری اسکنش کنه، شماره‌ی میز خودکار با سفارشش همراه می‌شه.</p>
+        <p class="sub">برای هر میز QR جدا بساز؛ وضعیت میز از سفارش‌های فعال محاسبه می‌شود.</p>
         <div class="msg" id="tablesMsg"></div>
         <div class="row add-cat-row">
           <input type="text" id="newTableLabel" placeholder="مثلاً میز ۱۲">
@@ -519,17 +572,36 @@
       </div>
 
       <div class="card">
-        <h2>ابزارهای بیشتر</h2>
-        <p class="sub" style="margin-bottom:14px;">این‌ها به‌زودی فعال می‌شن.</p>
-        <div class="tool-grid">
-          <a class="tool-card" href="kds.html"><span class="ti">🍳</span>نمایشگر آشپزخانه (KDS)</a>
-          <div class="tool-card disabled"><span class="ti">🏬</span>چندشعبه‌ای و کارکنان<span class="soon">به‌زودی</span></div>
-          <div class="tool-card disabled"><span class="ti">🎁</span>باشگاه مشتریان<span class="soon">به‌زودی</span></div>
-          <div class="tool-card disabled"><span class="ti">🎨</span>هویت برند اختصاصی<span class="soon">به‌زودی</span></div>
-          <div class="tool-card disabled"><span class="ti">🤖</span>ساخت منو با هوش مصنوعی<span class="soon">به‌زودی</span></div>
+        <h2>مواد اولیه</h2>
+        <p class="sub">موجودی مواد و حداقل موجودی را مدیریت کن.</p>
+        <div class="msg" id="inventoryMsg"></div>
+        <div class="modal-row">
+          <input id="invName" placeholder="مثلاً قهوه دانه‌ای">
+          <input id="invQty" dir="ltr" inputmode="decimal" placeholder="موجودی">
+          <input id="invMin" dir="ltr" inputmode="decimal" placeholder="حداقل">
         </div>
+        <select id="invUnit"><option value="عدد">عدد</option><option value="کیلوگرم">کیلوگرم</option><option value="گرم">گرم</option><option value="لیتر">لیتر</option><option value="بسته">بسته</option></select>
+        <button class="btn-primary btn-block" id="addInventoryBtn">افزودن ماده اولیه</button>
+        <div id="inventoryList" style="margin-top:14px"></div>
       </div>
+
+      <div class="card">
+        <h2>کارکنان و دسترسی‌ها</h2>
+        <div class="inventory-row"><div class="meta"><div class="name">مدیر</div><div class="sub">دسترسی کامل به منو، سفارش و تنظیمات</div></div><span class="chip active">کامل</span></div>
+        <div class="inventory-row"><div class="meta"><div class="name">صندوقدار</div><div class="sub">سفارش‌ها، پرداخت و فاکتور</div></div><span class="chip">محدود</span></div>
+        <div class="inventory-row"><div class="meta"><div class="name">آشپزخانه</div><div class="sub">مشاهده و تغییر وضعیت سفارش‌ها</div></div><span class="chip">محدود</span></div>
+        <p class="sub" style="margin:8px 0 0">اتصال حساب‌های جداگانه کارکنان می‌تواند در مرحله بعد به احراز هویت فعلی متصل شود.</p>
+      </div>
+
+      <div class="card">
+        <h2>تاریخچه فعالیت</h2>
+        <div id="activityList"><p class="sub">در حال دریافت…</p></div>
+      </div>
+
+      <button class="btn-ghost btn-block" id="logoutBtn">خروج از حساب</button>
     </div>
+
+
 
   </div>
 </div>
@@ -541,7 +613,6 @@
   <button class="nav-btn" data-maintab="discounts"><span class="ic">🏷️</span>تخفیف‌ها</button>
   <button class="nav-btn" data-maintab="analytics"><span class="ic">📊</span>آمار</button>
   <button class="nav-btn" data-maintab="settings"><span class="ic">⚙️</span>تنظیمات</button>
-  <button class="nav-btn" data-maintab="pro"><span class="ic">🧩</span>ابزارها</button>
 </div>
 
 <script>
@@ -561,6 +632,11 @@ let orders = [];
 let ordersPollTimer = null;
 let knownOrderIds = null; // null یعنی هنوز اولین بار لود نشده
 let notifEnabled = false;
+let orderFilter = 'all';
+let orderSearch = '';
+
+let inventory = [];
+let activityLog = [];
 
 function showMsg(id, text, kind){
   const el = document.getElementById(id);
@@ -614,7 +690,6 @@ function switchMainTab(which){
   document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
   document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
   document.getElementById('settingsPane').classList.toggle('hidden', which !== 'settings');
-  document.getElementById('proPane').classList.toggle('hidden', which !== 'pro');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
   if (which === 'orders'){
@@ -624,7 +699,6 @@ function switchMainTab(which){
   }
   if (which === 'discounts') loadDiscounts();
   if (which === 'analytics') loadAnalytics();
-  if (which === 'pro') loadTables();
 }
 
 /* ============ کدهای تخفیف ============ */
@@ -725,6 +799,12 @@ function renderAnalytics(a){
   document.getElementById('statWeek').textContent = (a.revenueWeek || 0).toLocaleString('fa-IR');
   document.getElementById('statMonth').textContent = (a.revenueMonth || 0).toLocaleString('fa-IR');
   document.getElementById('statOrders').textContent = (a.totalOrders || 0).toLocaleString('fa-IR');
+  const allItems = (a.popularProducts || []).reduce((n,p)=>n+(Number(p.qty)||0),0);
+  const avg = a.totalOrders ? Math.round((a.totalRevenue || 0) / a.totalOrders) : 0;
+  const discountUses = orders.filter(o => o.discountCode).length;
+  document.getElementById('statAvgOrder').textContent = avg.toLocaleString('fa-IR');
+  document.getElementById('statItemsSold').textContent = allItems.toLocaleString('fa-IR');
+  document.getElementById('statDiscountUses').textContent = discountUses.toLocaleString('fa-IR');
 
   const prodBox = document.getElementById('popularProductsBox');
   if (!a.popularProducts || !a.popularProducts.length){
@@ -1148,6 +1228,9 @@ async function loadTables(){
   }
 }
 
+function tableStateClass(tableId){ const active=orders.filter(o=>o.type==='order' && o.status!=='done' && String(o.tableNumber||'')===String(tableId)); if(active.some(o=>o.status==='ready')) return 'pay'; return active.length ? 'busy' : 'free'; }
+function tableStateLabel(tableId){ const c=tableStateClass(tableId); return c==='free'?'آزاد':c==='busy'?'دارای سفارش':'منتظر پرداخت'; }
+
 function renderTables(){
   const grid = document.getElementById('tableGrid');
   if (!currentMenu || !currentMenu.slug){ grid.innerHTML = ''; return; }
@@ -1158,7 +1241,8 @@ function renderTables(){
   grid.innerHTML = myTables.map(t => `
     <div class="table-card">
       <div class="qr-mini" id="tableQr-${t.id}"></div>
-      <div class="label">${t.label}</div>
+      <div class="label">${escapeHtml(t.label)}</div>
+      <div class="status-line"><span class="table-state ${tableStateClass(t.id)}">${tableStateLabel(t.id)}</span></div>
       <div class="actions">
         <button data-tbl-dl="${t.id}">دانلود</button>
         <button class="del" data-tbl-del="${t.id}">حذف</button>
@@ -1277,6 +1361,8 @@ function renderDashboard(){
   document.getElementById('publicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
   renderSettingsTemplatePicker();
   renderMenuQrCode();
+  loadInventory();
+  loadActivity();
 
   selectedCatId = null;
   renderCategories();
@@ -1391,6 +1477,10 @@ document.getElementById('addCatBtn').addEventListener('click', async () => {
 });
 
 /* ============ فرم افزودن سریع محصول (وابسته به دسته‌ی انتخاب‌شده) ============ */
+document.getElementById('itAvailabilityMode').addEventListener('change', (e) => {
+  document.getElementById('itAvailabilityUntil').classList.toggle('hidden', e.target.value !== 'until');
+});
+
 document.getElementById('detailsToggleBtn').addEventListener('click', () => {
   const body = document.getElementById('detailsBody');
   const btn = document.getElementById('detailsToggleBtn');
@@ -1432,6 +1522,7 @@ function renderCatItemsList(){
       </div>
       <div class="item-actions">
         <button class="btn-ghost btn-sm avail-toggle" data-avail="${it.id}" data-cur="${it.available === false ? '0' : '1'}">${it.available === false ? '✅ موجود کن' : '🚫 ناموجود کن'}</button>
+        <button class="btn-ghost btn-sm" data-copy="${it.id}">کپی</button>
         <button class="btn-ghost btn-sm" data-edit="${it.id}">ویرایش</button>
         <button class="btn-danger btn-sm" data-del="${it.id}">حذف</button>
       </div>
@@ -1446,9 +1537,9 @@ function renderCatItemsList(){
       b.disabled = true;
       try{
         const data = await apiCall('/api/menu/items/update', {
-          id, name: item.name, category: item.category, price: item.price, desc: item.desc,
+          id, name: item.name, nameEn: item.nameEn || '', category: item.category, price: item.price, desc: item.desc,
           tags: item.tags, calories: item.calories, ingredients: item.ingredients,
-          image: item.image, available: nextAvailable,
+          image: item.image, available: nextAvailable, availabilityUntil: nextAvailable ? null : (item.availabilityUntil || null),
           rating: item.rating, featured: item.featured, discountPercent: item.discountPercent,
           sizes: item.sizes, addons: item.addons,
         });
@@ -1473,6 +1564,12 @@ function renderCatItemsList(){
         renderCatItemsList();
         renderSearchResults();
       }catch(e){ alert(e.message); }
+    });
+  });
+  wrap.querySelectorAll('[data-copy]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const src=(currentMenu.items||[]).find(x=>x.id===b.dataset.copy); if(!src)return;
+      try{ const d=await apiCall('/api/menu/items',{name:src.name+' (کپی)',nameEn:src.nameEn||'',category:src.category,price:src.price,desc:src.desc,tags:src.tags,calories:src.calories,ingredients:src.ingredients,image:src.image,available:src.available!==false,availabilityUntil:src.availabilityUntil||null,rating:src.rating,featured:false,discountPercent:null,sizes:src.sizes,addons:src.addons}); currentMenu=d.menu; renderCategories();renderCatItemsList();renderSearchResults(); }catch(e){alert(e.message)}
     });
   });
   wrap.querySelectorAll('[data-edit]').forEach(b => {
@@ -1669,6 +1766,10 @@ function enterEditMode(id){
 function exitEditMode(silent){
   editItemId = null;
   document.getElementById('itName').value = '';
+  document.getElementById('itNameEn').value = '';
+  document.getElementById('itAvailabilityMode').value = 'available';
+  document.getElementById('itAvailabilityUntil').value = '';
+  document.getElementById('itAvailabilityUntil').classList.add('hidden');
   document.getElementById('itPrice').value = '';
   document.getElementById('itDesc').value = '';
   document.getElementById('itTags').value = '';
@@ -1692,7 +1793,13 @@ document.getElementById('cancelEditBtn').addEventListener('click', () => exitEdi
 document.getElementById('addItemBtn').addEventListener('click', async () => {
   if (!selectedCatId){ showMsg('itemMsg', 'اول یه دسته انتخاب کن.', 'err'); return; }
   const name = document.getElementById('itName').value.trim();
+  const nameEn = document.getElementById('itNameEn').value.trim();
   const price = document.getElementById('itPrice').value.trim();
+  const availabilityMode = document.getElementById('itAvailabilityMode').value;
+  let availabilityUntil = null;
+  if (availabilityMode === 'until') availabilityUntil = document.getElementById('itAvailabilityUntil').value ? new Date(document.getElementById('itAvailabilityUntil').value).toISOString() : null;
+  else if (availabilityMode === 'today') { const d = new Date(); d.setHours(23,59,59,999); availabilityUntil = d.toISOString(); }
+  const available = availabilityMode === 'available';
   const desc = document.getElementById('itDesc').value.trim();
   const tags = document.getElementById('itTags').value.split(',').map(t => t.trim()).filter(Boolean);
   const caloriesRaw = document.getElementById('itCalories').value.trim();
@@ -1714,12 +1821,12 @@ document.getElementById('addItemBtn').addEventListener('click', async () => {
 
   try{
     if (editItemId){
-      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, rating, featured, discountPercent, sizes, addons });
+      const data = await apiCall('/api/menu/items/update', { id: editItemId, name, nameEn, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, available, availabilityUntil, rating, featured, discountPercent, sizes, addons });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ تغییرات ذخیره شد.', 'ok');
       exitEditMode(true);
     } else {
-      const data = await apiCall('/api/menu/items', { name, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, rating, featured, discountPercent, sizes, addons });
+      const data = await apiCall('/api/menu/items', { name, nameEn, category: selectedCatId, price, desc, tags, calories, ingredients, image: currentItemImage, available, availabilityUntil, rating, featured, discountPercent, sizes, addons });
       currentMenu = data.menu;
       showMsg('itemMsg', '✓ «' + name + '» اضافه شد. محصول بعدی رو وارد کن.', 'ok');
       exitEditMode(true);
@@ -1924,13 +2031,25 @@ function downloadOrderInvoice(order, btn){
   generateInvoicePdf(data, btn);
 }
 
+function orderProgressButton(o){
+  if(o.type==='call-waiter') return '';
+  if(o.status==='new') return `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="preparing">شروع آماده‌سازی</button>`;
+  if(o.status==='seen') return `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="preparing">شروع آماده‌سازی</button>`;
+  if(o.status==='preparing') return `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="ready">آماده شد ✅</button>`;
+  if(o.status==='ready') return `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="done">تحویل شد</button>`;
+  return '';
+}
+
 function renderOrders(){
   const wrap = document.getElementById('ordersList');
+  let visibleOrders = orders.filter(o => orderFilter === 'all' || o.status === orderFilter);
+  if (orderSearch){ const q = orderSearch.toLowerCase(); visibleOrders = visibleOrders.filter(o => String(o.id).toLowerCase().includes(q) || String(o.customerName||'').toLowerCase().includes(q) || String(o.tableNumber||'').toLowerCase().includes(q)); }
   if (!orders.length){
     wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">هنوز سفارشی نرسیده.</p>';
     return;
   }
-  wrap.innerHTML = orders.map(o => o.type === 'call-waiter' ? `
+  if (!visibleOrders.length){ wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">سفارشی با این فیلتر پیدا نشد.</p>'; return; }
+  wrap.innerHTML = visibleOrders.map(o => o.type === 'call-waiter' ? `
     <div class="order-card call-waiter ${o.status === 'new' ? 'new' : ''}" data-order="${o.id}">
       <div class="order-head">
         <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
@@ -1957,8 +2076,8 @@ function renderOrders(){
       ${(o.customerName || o.customerPhone) ? `<div class="order-lines" style="margin-bottom:8px;">مشتری: <b>${escapeHtml(o.customerName || '—')}</b> — <a href="tel:${escapeHtml(o.customerPhone || '')}" style="color:var(--cyan);">${escapeHtml(o.customerPhone || '—')}</a></div>` : ''}
       <div class="order-total">جمع: ${o.total.toLocaleString('fa-IR')} تومان</div>
       <div class="order-actions">
-        ${o.status !== 'seen' && o.status !== 'done' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
-        ${o.status !== 'done' ? `<button class="btn-primary btn-sm" data-setstatus="${o.id}" data-status="done">انجام شد</button>` : ''}
+        ${o.status === 'new' ? `<button class="btn-ghost btn-sm" data-setstatus="${o.id}" data-status="seen">دیدم</button>` : ''}
+        ${orderProgressButton(o)}
         <button class="btn-ghost btn-sm" data-pdf="${o.id}">🧾 فاکتور</button>
       </div>
     </div>`).join('');
@@ -1983,6 +2102,12 @@ function renderOrders(){
 }
 
 document.getElementById('refreshOrdersBtn').addEventListener('click', () => loadOrders());
+document.querySelectorAll('[data-order-filter]').forEach(b => b.addEventListener('click', () => {
+  orderFilter = b.dataset.orderFilter;
+  document.querySelectorAll('[data-order-filter]').forEach(x => x.classList.toggle('active', x === b));
+  renderOrders();
+}));
+document.getElementById('orderSearch').addEventListener('input', e => { orderSearch = e.target.value.trim(); renderOrders(); });
 
 /* ============ تنظیمات ============ */
 document.getElementById('saveInfoBtn').addEventListener('click', async () => {
@@ -1996,6 +2121,48 @@ document.getElementById('saveInfoBtn').addEventListener('click', async () => {
   }catch(e){ showMsg('infoMsg', e.message, 'err'); }
 });
 
+
+/* ============ ابزارهای سریع ============ */
+function openToolModal(title, bodyHtml, onReady){
+  const bd=document.getElementById('toolModalBackdrop'); const m=document.getElementById('toolModal');
+  m.innerHTML='<h3>'+title+'</h3>'+bodyHtml; bd.classList.remove('hidden'); if(onReady) onReady(m);
+}
+function closeToolModal(){document.getElementById('toolModalBackdrop').classList.add('hidden');}
+document.getElementById('toolModalBackdrop').addEventListener('click',e=>{if(e.target.id==='toolModalBackdrop')closeToolModal();});
+function openAddProductTool(){
+  closeToolModal();
+  if(!(currentMenu.categories||[]).length){alert('اول یک دسته‌بندی بساز.');return;}
+  selectCategory((currentMenu.categories||[])[0].id); document.getElementById('quickAddCard').scrollIntoView({behavior:'smooth',block:'start'}); document.getElementById('itName').focus();
+}
+function openAvailabilityTool(){
+  const items=currentMenu.items||[];
+  openToolModal('⚡ موجودی سریع', '<p class="sub">وضعیت هر محصول را مستقیم از همین پنجره تغییر بده.</p><div id="availabilityRows"></div><div class="modal-actions"><button class="btn-ghost" id="closeAvail">بستن</button></div>', m=>{
+    const box=m.querySelector('#availabilityRows'); box.innerHTML=items.map(it=>`<div class="inventory-row"><div class="meta"><div class="name">${escapeHtml(it.name)}</div><div class="sub">${Number(it.price).toLocaleString('fa-IR')} تومان</div></div><label class="stock-toggle"><input type="checkbox" data-stock="${it.id}" ${it.available!==false?'checked':''}> موجود</label></div>`).join('') || '<p class="sub">محصولی ندارید.</p>';
+    m.querySelector('#closeAvail').onclick=closeToolModal;
+    m.querySelectorAll('[data-stock]').forEach(ch=>ch.addEventListener('change',async()=>{const it=items.find(x=>x.id===ch.dataset.stock); if(!it)return; try{const d=await apiCall('/api/menu/items/update',{id:it.id,name:it.name,nameEn:it.nameEn||'',category:it.category,price:it.price,desc:it.desc,tags:it.tags,calories:it.calories,ingredients:it.ingredients,image:it.image,available:ch.checked,availabilityUntil:ch.checked?null:it.availabilityUntil||null,rating:it.rating,featured:it.featured,discountPercent:it.discountPercent,sizes:it.sizes,addons:it.addons}); currentMenu=d.menu; it.available=ch.checked; renderCategories();renderSearchResults();}catch(e){ch.checked=!ch.checked;alert(e.message)}}));
+  });
+}
+function openPriceTool(){
+  const items=currentMenu.items||[];
+  openToolModal('💰 تغییر قیمت گروهی','<p class="sub">قیمت جدید را وارد کن یا درصد تغییر را اعمال کن.</p><div class="modal-row"><input id="pricePercent" dir="ltr" inputmode="numeric" placeholder="درصد، مثلاً ۱۰ یا -۱۰"><button class="btn-ghost" id="applyPercent">اعمال درصد</button></div><div id="priceRows" style="margin-top:12px"></div><div class="modal-actions"><button class="btn-ghost" id="cancelPrice">انصراف</button><button class="btn-primary" id="savePrices">ذخیره قیمت‌ها</button></div>',m=>{
+    const box=m.querySelector('#priceRows');box.innerHTML=items.map(it=>`<div class="price-change-row"><div class="pc-name">${escapeHtml(it.name)}</div><div class="pc-old">قبلی: ${Number(it.price).toLocaleString('fa-IR')}</div><input class="pc-input" data-price-id="${it.id}" value="${Number(it.price)||0}" dir="ltr" inputmode="numeric"></div>`).join('')||'<p class="sub">محصولی ندارید.</p>';
+    m.querySelector('#cancelPrice').onclick=closeToolModal;m.querySelector('#applyPercent').onclick=()=>{const pct=Number(m.querySelector('#pricePercent').value)||0;m.querySelectorAll('.pc-input').forEach(i=>i.value=Math.max(0,Math.round(Number(i.value)*(1+pct/100))))};
+    m.querySelector('#savePrices').onclick=async()=>{if(!items.length)return; if(!confirm('تغییر قیمت همه محصولات ذخیره شود؟'))return; try{for(const input of m.querySelectorAll('.pc-input')){const it=items.find(x=>x.id===input.dataset.priceId);const price=Math.max(0,Math.round(Number(input.value)||0)); if(!it||price===Number(it.price))continue; const d=await apiCall('/api/menu/items/update',{id:it.id,name:it.name,nameEn:it.nameEn||'',category:it.category,price,desc:it.desc,tags:it.tags,calories:it.calories,ingredients:it.ingredients,image:it.image,available:it.available!==false,availabilityUntil:it.availabilityUntil||null,rating:it.rating,featured:it.featured,discountPercent:it.discountPercent,sizes:it.sizes,addons:it.addons}); currentMenu=d.menu;} renderCategories();renderSearchResults();closeToolModal();alert('✓ قیمت‌ها ذخیره شد.')}catch(e){alert(e.message)}};
+  });
+}
+function openPreviewTool(){const url=PUBLIC_BASE+currentMenu.slug+'/menu.html';window.open(url,'_blank','noopener');}
+function openExportTool(){
+  openToolModal('📥 خروجی اطلاعات','<p class="sub">نوع خروجی را انتخاب کن.</p><div class="quick-tools"><button class="quick-tool" id="exportProducts"><span class="qi">📋</span>محصولات CSV</button><button class="quick-tool" id="exportOrders"><span class="qi">🧾</span>سفارش‌ها CSV</button><button class="quick-tool" id="exportMenu"><span class="qi">📦</span>کل منو JSON</button></div><div class="modal-actions"><button class="btn-ghost" id="closeExport">بستن</button></div>',m=>{m.querySelector('#closeExport').onclick=closeToolModal;m.querySelector('#exportProducts').onclick=()=>downloadCsv('products',currentMenu.items||[]);m.querySelector('#exportOrders').onclick=()=>downloadCsv('orders',orders||[]);m.querySelector('#exportMenu').onclick=()=>downloadText('menu.json',JSON.stringify(currentMenu,null,2),'application/json');});
+}
+function downloadText(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
+function csvCell(v){const x=String(v??'').replace(/"/g,'""');return '"'+x+'"';}
+function downloadCsv(kind,list){const rows=kind==='products'?[['نام','دسته','قیمت','موجود','ویژه'] , ...list.map(it=>[it.name,((currentMenu.categories||[]).find(c=>c.id===it.category)||{}).title||'',it.price,it.available===false?'خیر':'بله',it.featured?'بله':'خیر'])]:[['شناسه','مشتری','تلفن','جمع','وضعیت','تاریخ'],...list.map(o=>[o.id,o.customerName,o.customerPhone,o.total,STATUS_LABEL[o.status]||o.status,o.createdAt])]; const text='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n');downloadText(kind+'-'+new Date().toISOString().slice(0,10)+'.csv',text,'text/csv;charset=utf-8');}
+function openTablesTool(){switchMainTab('settings');setTimeout(()=>document.getElementById('tableGrid')?.scrollIntoView({behavior:'smooth',block:'start'}),80);loadTables();}
+async function loadInventory(){try{const d=await apiCall('/api/menu/inventory');inventory=d.inventory||[];renderInventory();}catch(e){document.getElementById('inventoryList').innerHTML='<p class="sub">'+escapeHtml(e.message)+'</p>';}}
+function renderInventory(){const b=document.getElementById('inventoryList'); if(!b)return; b.innerHTML=inventory.length?inventory.map(x=>`<div class="inventory-row"><div class="meta"><div class="name">${escapeHtml(x.name)}</div><div class="sub ${Number(x.qty)<=Number(x.minQty)?'low-stock':''}">${x.qty} ${escapeHtml(x.unit)} — حداقل ${x.minQty} ${escapeHtml(x.unit)}</div></div><button class="btn-danger btn-sm" data-inv-del="${x.id}">حذف</button></div>`).join(''):'<p class="sub">هنوز ماده اولیه‌ای ثبت نشده.</p>';b.querySelectorAll('[data-inv-del]').forEach(btn=>btn.onclick=async()=>{if(!confirm('این ماده حذف شود؟'))return;try{await apiCall('/api/menu/inventory/delete',{id:btn.dataset.invDel});loadInventory();}catch(e){alert(e.message)}});}
+document.getElementById('addInventoryBtn').addEventListener('click',async()=>{const name=document.getElementById('invName').value.trim();const qty=Number(document.getElementById('invQty').value)||0;const minQty=Number(document.getElementById('invMin').value)||0;const unit=document.getElementById('invUnit').value;if(!name){showMsg('inventoryMsg','نام ماده اولیه را وارد کن.','err');return}try{await apiCall('/api/menu/inventory',{name,qty,minQty,unit});document.getElementById('invName').value='';document.getElementById('invQty').value='';document.getElementById('invMin').value='';hideMsg('inventoryMsg');loadInventory();}catch(e){showMsg('inventoryMsg',e.message,'err')}});
+async function loadActivity(){try{const d=await apiCall('/api/menu/activity');activityLog=d.activity||[];const b=document.getElementById('activityList');b.innerHTML=activityLog.length?activityLog.map(x=>`<div class="activity-row"><div class="meta"><div class="name">${escapeHtml(x.action)}</div><div class="sub">${escapeHtml(x.detail||'')}</div></div><div class="time">${timeAgo(x.createdAt)}</div></div>`).join(''):'<p class="sub">هنوز فعالیتی ثبت نشده.</p>';}catch(e){const b=document.getElementById('activityList');if(b)b.innerHTML='<p class="sub">'+escapeHtml(e.message)+'</p>';}}
+document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.tool;if(t==='add-product')openAddProductTool();if(t==='availability')openAvailabilityTool();if(t==='price')openPriceTool();if(t==='preview')openPreviewTool();if(t==='tables')openTablesTool();if(t==='inventory'){switchMainTab('settings');setTimeout(()=>{document.getElementById('inventoryList')?.scrollIntoView({behavior:'smooth',block:'start'});loadInventory()},80)}if(t==='export')openExportTool();if(t==='activity'){switchMainTab('settings');setTimeout(()=>{document.getElementById('activityList')?.scrollIntoView({behavior:'smooth',block:'start'});loadActivity()},80)}}));
 /* ============ شروع ============ */
 (async function init(){
   if (BytelabAuth.isLoggedIn()){
@@ -2003,5 +2170,9 @@ document.getElementById('saveInfoBtn').addEventListener('click', async () => {
   }
 })();
 </script>
+
+<div class="modal-backdrop hidden" id="toolModalBackdrop">
+  <div class="modal" id="toolModal"></div>
+</div>
 </body>
 </html>
