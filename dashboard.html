@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>window.__MENUPROAI_API__="https://menuproai-api.bytelab.workers.dev";</script>
 <script src="assets/bytelab-auth.js"></script>
 <style>
   :root{--ink:#070b12;--panel:#0f1620;--panel-2:#141d2b;--panel-3:#1a2434;--line:#1e2a38;--cyan:#4df0c9;--violet:#9c7bff;--paper:#eaf0f4;--muted:#7c8b9c;--danger:#ff8a8a;--radius:18px;}
@@ -813,12 +814,80 @@ document.getElementById('addDiscBtn').addEventListener('click', async () => {
 
 /* ============ آمار و تحلیل ============ */
 async function loadAnalytics(){
+  // آمار باید مستقیماً به همان سفارش‌های واقعی داشبورد وصل باشد.
+  // بنابراین هم endpoint آمار و هم لیست سفارش‌ها را می‌خوانیم تا اگر
+  // نسخه‌ی Worker قدیمی بود، صفحه همچنان بتواند آمار را از سفارش‌های واقعی بسازد.
   try{
-    const data = await apiCall('/api/menu/analytics');
-    renderAnalytics(data.analytics);
+    const results = await Promise.allSettled([
+      apiCall('/api/menu/analytics'),
+      apiCall('/api/menu/orders')
+    ]);
+
+    const analyticsResult = results[0];
+    const ordersResult = results[1];
+    if (ordersResult.status === 'fulfilled') {
+      orders = ordersResult.value.orders || [];
+    }
+
+    if (analyticsResult.status === 'fulfilled' && analyticsResult.value.analytics) {
+      renderAnalytics(analyticsResult.value.analytics);
+      return;
+    }
+
+    // fallback: محاسبه از سفارش‌های واقعی دریافت‌شده
+    if (ordersResult.status === 'fulfilled') {
+      renderAnalytics(buildClientAnalytics(orders));
+      return;
+    }
+
+    const err = analyticsResult.reason || ordersResult.reason || new Error('دریافت داده‌ها ناموفق بود');
+    throw err;
   }catch(e){
-    document.getElementById('popularProductsBox').innerHTML = '<p class="sub">خطا در دریافت آمار: ' + e.message + '</p>';
+    document.getElementById('popularProductsBox').innerHTML = '<p class="sub">اتصال آمار برقرار نشد: ' + escapeHtml(e.message || 'خطای نامشخص') + '</p>';
+    document.getElementById('hoursChart').innerHTML = '';
+    document.getElementById('hoursLabels').innerHTML = '';
+    document.getElementById('peakHoursSummary').textContent = 'برای نمایش آمار، سفارش واقعی ثبت کن.';
   }
+}
+
+function buildClientAnalytics(list){
+  const valid = (list || []).filter(o => o.type !== 'call-waiter' && o.status !== 'cancelled');
+  const now = Date.now();
+  const DAY = 86400000;
+  const startDay = new Date(); startDay.setHours(0,0,0,0);
+  const todayStart = startDay.getTime();
+  const weekStart = now - 7 * DAY;
+  const monthStart = now - 30 * DAY;
+  let totalRevenue=0, revenueToday=0, revenueWeek=0, revenueMonth=0, itemsSold=0;
+  const products={}, hours=Array.from({length:24},()=>0), customers={};
+
+  for(const o of valid){
+    const ts = new Date(o.createdAt || 0).getTime();
+    const total = Number(o.total)||0;
+    totalRevenue += total;
+    if(ts >= todayStart) revenueToday += total;
+    if(ts >= weekStart) revenueWeek += total;
+    if(ts >= monthStart) revenueMonth += total;
+    const h = new Date(o.createdAt || 0).getHours();
+    if(Number.isFinite(h)) hours[h]++;
+    for(const line of (o.items||[])){
+      const id=String(line.id||line.name||'item');
+      if(!products[id]) products[id]={id,name:line.name||'محصول',qty:0,revenue:0};
+      products[id].qty += Number(line.qty)||0;
+      products[id].revenue += Number(line.lineTotal)||((Number(line.price)||0)*(Number(line.qty)||0));
+      itemsSold += Number(line.qty)||0;
+    }
+    const phone=String(o.customerPhone||'').trim();
+    if(phone){
+      if(!customers[phone]) customers[phone]={phone,name:o.customerName||'بدون نام',count:0,hours:[],last:o.createdAt};
+      customers[phone].count++; customers[phone].hours.push(h);
+      if(new Date(o.createdAt)>new Date(customers[phone].last)) customers[phone].last=o.createdAt;
+    }
+  }
+  const popularProducts=Object.values(products).sort((a,b)=>b.qty-a.qty).slice(0,10);
+  const peakHours=hours.map((count,hour)=>({hour,count}));
+  const repeatCustomers=Object.values(customers).filter(c=>c.count>=2).map(c=>({phone:c.phone,name:c.name,orderCount:c.count,commonHour:c.hours.sort((a,b)=>c.hours.filter(x=>x===b).length-c.hours.filter(x=>x===a).length)[0]||0,lastVisit:c.last})).sort((a,b)=>b.orderCount-a.orderCount).slice(0,30);
+  return {totalOrders:valid.length,totalRevenue,revenueToday,revenueWeek,revenueMonth,popularProducts,peakHours,repeatCustomers,itemsSold};
 }
 
 function renderAnalytics(a){

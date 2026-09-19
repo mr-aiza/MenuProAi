@@ -74,8 +74,97 @@ async function getAuthedPhone(request, env) {
   const authHeader = request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
   if (!token) return null;
-  const phone = await env.USERS_KV.get("session:" + token);
-  return phone || null;
+
+  // اول session داخلی MenuProAI؛ این باعث می‌شود داشبورد بدون وابستگی
+  // به فایل/Worker احراز هویت خارجی هم کاملاً کار کند.
+  const localPhone = await env.MENU_KV.get("auth:session:" + token);
+  if (localPhone) return localPhone;
+
+  // سازگاری با sessionهای قدیمی bytelab-users-worker.
+  if (env.USERS_KV) {
+    const phone = await env.USERS_KV.get("session:" + token);
+    if (phone) return phone;
+  }
+  return null;
+}
+
+const AUTH_SESSION_TTL = 60 * 60 * 24 * 30;
+
+function normalizePhone(raw) {
+  let p = String(raw || "").trim().replace(/\s+/g, "");
+  if (p.startsWith("+98")) p = "0" + p.slice(3);
+  if (/^9\d{9}$/.test(p)) p = "0" + p;
+  return p;
+}
+
+function isValidPhone(phone) { return /^09\d{9}$/.test(phone); }
+
+function bytesToHex(bytes) { return [...bytes].map(b => b.toString(16).padStart(2, "0")).join(""); }
+function hexToBytes(hex) {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}
+
+async function hashPassword(password, saltHex) {
+  const salt = saltHex ? hexToBytes(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, key, 256);
+  return { salt: bytesToHex(salt), hash: bytesToHex(new Uint8Array(bits)) };
+}
+
+async function issueLocalSession(phone, env) {
+  const tokenBytes = crypto.getRandomValues(new Uint8Array(32));
+  const token = bytesToHex(tokenBytes);
+  await env.MENU_KV.put("auth:session:" + token, phone, { expirationTtl: AUTH_SESSION_TTL });
+  return token;
+}
+
+async function handleAuthRegister(request, env) {
+  let body; try { body = await request.json(); } catch { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const phone = normalizePhone(body.phone);
+  const name = String(body.name || "").trim().slice(0, 80);
+  const email = String(body.email || "").trim().slice(0, 160);
+  const password = String(body.password || "");
+  if (!isValidPhone(phone)) return json({ error: "شماره موبایل معتبر نیست." }, 400);
+  if (name.length < 2) return json({ error: "نام را وارد کن." }, 400);
+  if (password.length < 6) return json({ error: "رمز عبور باید حداقل ۶ کاراکتر باشد." }, 400);
+  const key = "auth:user:" + phone;
+  if (await env.MENU_KV.get(key)) return json({ error: "این شماره قبلاً ثبت شده است. وارد حساب شو." }, 409);
+  const hp = await hashPassword(password);
+  const user = { phone, name, email, passwordHash: hp.hash, salt: hp.salt, createdAt: new Date().toISOString() };
+  await env.MENU_KV.put(key, JSON.stringify(user));
+  const token = await issueLocalSession(phone, env);
+  return json({ ok: true, token, user: { phone, name, email } }, 201);
+}
+
+async function handleAuthLogin(request, env) {
+  let body; try { body = await request.json(); } catch { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
+  const phone = normalizePhone(body.phone);
+  const password = String(body.password || "");
+  if (!isValidPhone(phone) || !password) return json({ error: "شماره و رمز عبور را درست وارد کن." }, 400);
+  const raw = await env.MENU_KV.get("auth:user:" + phone);
+  if (!raw) return json({ error: "حسابی با این شماره پیدا نشد. اگر حساب قدیمی داری، session قدیمی باید هنوز فعال باشد؛ در غیر این صورت دوباره ثبت‌نام کن." }, 401);
+  const user = JSON.parse(raw);
+  const hp = await hashPassword(password, user.salt);
+  if (hp.hash !== user.passwordHash) return json({ error: "شماره یا رمز عبور اشتباه است." }, 401);
+  const token = await issueLocalSession(phone, env);
+  return json({ ok: true, token, user: { phone, name: user.name, email: user.email || "" } }, 200);
+}
+
+async function handleAuthLogout(request, env) {
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (token) await env.MENU_KV.delete("auth:session:" + token);
+  return json({ ok: true }, 200);
+}
+
+async function handleAuthMe(request, env) {
+  const phone = await getAuthedPhone(request, env);
+  if (!phone) return json({ authenticated: false }, 200);
+  const raw = await env.MENU_KV.get("auth:user:" + phone);
+  if (raw) { const u = JSON.parse(raw); return json({ authenticated: true, user: { phone, name: u.name, email: u.email || "" } }, 200); }
+  return json({ authenticated: true, user: { phone } }, 200);
 }
 
 // ------------------------------------------------------------
@@ -90,7 +179,7 @@ async function isAdminAuthorized(request, env) {
   const authHeader = request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
   if (!token) return false;
-  const ok = await env.USERS_KV.get("adminsession:" + token);
+  const ok = env.USERS_KV ? await env.USERS_KV.get("adminsession:" + token) : null;
   return !!ok;
 }
 
@@ -1469,6 +1558,23 @@ export default {
     }
 
     try {
+      if (url.pathname === "/api/health" && request.method === "GET") {
+        return json({ ok: true, service: "menuproai", version: "v6-data-layer", bindings: { menuKV: !!env.MENU_KV, usersKV: !!env.USERS_KV } }, 200);
+      }
+
+      if (url.pathname === "/api/auth/register" && request.method === "POST") {
+        return await handleAuthRegister(request, env);
+      }
+      if (url.pathname === "/api/auth/login" && request.method === "POST") {
+        return await handleAuthLogin(request, env);
+      }
+      if (url.pathname === "/api/auth/logout" && request.method === "POST") {
+        return await handleAuthLogout(request, env);
+      }
+      if (url.pathname === "/api/auth/me" && request.method === "GET") {
+        return await handleAuthMe(request, env);
+      }
+
       if (url.pathname === "/api/menu/create" && request.method === "POST") {
         return await handleCreateMenu(request, env);
       }
