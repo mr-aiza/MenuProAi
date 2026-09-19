@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت منوساز | MenuProAI</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e27;
+    --card: #141d2b;
+    --card2: #101724;
+    --border: #1e2a38;
+    --text: #eaf0f4;
+    --muted: #7c8b9c;
+    --cyan: #4df0c9;
+    --violet: #a685fa;
+    --danger: #ff6b6b;
+    --warn: #f5c451;
+  }
+
+  html, body { background: var(--bg); }
+  body {
+    color: var(--text);
+    font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  .login-box {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+  }
+  .login-box h1 { font-size: 24px; margin-bottom: 10px; text-align: center; }
+  .login-box .subtitle { color: var(--muted); text-align: center; margin-bottom: 30px; font-size: 13px; }
+
+  input[type="password"], input[type="text"], input[type="number"], input[type="date"], select, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--cyan); }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+
+  button { cursor: pointer; font-family: inherit; }
+  .btn-primary {
+    width: 100%;
+    background: var(--cyan);
+    color: #060a0f;
+    border: none;
+    border-radius: 999px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  .error { color: var(--danger); font-size: 12px; margin-top: 10px; text-align: center; display: none; }
+  .error.show { display: block; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header h1 { font-size: 26px; }
+  .header-actions { display: flex; gap: 10px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; }
+  .stat-card .number { font-size: 28px; font-weight: 700; color: var(--cyan); }
+  .stat-card .label { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar input[type="text"] { margin: 0; max-width: 320px; }
+  .toolbar select { margin: 0; width: auto; }
+
+  .table-wrapper { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  th { background: rgba(255,255,255,0.03); padding: 14px; text-align: right; font-weight: 600; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+
+  .cafe-name { font-weight: 600; color: var(--cyan); }
+  .cafe-tagline { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge-on { background: rgba(77,240,201,0.15); color: var(--cyan); }
+  .badge-off { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .badge-new { background: rgba(245,196,81,0.15); color: var(--warn); }
+  .badge-seen { background: rgba(166,133,250,0.15); color: var(--violet); }
+  .badge-done { background: rgba(77,240,201,0.15); color: var(--cyan); }
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--text); border-radius: 6px; }
+  .btn-sm:hover { border-color: var(--cyan); color: var(--cyan); }
+  .btn-danger { border-color: rgba(255,107,107,0.3); color: var(--danger); }
+  .btn-danger:hover { border-color: var(--danger); background: rgba(255,107,107,0.1); }
+  .btn-violet { border-color: rgba(166,133,250,0.35); color: var(--violet); }
+  .btn-violet:hover { border-color: var(--violet); background: rgba(166,133,250,0.1); }
+
+  .empty, .loading { text-align: center; padding: 40px; color: var(--muted); }
+
+  /* مودال */
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(3,5,15,0.75);
+    z-index: 100; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    width: 100%; max-width: 900px; padding: 0; overflow: hidden;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+  .modal-header h2 { font-size: 18px; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; }
+  .modal-close:hover { color: var(--text); }
+
+  .tabs { display: flex; gap: 4px; padding: 12px 22px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab-btn { background: none; border: none; color: var(--muted); padding: 10px 14px; font-size: 13px; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+  .tab-body { padding: 20px 22px; max-height: 60vh; overflow-y: auto; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .row2 { grid-template-columns: 1fr; } }
+
+  .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .info { flex: 1; min-width: 0; }
+  .list-item .info .t1 { font-weight: 600; font-size: 14px; }
+  .list-item .info .t2 { font-size: 12px; color: var(--muted); }
+
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 999px; transition: .2s; }
+  .slider::before { content: ""; position: absolute; width: 18px; height: 18px; right: 3px; top: 3px; background: white; border-radius: 50%; transition: .2s; }
+  input:checked + .slider { background: var(--cyan); }
+  input:checked + .slider::before { transform: translateX(-18px); }
+
+  .add-form { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .add-form input, .add-form select { margin: 0; flex: 1; min-width: 100px; }
+  .add-form button { flex-shrink: 0; }
+
+  .section-title { font-size: 13px; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
+  .section-title:first-child { margin-top: 0; }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--cyan); color: var(--text);
+    padding: 12px 20px; border-radius: 10px; font-size: 13px; z-index: 200; display: none;
+  }
+  .toast.show { display: block; }
+  .toast.err { border-color: var(--danger); }
+
+  .footer-btns { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    th, td { padding: 10px; font-size: 12px; }
+  }
+
+  .global-nav{display:flex;gap:8px;overflow:auto;margin:0 0 18px;padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:12px;position:sticky;top:8px;z-index:20}
+  .global-nav button{border:0;background:transparent;color:var(--muted);padding:10px 14px;border-radius:9px;white-space:nowrap;font-weight:700}
+  .global-nav button.active{background:rgba(77,240,201,.12);color:var(--cyan)}
+  .global-section{display:none}.global-section.active{display:block}
+  .hero{background:linear-gradient(135deg,rgba(77,240,201,.09),rgba(166,133,250,.08));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+  .hero h2{font-size:20px;margin-bottom:5px}.hero p{color:var(--muted);font-size:13px}
+  .global-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .global-grid .stat-card{text-align:right;min-height:105px}.global-grid .stat-card .number{font-size:25px}
+  .mini-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+  .panel-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .panel-card h3{font-size:14px;margin-bottom:12px}
+  .global-table{width:100%;border-collapse:collapse}.global-table th,.global-table td{padding:10px;border-bottom:1px solid var(--border);font-size:12px;text-align:right}
+  .global-table th{color:var(--muted)}
+  .health-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-left:7px;background:var(--danger)}.dot.ok{background:var(--cyan)}
+  .toolbar .wide{max-width:none;flex:1}
+  .user-actions{display:flex;gap:5px;flex-wrap:wrap}
+  @media(max-width:850px){.global-grid{grid-template-columns:1fr 1fr}.mini-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){.global-grid{grid-template-columns:1fr 1fr}.global-nav button{padding:9px 11px;font-size:12px}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- ورود -->
+  <div class="login-box" id="loginBox">
+    <h1>🔐 MenuProAI</h1>
+    <p class="subtitle">پنل مدیریت منوها — با رمز پنل ادمین اصلی وارد شو</p>
+    <input type="password" id="adminPass" placeholder="رمز ورود">
+    <button class="btn-primary" id="loginBtn">ورود</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <!-- پنل -->
+  <div id="panelBox" style="display: none;">
+    <div class="header">
+      <div><h1>📋 پنل مدیریت MenuProAI</h1></div>
+      <div class="header-actions">
+        <button class="btn-sm" id="refreshBtn">🔄 بروزرسانی</button>
+        <button class="btn-sm btn-danger" id="logoutBtn">خروج</button>
+      </div>
+    </div>
+
+
+    <div class="global-nav" id="globalNav">
+      <button class="active" data-global="home">📊 داشبورد</button>
+      <button data-global="users">👥 کاربران</button>
+      <button data-global="cafes">☕ کافه‌ها و منوها</button>
+      <button data-global="activity">🧾 لاگ فعالیت</button>
+      <button data-global="health">🛡️ سلامت سیستم</button>
+      <button data-global="export">📦 پشتیبان و خروجی</button>
+    </div>
+
+    <section class="global-section active" id="global-home">
+      <div class="hero"><h2>مرکز مدیریت سراسری MenuProAI</h2><p>نمای کلی کاربران، منوها، سفارش‌ها، درآمد و وضعیت سرویس‌ها از یک صفحه.</p></div>
+      <div class="global-grid">
+        <div class="stat-card"><div class="number" id="gUsers">—</div><div class="label">کل کاربران</div></div>
+        <div class="stat-card"><div class="number" id="gCafes">—</div><div class="label">کل منوها</div></div>
+        <div class="stat-card"><div class="number" id="gOrders">—</div><div class="label">کل سفارش‌ها</div></div>
+        <div class="stat-card"><div class="number" id="gRevenue">—</div><div class="label">کل درآمد (تومان)</div></div>
+        <div class="stat-card"><div class="number" id="gActiveCafes">—</div><div class="label">منوهای فعال</div></div>
+        <div class="stat-card"><div class="number" id="gProducts">—</div><div class="label">کل محصولات</div></div>
+        <div class="stat-card"><div class="number" id="gNewUsers">—</div><div class="label">کاربران جدید ۷ روز</div></div>
+        <div class="stat-card"><div class="number" id="gRevenueWeek">—</div><div class="label">درآمد ۷ روز</div></div>
+      </div>
+      <div class="mini-grid">
+        <div class="panel-card"><h3>آخرین سفارش‌ها</h3><div id="gRecentOrders" class="empty">در حال بارگذاری...</div></div>
+        <div class="panel-card"><h3>آخرین کاربران</h3><div id="gRecentUsers" class="empty">در حال بارگذاری...</div></div>
+      </div>
+    </section>
+
+    <section class="global-section" id="global-users">
+      <div class="hero"><h2>مدیریت کاربران</h2><p>جستجو، فعال/مسدود کردن، بازنشانی رمز و حذف حساب‌های ثبت‌شده در سیستم جدید.</p></div>
+      <div class="toolbar"><input class="wide" type="text" id="globalUserSearch" placeholder="جستجو: نام، موبایل، ایمیل، نام کافه یا slug..."><button class="btn-sm" id="globalUserRefresh">🔄</button></div>
+      <div class="table-wrapper"><table class="global-table"><thead><tr><th>کاربر</th><th>کافه</th><th>وضعیت</th><th>ثبت‌نام</th><th>عملیات</th></tr></thead><tbody id="globalUsersBody"><tr><td colspan="5" class="loading">در حال بارگذاری...</td></tr></tbody></table></div>
+    </section>
+
+    <section class="global-section" id="global-cafes">
+      <div class="hero"><h2>کافه‌ها و منوها</h2><p>مدیریت کامل منوها، محصولات، تخفیف‌ها، سفارش‌ها و آمار هر کافه.</p></div>
+    <div class="stats">
+      <div class="stat-card"><div class="number" id="totalCafes">0</div><div class="label">کل منوها</div></div>
+      <div class="stat-card"><div class="number" id="activeCafes">0</div><div class="label">فعال</div></div>
+      <div class="stat-card"><div class="number" id="inactiveCafes">0</div><div class="label">غیرفعال</div></div>
+      <div class="stat-card"><div class="number" id="totalItems">0</div><div class="label">کل محصولات</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="جستجو بر اساس نام کافه یا شماره مالک...">
+      <select id="filterStatus">
+        <option value="">همه وضعیت‌ها</option>
+        <option value="active">فقط فعال</option>
+        <option value="inactive">فقط غیرفعال</option>
+      </select>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>کافه</th><th>مالک</th><th>وضعیت</th><th>محصولات</th><th>تاریخ</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="cafesBody"><tr><td colspan="6" class="loading">در حال بارگذاری...</td></tr></tbody>
+      </table>
+    </div>
+    </section>
+
+    <section class="global-section" id="global-activity">
+      <div class="hero"><h2>لاگ فعالیت</h2><p>رویدادهای مدیریتی مهم برای پیگیری تغییرات.</p></div>
+      <div class="panel-card"><div id="activityList" class="empty">در حال بارگذاری...</div></div>
+    </section>
+
+    <section class="global-section" id="global-health">
+      <div class="hero"><h2>سلامت سیستم</h2><p>بررسی سریع KV و سرویس احراز هویت و داده‌های سیستم.</p></div>
+      <div class="panel-card"><div id="healthList" class="empty">برای بررسی، روی دکمه زیر بزن.</div><div class="footer-btns"><button class="btn-sm" id="healthBtn">🩺 بررسی سلامت سیستم</button></div></div>
+    </section>
+
+    <section class="global-section" id="global-export">
+      <div class="hero"><h2>پشتیبان و خروجی</h2><p>خروجی JSON از کاربران و داده‌های منوها. اطلاعات رمز عبور هرگز در خروجی قرار نمی‌گیرد.</p></div>
+      <div class="panel-card"><button class="btn-sm" id="exportBtn">📦 ساخت خروجی JSON</button><p id="exportStatus" style="color:var(--muted);font-size:12px;margin-top:12px"></p></div>
+    </section>
+  </div>
+</div>
+
+<!-- مودال جزئیات کافه -->
+<div class="overlay" id="cafeOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">مدیریت کافه</h2>
+      <button class="modal-close" id="closeModalBtn">✕</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="info">اطلاعات کلی</button>
+      <button class="tab-btn" data-tab="cats">دسته‌بندی‌ها</button>
+      <button class="tab-btn" data-tab="items">محصولات</button>
+      <button class="tab-btn" data-tab="discounts">تخفیف‌ها</button>
+      <button class="tab-btn" data-tab="orders">سفارش‌ها</button>
+      <button class="tab-btn" data-tab="stats">آمار</button>
+    </div>
+    <div class="tab-body">
+
+      <div class="tab-pane active" id="pane-info">
+        <label>نام کافه</label>
+        <input type="text" id="f-cafeName">
+        <label>توضیح کوتاه (Tagline)</label>
+        <input type="text" id="f-tagline">
+        <label>شماره مالک</label>
+        <input type="text" id="f-ownerPhone">
+        <div class="list-item">
+          <div class="info"><div class="t1">وضعیت نمایش عمومی</div><div class="t2">اگر خاموش باشه، منو و ثبت سفارش برای مشتری غیرفعال می‌شه</div></div>
+          <label class="switch"><input type="checkbox" id="f-active"><span class="slider"></span></label>
+        </div>
+        <div class="footer-btns">
+          <button class="btn-sm" style="border-color:var(--cyan);color:var(--cyan)" id="saveInfoBtn">💾 ذخیره تغییرات</button>
+          <button class="btn-sm btn-violet" id="impersonateBtn">👤 ورود به پنل کاربر</button>
+          <button class="btn-sm" id="resetPassBtn">🔑 ریست رمز عبور</button>
+          <button class="btn-sm btn-danger" id="deleteCafeBtn">🗑️ حذف کامل کافه</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="pane-cats">
+        <div id="catsList"></div>
+        <div class="add-form">
+          <input type="text" id="newCatTitle" placeholder="عنوان دسته جدید">
+          <button class="btn-sm" style="border-color:var(--cyan);color:var(--cyan)" id="addCatBtn">افزودن</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="pane-items">
+        <div id="itemsList"></div>
+        <div class="section-title">افزودن / ویرایش محصول</div>
+        <input type="hidden" id="editItemId">
+        <div class="row2">
+          <div><label>نام محصول</label><input type="text" id="it-name"></div>
+          <div><label>دسته</label><select id="it-category"></select></div>
+        </div>
+        <div class="row2">
+          <div><label>قیمت (تومان)</label><input type="number" id="it-price"></div>
+          <div><label>کالری (اختیاری)</label><input type="number" id="it-calories"></div>
+        </div>
+        <label>توضیحات</label>
+        <textarea id="it-desc"></textarea>
+        <div class="footer-btns">
+          <button class="btn-sm" style="border-color:var(--cyan);color:var(--cyan)" id="saveItemBtn">💾 ذخیره محصول</button>
+          <button class="btn-sm" id="clearItemBtn">پاک کردن فرم</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="pane-discounts">
+        <div id="discountsList"></div>
+        <div class="section-title">افزودن کد تخفیف</div>
+        <div class="row2">
+          <div><label>کد</label><input type="text" id="d-code" placeholder="مثلاً OFF20"></div>
+          <div><label>نوع</label><select id="d-type"><option value="percent">درصدی</option><option value="fixed">مبلغ ثابت</option></select></div>
+        </div>
+        <div class="row2">
+          <div><label>مقدار</label><input type="number" id="d-value"></div>
+          <div><label>سقف استفاده (۰=نامحدود)</label><input type="number" id="d-maxUses" value="0"></div>
+        </div>
+        <label>تاریخ انقضا (اختیاری)</label>
+        <input type="date" id="d-expiresAt">
+        <button class="btn-sm" style="border-color:var(--cyan);color:var(--cyan)" id="addDiscountBtn">افزودن کد تخفیف</button>
+      </div>
+
+      <div class="tab-pane" id="pane-orders">
+        <div id="ordersList"></div>
+      </div>
+
+      <div class="tab-pane" id="pane-stats">
+        <div id="statsBody"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  const MENU_API = "https://menuproai-api.bytelab.workers.dev";
+  const USERS_API = "https://bytelab-users.bytelab.workers.dev";
+  const TOKEN_KEY = "menuproai_admin_token_v2";
+  // impersonate.html باید روی ریشه‌ی خودِ menuproai.bytelabpro.xyz آپلود بشه
+  // (نسخه‌ی جداگانه از اونی که تو bytelabpro.xyz هست، چون localStorage بین
+  // دامنه‌ها مشترک نیست). صفحه‌ی داشبورد رو اگه اسمش چیز دیگه‌ایه عوض کن.
+  const IMPERSONATE_URL = "https://menuproai.bytelabpro.xyz/impersonate.html";
+  const MENUPROAI_DASHBOARD_PAGE = "dashboard.html"; // ← اگه اسم واقعی فرق داره، عوضش کن
+
+  let allCafes = [];
+  let currentCafe = null; // { menu, discounts, ordersCount, analytics }
+
+  function getToken() { try { return sessionStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+  function setToken(t) { try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+  function clearToken() { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+  function esc(str) { const d = document.createElement("div"); d.textContent = str == null ? "" : String(str); return d.innerHTML; }
+  function fa(n) { return new Intl.NumberFormat("fa-IR").format(n || 0); }
+
+  function toast(msg, isErr) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.className = "toast show" + (isErr ? " err" : "");
+    setTimeout(() => { el.className = "toast"; }, 3500);
+  }
+
+  async function apiFetch(base, path, options) {
+    options = options || {};
+    const headers = Object.assign({}, options.headers || {});
+    const token = getToken();
+    if (token) headers["Authorization"] = "Bearer " + token;
+    if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    const res = await fetch(base + path, Object.assign({}, options, { headers }));
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      const err = new Error((data && data.error) || "خطایی رخ داد.");
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+  const menuApi = (path, opt) => apiFetch(MENU_API, path, opt);
+  const usersApi = (path, opt) => apiFetch(USERS_API, path, opt);
+
+  // ---------------- ورود ----------------
+  document.getElementById("loginBtn").addEventListener("click", doLogin);
+  document.getElementById("adminPass").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+
+  async function doLogin() {
+    const pass = document.getElementById("adminPass").value.trim();
+    const errorEl = document.getElementById("errorMsg");
+    errorEl.classList.remove("show");
+    if (!pass) { errorEl.textContent = "رمز را وارد کن"; errorEl.classList.add("show"); return; }
+
+    try {
+      const data = await usersApi("/api/admin/login", { method: "POST", body: JSON.stringify({ password: pass }) });
+      setToken(data.token);
+      showPanel();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.add("show");
+    }
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", () => { clearToken(); location.reload(); });
+  document.getElementById("refreshBtn").addEventListener("click", loadCafes);
+
+  function showPanel() {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("panelBox").style.display = "block";
+    loadCafes();
+  }
+
+  // ---------------- لیست کافه‌ها ----------------
+  async function loadCafes() {
+    const body = document.getElementById("cafesBody");
+    body.innerHTML = '<tr><td colspan="6" class="loading">در حال بارگذاری...</td></tr>';
+    try {
+      const data = await menuApi("/api/menu/admin/list", { method: "GET" });
+      allCafes = data.cafes || [];
+      renderStats();
+      renderTable();
+    } catch (err) {
+      if (err.status === 401) { clearToken(); location.reload(); return; }
+      body.innerHTML = `<tr><td colspan="6" class="empty">❌ ${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  function renderStats() {
+    document.getElementById("totalCafes").textContent = fa(allCafes.length);
+    document.getElementById("activeCafes").textContent = fa(allCafes.filter(c => c.active !== false).length);
+    document.getElementById("inactiveCafes").textContent = fa(allCafes.filter(c => c.active === false).length);
+    document.getElementById("totalItems").textContent = fa(allCafes.reduce((s, c) => s + (c.itemsCount || 0), 0));
+  }
+
+  document.getElementById("searchBox").addEventListener("input", renderTable);
+  document.getElementById("filterStatus").addEventListener("change", renderTable);
+
+  function renderTable() {
+    const body = document.getElementById("cafesBody");
+    const q = document.getElementById("searchBox").value.trim().toLowerCase();
+    const status = document.getElementById("filterStatus").value;
+
+    let list = allCafes.filter(c => {
+      if (q && !(c.cafeName.toLowerCase().includes(q) || (c.ownerPhone || "").includes(q) || c.slug.includes(q))) return false;
+      if (status === "active" && c.active === false) return false;
+      if (status === "inactive" && c.active !== false) return false;
+      return true;
+    });
+
+    if (!list.length) { body.innerHTML = '<tr><td colspan="6" class="empty">موردی پیدا نشد</td></tr>'; return; }
+
+    body.innerHTML = list.map(c => {
+      const date = c.updatedAt || c.createdAt ? new Date(c.updatedAt || c.createdAt).toLocaleDateString("fa-IR") : "-";
+      const publicUrl = `https://menuproai.bytelabpro.xyz/USERS/${c.slug}/menu.html`;
+      const active = c.active !== false;
+      return `
+      <tr>
+        <td><div class="cafe-name">${esc(c.cafeName)}</div><div class="cafe-tagline">${esc(c.tagline || "-")}</div></td>
+        <td>${esc(c.ownerPhone)}</td>
+        <td><span class="badge ${active ? "badge-on" : "badge-off"}">${active ? "فعال" : "غیرفعال"}</span></td>
+        <td>${fa(c.itemsCount)}</td>
+        <td>${date}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-sm" onclick="window.open('${esc(publicUrl)}','_blank')">👁️ مشاهده</button>
+            <button class="btn-sm" style="border-color:var(--cyan);color:var(--cyan)" onclick="MPA.openCafe('${esc(c.slug)}')">⚙️ مدیریت</button>
+            <button class="btn-sm btn-danger" onclick="MPA.quickDelete('${esc(c.slug)}')">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  // ---------------- مودال جزئیات ----------------
+  const overlay = document.getElementById("cafeOverlay");
+  document.getElementById("closeModalBtn").addEventListener("click", closeCafeModal);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeCafeModal(); });
+
+  function closeCafeModal() { overlay.classList.remove("show"); currentCafe = null; }
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("pane-" + btn.dataset.tab).classList.add("active");
+      if (btn.dataset.tab === "orders") loadOrdersTab();
+    });
+  });
+
+  async function openCafe(slug) {
+    overlay.classList.add("show");
+    document.getElementById("modalTitle").textContent = "در حال بارگذاری...";
+    try {
+      const data = await menuApi("/api/menu/admin/get?slug=" + encodeURIComponent(slug), { method: "GET" });
+      currentCafe = data;
+      document.getElementById("modalTitle").textContent = "مدیریت: " + data.menu.cafeName;
+      fillInfoTab();
+      fillCatsTab();
+      fillItemsTab();
+      fillDiscountsTab();
+      fillStatsTab();
+      // برگشت به تب اول
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      document.querySelector('.tab-btn[data-tab="info"]').classList.add("active");
+      document.getElementById("pane-info").classList.add("active");
+    } catch (err) {
+      toast(err.message, true);
+      closeCafeModal();
+    }
+  }
+
+  function fillInfoTab() {
+    const m = currentCafe.menu;
+    document.getElementById("f-cafeName").value = m.cafeName || "";
+    document.getElementById("f-tagline").value = m.tagline || "";
+    document.getElementById("f-ownerPhone").value = m.ownerPhone || "";
+    document.getElementById("f-active").checked = m.active !== false;
+  }
+
+  document.getElementById("saveInfoBtn").addEventListener("click", async () => {
+    if (!currentCafe) return;
+    try {
+      const body = {
+        slug: currentCafe.menu.slug,
+        cafeName: document.getElementById("f-cafeName").value,
+        tagline: document.getElementById("f-tagline").value,
+        ownerPhone: document.getElementById("f-ownerPhone").value,
+        active: document.getElementById("f-active").checked,
+      };
+      const data = await menuApi("/api/menu/admin/update", { method: "POST", body: JSON.stringify(body) });
+      currentCafe.menu = data.menu;
+      toast("ذخیره شد ✅");
+      loadCafes();
+    } catch (err) { toast(err.message, true); }
+  });
+
+  document.getElementById("deleteCafeBtn").addEventListener("click", async () => {
+    if (!currentCafe) return;
+    if (!confirm(`مطمئنی می‌خوای کافه "${currentCafe.menu.cafeName}" رو کامل حذف کنی؟ این کار برگشت‌ناپذیره.`)) return;
+    try {
+      await menuApi("/api/menu/admin/delete", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug }) });
+      toast("کافه حذف شد");
+      closeCafeModal();
+      loadCafes();
+    } catch (err) { toast(err.message, true); }
+  });
+
+  document.getElementById("resetPassBtn").addEventListener("click", async () => {
+    if (!currentCafe) return;
+    const phone = currentCafe.menu.ownerPhone;
+    if (!phone) { toast("شماره مالک ثبت نشده.", true); return; }
+    const custom = prompt("رمز جدید رو وارد کن (حداقل ۴ کاراکتر) — اگه خالی بذاری، رمز تصادفی ساخته می‌شه:");
+    if (custom === null) return; // انصراف
+    try {
+      const data = await usersApi("/api/admin/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ phone, newPassword: custom || "" }),
+      });
+      prompt("رمز جدید کاربر (کپی کن و به کاربر بده):", data.newPassword);
+    } catch (err) { toast(err.message, true); }
+  });
+
+  document.getElementById("impersonateBtn").addEventListener("click", async () => {
+    if (!currentCafe) return;
+    const phone = currentCafe.menu.ownerPhone;
+    if (!phone) { toast("شماره مالک ثبت نشده.", true); return; }
+    try {
+      const data = await usersApi("/api/admin/impersonate", { method: "POST", body: JSON.stringify({ phone }) });
+      const url = `${IMPERSONATE_URL}?token=${encodeURIComponent(data.token)}&redirect=${encodeURIComponent(MENUPROAI_DASHBOARD_PAGE)}`;
+      window.open(url, "_blank");
+      toast("داشبورد منوساز کاربر تو تب جدید باز شد");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  // ---- دسته‌بندی‌ها ----
+  function fillCatsTab() {
+    const cats = currentCafe.menu.categories || [];
+    const list = document.getElementById("catsList");
+    list.innerHTML = cats.length ? cats.map(c => `
+      <div class="list-item">
+        <div class="info"><div class="t1">${esc(c.title)}</div></div>
+        <button class="btn-sm btn-danger" onclick="MPA.deleteCat('${esc(c.id)}')">حذف</button>
+      </div>`).join("") : '<div class="empty" style="padding:16px">دسته‌بندی‌ای ثبت نشده</div>';
+
+    const sel = document.getElementById("it-category");
+    sel.innerHTML = '<option value="">بدون دسته</option>' + cats.map(c => `<option value="${esc(c.id)}">${esc(c.title)}</option>`).join("");
+  }
+
+  document.getElementById("addCatBtn").addEventListener("click", async () => {
+    const title = document.getElementById("newCatTitle").value.trim();
+    if (!title) return;
+    try {
+      const data = await menuApi("/api/menu/admin/categories", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, title }) });
+      currentCafe.menu = data.menu;
+      document.getElementById("newCatTitle").value = "";
+      fillCatsTab(); fillItemsTab();
+      toast("دسته اضافه شد ✅");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  async function deleteCat(id) {
+    if (!confirm("این دسته حذف بشه؟")) return;
+    try {
+      const data = await menuApi("/api/menu/admin/categories/delete", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, id }) });
+      currentCafe.menu = data.menu;
+      fillCatsTab(); fillItemsTab();
+      toast("حذف شد");
+    } catch (err) { toast(err.message, true); }
+  }
+
+  // ---- محصولات ----
+  function fillItemsTab() {
+    const items = currentCafe.menu.items || [];
+    const cats = currentCafe.menu.categories || [];
+    const catTitle = (id) => (cats.find(c => c.id === id) || {}).title || "بدون دسته";
+    const list = document.getElementById("itemsList");
+    list.innerHTML = items.length ? items.map(it => `
+      <div class="list-item">
+        <div class="info">
+          <div class="t1">${esc(it.name)} — ${fa(it.price)} تومان</div>
+          <div class="t2">${esc(catTitle(it.category))}${it.desc ? " · " + esc(it.desc) : ""}</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm" onclick="MPA.editItem('${esc(it.id)}')">ویرایش</button>
+          <button class="btn-sm btn-danger" onclick="MPA.deleteItem('${esc(it.id)}')">حذف</button>
+        </div>
+      </div>`).join("") : '<div class="empty" style="padding:16px">محصولی ثبت نشده</div>';
+  }
+
+  function clearItemForm() {
+    document.getElementById("editItemId").value = "";
+    document.getElementById("it-name").value = "";
+    document.getElementById("it-category").value = "";
+    document.getElementById("it-price").value = "";
+    document.getElementById("it-calories").value = "";
+    document.getElementById("it-desc").value = "";
+  }
+  document.getElementById("clearItemBtn").addEventListener("click", clearItemForm);
+
+  function editItem(id) {
+    const it = currentCafe.menu.items.find(x => x.id === id);
+    if (!it) return;
+    document.getElementById("editItemId").value = it.id;
+    document.getElementById("it-name").value = it.name || "";
+    document.getElementById("it-category").value = it.category || "";
+    document.getElementById("it-price").value = it.price || "";
+    document.getElementById("it-calories").value = it.calories || "";
+    document.getElementById("it-desc").value = it.desc || "";
+    document.querySelector('.tab-btn[data-tab="items"]').click();
+  }
+
+  document.getElementById("saveItemBtn").addEventListener("click", async () => {
+    const id = document.getElementById("editItemId").value;
+    const body = {
+      slug: currentCafe.menu.slug,
+      name: document.getElementById("it-name").value,
+      category: document.getElementById("it-category").value,
+      price: document.getElementById("it-price").value,
+      calories: document.getElementById("it-calories").value,
+      desc: document.getElementById("it-desc").value,
+    };
+    if (!body.name.trim()) { toast("نام محصول الزامیه", true); return; }
+    try {
+      let data;
+      if (id) { body.id = id; data = await menuApi("/api/menu/admin/items/update", { method: "POST", body: JSON.stringify(body) }); }
+      else { data = await menuApi("/api/menu/admin/items", { method: "POST", body: JSON.stringify(body) }); }
+      currentCafe.menu = data.menu;
+      fillItemsTab();
+      clearItemForm();
+      toast("محصول ذخیره شد ✅");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  async function deleteItem(id) {
+    if (!confirm("این محصول حذف بشه؟")) return;
+    try {
+      const data = await menuApi("/api/menu/admin/items/delete", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, id }) });
+      currentCafe.menu = data.menu;
+      fillItemsTab();
+      toast("حذف شد");
+    } catch (err) { toast(err.message, true); }
+  }
+
+  // ---- تخفیف‌ها ----
+  function fillDiscountsTab() {
+    const list = document.getElementById("discountsList");
+    const discounts = currentCafe.discounts || [];
+    list.innerHTML = discounts.length ? discounts.map(d => `
+      <div class="list-item">
+        <div class="info">
+          <div class="t1">${esc(d.code)} — ${d.type === "percent" ? d.value + "٪" : fa(d.value) + " تومان"}</div>
+          <div class="t2">استفاده: ${fa(d.usedCount)}${d.maxUses ? " از " + fa(d.maxUses) : ""}${d.expiresAt ? " · انقضا: " + new Date(d.expiresAt).toLocaleDateString("fa-IR") : ""}</div>
+        </div>
+        <div class="actions">
+          <label class="switch"><input type="checkbox" ${d.active ? "checked" : ""} onchange="MPA.toggleDiscount('${esc(d.code)}', this.checked)"><span class="slider"></span></label>
+          <button class="btn-sm btn-danger" onclick="MPA.deleteDiscount('${esc(d.code)}')">حذف</button>
+        </div>
+      </div>`).join("") : '<div class="empty" style="padding:16px">کد تخفیفی ثبت نشده</div>';
+  }
+
+  document.getElementById("addDiscountBtn").addEventListener("click", async () => {
+    const body = {
+      slug: currentCafe.menu.slug,
+      code: document.getElementById("d-code").value,
+      type: document.getElementById("d-type").value,
+      value: document.getElementById("d-value").value,
+      maxUses: document.getElementById("d-maxUses").value,
+      expiresAt: document.getElementById("d-expiresAt").value || null,
+    };
+    try {
+      const data = await menuApi("/api/menu/admin/discounts", { method: "POST", body: JSON.stringify(body) });
+      currentCafe.discounts = data.discounts;
+      fillDiscountsTab();
+      document.getElementById("d-code").value = "";
+      document.getElementById("d-value").value = "";
+      toast("کد تخفیف اضافه شد ✅");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  async function toggleDiscount(code, active) {
+    try {
+      const data = await menuApi("/api/menu/admin/discounts/toggle", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, code, active }) });
+      currentCafe.discounts = data.discounts;
+      fillDiscountsTab();
+    } catch (err) { toast(err.message, true); }
+  }
+
+  async function deleteDiscount(code) {
+    if (!confirm("این کد تخفیف حذف بشه؟")) return;
+    try {
+      const data = await menuApi("/api/menu/admin/discounts/delete", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, code }) });
+      currentCafe.discounts = data.discounts;
+      fillDiscountsTab();
+      toast("حذف شد");
+    } catch (err) { toast(err.message, true); }
+  }
+
+  // ---- سفارش‌ها ----
+  async function loadOrdersTab() {
+    const list = document.getElementById("ordersList");
+    list.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
+    try {
+      const data = await menuApi("/api/menu/admin/orders?slug=" + encodeURIComponent(currentCafe.menu.slug), { method: "GET" });
+      const orders = data.orders || [];
+      if (!orders.length) { list.innerHTML = '<div class="empty">سفارشی ثبت نشده</div>'; return; }
+      const statusLabel = { new: "جدید", seen: "دیده‌شده", done: "انجام‌شده" };
+      list.innerHTML = orders.map(o => `
+        <div class="list-item">
+          <div class="info">
+            <div class="t1">${esc(o.customerName)} — ${fa(o.total)} تومان</div>
+            <div class="t2">${esc(o.customerPhone)} · ${new Date(o.createdAt).toLocaleString("fa-IR")}${o.note ? " · " + esc(o.note) : ""}</div>
+          </div>
+          <div class="actions">
+            <span class="badge badge-${o.status}">${statusLabel[o.status] || o.status}</span>
+            <select class="btn-sm" style="width:auto;margin:0" onchange="MPA.setOrderStatus('${esc(o.id)}', this.value)">
+              <option value="new" ${o.status==="new"?"selected":""}>جدید</option>
+              <option value="seen" ${o.status==="seen"?"selected":""}>دیده‌شده</option>
+              <option value="done" ${o.status==="done"?"selected":""}>انجام‌شده</option>
+            </select>
+          </div>
+        </div>`).join("");
+    } catch (err) {
+      list.innerHTML = `<div class="empty">❌ ${esc(err.message)}</div>`;
+    }
+  }
+
+  async function setOrderStatus(id, status) {
+    try {
+      await menuApi("/api/menu/admin/orders/status", { method: "POST", body: JSON.stringify({ slug: currentCafe.menu.slug, id, status }) });
+      toast("وضعیت سفارش بروز شد ✅");
+      loadOrdersTab();
+    } catch (err) { toast(err.message, true); }
+  }
+
+  // ---- آمار ----
+  function fillStatsTab() {
+    const a = currentCafe.analytics || {};
+    const body = document.getElementById("statsBody");
+    const topProducts = (a.popularProducts || []).slice(0, 5)
+      .map(p => `<div class="list-item"><div class="info"><div class="t1">${esc(p.name)}</div><div class="t2">${fa(p.qty)} فروش · ${fa(p.revenue)} تومان</div></div></div>`).join("") || '<div class="empty" style="padding:10px">داده‌ای نیست</div>';
+    const topHours = (a.peakHours || []).slice(0, 3)
+      .map(h => `${h.hour}:00 (${fa(h.count)} سفارش)`).join(" · ") || "-";
+
+    body.innerHTML = `
+      <div class="stats" style="margin-bottom:16px">
+        <div class="stat-card"><div class="number">${fa(a.totalOrders)}</div><div class="label">کل سفارش‌ها</div></div>
+        <div class="stat-card"><div class="number">${fa(a.totalRevenue)}</div><div class="label">کل درآمد (تومان)</div></div>
+        <div class="stat-card"><div class="number">${fa(a.revenueToday)}</div><div class="label">درآمد امروز</div></div>
+        <div class="stat-card"><div class="number">${fa(a.revenueWeek)}</div><div class="label">درآمد ۷ روز اخیر</div></div>
+      </div>
+      <div class="section-title">پرفروش‌ترین محصولات</div>
+      ${topProducts}
+      <div class="section-title">ساعات پرتقاضا</div>
+      <div style="color:var(--muted);font-size:13px">${topHours}</div>
+    `;
+  }
+
+  // ---- حذف سریع از جدول ----
+  async function quickDelete(slug) {
+    const cafe = allCafes.find(c => c.slug === slug);
+    if (!confirm(`مطمئنی می‌خوای کافه "${cafe ? cafe.cafeName : slug}" رو حذف کنی؟`)) return;
+    try {
+      await menuApi("/api/menu/admin/delete", { method: "POST", body: JSON.stringify({ slug }) });
+      toast("حذف شد");
+      loadCafes();
+    } catch (err) { toast(err.message, true); }
+  }
+
+  // ---- شروع ----
+  if (getToken()) showPanel();
+
+  window.MPA = {
+    openCafe, deleteCat, editItem, deleteItem, toggleDiscount, deleteDiscount,
+    setOrderStatus, quickDelete,
+  };
+})();
+</script>
+
+
+<script>
+(function(){
+  const API = window.MENU_API || "https://menuproai-api.bytelab.workers.dev";
+  const token = () => sessionStorage.getItem("menuproai_admin_token_v2") || "";
+  const esc2 = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  const fa2 = n => Number(n||0).toLocaleString("fa-IR");
+  async function gapi(path,opt={}){
+    const r=await fetch(API+path,{...opt,headers:{"Content-Type":"application/json","Authorization":"Bearer "+token(),...(opt.headers||{})}});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||"خطا در ارتباط با سرور");
+    return d;
+  }
+  function showGlobal(name){
+    document.querySelectorAll(".global-nav button").forEach(b=>b.classList.toggle("active",b.dataset.global===name));
+    document.querySelectorAll(".global-section").forEach(s=>s.classList.toggle("active",s.id==="global-"+name));
+    if(name==="home") loadOverview();
+    if(name==="users") loadUsers();
+    if(name==="activity") loadActivity();
+  }
+  document.querySelectorAll(".global-nav button").forEach(b=>b.addEventListener("click",()=>showGlobal(b.dataset.global)));
+  async function loadOverview(){
+    try{
+      const d=await gapi("/api/admin/global/overview"), s=d.stats||{};
+      const vals={gUsers:s.users,gCafes:s.cafes,gOrders:s.totalOrders,gRevenue:s.totalRevenue,gActiveCafes:s.activeCafes,gProducts:s.products,gNewUsers:s.newUsers7,gRevenueWeek:s.revenueWeek};
+      Object.entries(vals).forEach(([id,v])=>document.getElementById(id).textContent=fa2(v));
+      const ro=d.recentOrders||[];
+      document.getElementById("gRecentOrders").innerHTML=ro.length?ro.map(o=>`<div class="list-item"><div class="info"><div class="t1">${esc2(o.cafeName)} — ${fa2(o.total)} تومان</div><div class="t2">${new Date(o.createdAt||0).toLocaleString("fa-IR")} · ${esc2(o.customerName||"")}</div></div></div>`).join(""):'<div class="empty">سفارشی نیست</div>';
+      const ru=d.recentUsers||[];
+      document.getElementById("gRecentUsers").innerHTML=ru.length?ru.map(u=>`<div class="list-item"><div class="info"><div class="t1">${esc2(u.name||"بدون نام")}</div><div class="t2">${esc2(u.phone)} · ${new Date(u.createdAt||0).toLocaleDateString("fa-IR")}</div></div></div>`).join(""):'<div class="empty">کاربری نیست</div>';
+    }catch(e){ toast(e.message,true); }
+  }
+  async function loadUsers(){
+    const q=encodeURIComponent(document.getElementById("globalUserSearch").value.trim());
+    try{
+      const d=await gapi("/api/admin/global/users?q="+q), rows=d.users||[], body=document.getElementById("globalUsersBody");
+      body.innerHTML=rows.length?rows.map(u=>`<tr><td><b>${esc2(u.name||"—")}</b><div style="color:var(--muted)">${esc2(u.phone)}${u.email?" · "+esc2(u.email):""}</div></td><td>${esc2(u.cafeName||"—")}<div style="color:var(--muted)">${esc2(u.slug||"")}</div></td><td><span class="badge ${u.status==="blocked"?"badge-off":"badge-on"}">${u.status==="blocked"?"مسدود":"فعال"}</span></td><td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("fa-IR"):"—"}</td><td><div class="user-actions"><button class="btn-sm" onclick="MPG.toggleUser('${esc2(u.phone)}','${u.status==="blocked"?"active":"blocked"}')">${u.status==="blocked"?"فعال‌سازی":"مسدود"}</button><button class="btn-sm btn-violet" onclick="MPG.resetUser('${esc2(u.phone)}')">ریست رمز</button><button class="btn-sm btn-danger" onclick="MPG.deleteUser('${esc2(u.phone)}')">حذف</button></div></td></tr>`).join(""):'<tr><td colspan="5" class="empty">کاربری پیدا نشد</td></tr>';
+    }catch(e){toast(e.message,true)}
+  }
+  async function toggleUser(phone,status){try{await gapi("/api/admin/global/users/status",{method:"POST",body:JSON.stringify({phone,status})});toast("وضعیت کاربر تغییر کرد");loadUsers();}catch(e){toast(e.message,true)}}
+  async function resetUser(phone){const p=prompt("رمز جدید (حداقل ۶ کاراکتر):");if(p===null)return;try{const d=await gapi("/api/admin/global/users/reset-password",{method:"POST",body:JSON.stringify({phone,newPassword:p})});prompt("رمز جدید کاربر:",d.newPassword);toast("رمز تغییر کرد");}catch(e){toast(e.message,true)}}
+  async function deleteUser(phone){if(!confirm("حساب این کاربر حذف شود؟"))return;try{await gapi("/api/admin/global/users/delete",{method:"POST",body:JSON.stringify({phone})});toast("کاربر حذف شد");loadUsers();}catch(e){toast(e.message,true)}}
+  async function loadActivity(){try{const d=await gapi("/api/admin/global/activity"), rows=d.activities||[];document.getElementById("activityList").innerHTML=rows.length?rows.map(x=>`<div class="list-item"><div class="info"><div class="t1">${esc2(x.action)}</div><div class="t2">${new Date(x.createdAt).toLocaleString("fa-IR")} · ${esc2(JSON.stringify(x.meta||{}))}</div></div></div>`).join(""):'<div class="empty">لاگی ثبت نشده</div>'}catch(e){toast(e.message,true)}}
+  async function health(){try{const d=await gapi("/api/admin/global/health");document.getElementById("healthList").innerHTML=(d.checks||[]).map(x=>`<div class="health-row"><span><span class="dot ${x.ok?"ok":""}"></span>${esc2(x.name)}</span><span>${x.ok?"سالم":"خطا"} ${x.detail?"· "+esc2(x.detail):""}${x.error?"· "+esc2(x.error):""}</span></div>`).join("")}catch(e){toast(e.message,true)}}
+  async function exportAll(){try{document.getElementById("exportStatus").textContent="در حال ساخت خروجی...";const d=await gapi("/api/admin/global/export");const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="menuproai-global-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);document.getElementById("exportStatus").textContent="خروجی با موفقیت ساخته شد.";toast("فایل خروجی آماده شد ✅")}catch(e){toast(e.message,true);document.getElementById("exportStatus").textContent=e.message}}
+  document.getElementById("globalUserRefresh").addEventListener("click",loadUsers);
+  document.getElementById("globalUserSearch").addEventListener("input",()=>{clearTimeout(window.__gsearch);window.__gsearch=setTimeout(loadUsers,300)});
+  document.getElementById("healthBtn").addEventListener("click",health);
+  document.getElementById("exportBtn").addEventListener("click",exportAll);
+  window.MPG={toggleUser,resetUser,deleteUser};
+  const obs=new MutationObserver(()=>{const p=document.getElementById("panelBox");if(p&&p.style.display!=="none"&&!window.__globalLoaded){window.__globalLoaded=true;loadOverview();}});
+  obs.observe(document.getElementById("panelBox"),{attributes:true,attributeFilter:["style"]});
+})();
+</script>
+</body>
+</html>
