@@ -224,6 +224,30 @@
   .inventory-row,.activity-row{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}.inventory-row .meta,.activity-row .meta{flex:1;min-width:0}.inventory-row .name,.activity-row .name{font-weight:700;font-size:12.5px}.inventory-row .sub,.activity-row .sub{font-size:10.5px;color:var(--muted)}.low-stock{color:#ffd36b!important}.activity-row .time{font-size:10px;color:var(--muted);white-space:nowrap}
   .stat-grid.three{grid-template-columns:repeat(3,1fr)}
   @media(min-width:641px){.wrap,.topbar-inner{max-width:760px}.quick-tools{grid-template-columns:repeat(4,1fr)}.modal-backdrop{align-items:center}.bottom-nav{padding-left:max(6px,calc((100vw - 760px)/2));padding-right:max(6px,calc((100vw - 760px)/2))}}
+
+  /* ============ مرکز عملیات زنده v4 ============ */
+  .ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+  .ops-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:92px}
+  .ops-stat .num{font-size:24px;font-weight:900;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+  .ops-stat .lbl{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .ops-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .ops-action{background:var(--panel-2);border:1px solid var(--line);color:var(--paper);border-radius:14px;padding:14px 10px;text-align:center;font-family:inherit;font-weight:800;cursor:pointer}
+  .ops-action:hover{border-color:var(--cyan);background:rgba(77,240,201,.06)}
+  .ops-action .oa-ic{display:block;font-size:24px;margin-bottom:5px}
+  .ops-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;font-weight:800}
+  .ops-table-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .ops-table{border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:11px;text-align:center;cursor:pointer}
+  .ops-table.busy{border-color:#ffc266;background:rgba(255,194,102,.07)}
+  .ops-table.alert{border-color:var(--violet);background:rgba(156,123,255,.08)}
+  .ops-table .tno{font-size:15px;font-weight:900}.ops-table .tstate{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .ops-list{display:grid;gap:8px}.ops-order{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+  .ops-order .oid{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+  .ops-order .otitle{font-size:13px;font-weight:800}.ops-order .otime{font-size:10.5px;color:var(--muted)}
+  .mini-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:10.5px;border:1px solid var(--line);color:var(--muted)}
+  .mini-pill.hot{color:#ffc266;border-color:rgba(255,194,102,.4)}.mini-pill.ok{color:var(--cyan);border-color:rgba(77,240,201,.4)}.mini-pill.vio{color:var(--violet);border-color:rgba(156,123,255,.4)}
+  .ops-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px;background:var(--panel-2);border-radius:12px}
+  .pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 5px rgba(77,240,201,.08);margin-left:5px}
+  @media(min-width:641px){.ops-grid{grid-template-columns:repeat(4,1fr)}.ops-actions{grid-template-columns:repeat(4,1fr)}.ops-table-grid{grid-template-columns:repeat(5,1fr)}}
 </style>
 </head>
 <body>
@@ -612,6 +636,7 @@
   <button class="nav-btn" data-maintab="orders"><span class="ic">🧾</span>سفارش‌ها<span class="dot hidden" id="navOrdersDot">0</span></button>
   <button class="nav-btn" data-maintab="discounts"><span class="ic">🏷️</span>تخفیف‌ها</button>
   <button class="nav-btn" data-maintab="analytics"><span class="ic">📊</span>آمار</button>
+  <button class="nav-btn" data-maintab="ops"><span class="ic">⚡</span>عملیات</button>
   <button class="nav-btn" data-maintab="settings"><span class="ic">⚙️</span>تنظیمات</button>
 </div>
 
@@ -690,6 +715,7 @@ function switchMainTab(which){
   document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
   document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
   document.getElementById('settingsPane').classList.toggle('hidden', which !== 'settings');
+  document.getElementById('opsPane').classList.toggle('hidden', which !== 'ops');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
   if (which === 'orders'){
@@ -699,6 +725,7 @@ function switchMainTab(which){
   }
   if (which === 'discounts') loadDiscounts();
   if (which === 'analytics') loadAnalytics();
+  if (which === 'ops') loadOpsCenter();
 }
 
 /* ============ کدهای تخفیف ============ */
@@ -2123,11 +2150,9 @@ document.getElementById('saveInfoBtn').addEventListener('click', async () => {
 
 
 /* ============ ابزارهای سریع ============ */
-function openToolModal(title, bodyHtml, onReady){
-  const bd=document.getElementById('toolModalBackdrop'); const m=document.getElementById('toolModal');
-  m.innerHTML='<h3>'+title+'</h3>'+bodyHtml; bd.classList.remove('hidden'); if(onReady) onReady(m);
-}
-function closeToolModal(){document.getElementById('toolModalBackdrop').classList.add('hidden');}
+function ensureToolModal(){let bd=document.getElementById('toolModalBackdrop');if(!bd){bd=document.createElement('div');bd.className='modal-backdrop hidden';bd.id='toolModalBackdrop';bd.innerHTML='<div class="modal" id="toolModal"></div>';document.body.appendChild(bd);bd.addEventListener('click',e=>{if(e.target===bd)closeToolModal();});}return bd;}
+function openToolModal(title, bodyHtml, onReady){const bd=ensureToolModal();const m=document.getElementById('toolModal');m.innerHTML='<h3>'+title+'</h3>'+bodyHtml;bd.classList.remove('hidden');if(onReady)onReady(m);}
+function closeToolModal(){const bd=document.getElementById('toolModalBackdrop');if(bd)bd.classList.add('hidden');}
 document.addEventListener('click',e=>{if(e.target && e.target.id==='toolModalBackdrop')closeToolModal();});
 function openAddProductTool(){
   closeToolModal();
@@ -2160,9 +2185,41 @@ function downloadCsv(kind,list){const rows=kind==='products'?[['نام','دست�
 function openTablesTool(){switchMainTab('settings');setTimeout(()=>document.getElementById('tableGrid')?.scrollIntoView({behavior:'smooth',block:'start'}),80);loadTables();}
 async function loadInventory(){try{const d=await apiCall('/api/menu/inventory');inventory=d.inventory||[];renderInventory();}catch(e){document.getElementById('inventoryList').innerHTML='<p class="sub">'+escapeHtml(e.message)+'</p>';}}
 function renderInventory(){const b=document.getElementById('inventoryList'); if(!b)return; b.innerHTML=inventory.length?inventory.map(x=>`<div class="inventory-row"><div class="meta"><div class="name">${escapeHtml(x.name)}</div><div class="sub ${Number(x.qty)<=Number(x.minQty)?'low-stock':''}">${x.qty} ${escapeHtml(x.unit)} — حداقل ${x.minQty} ${escapeHtml(x.unit)}</div></div><button class="btn-danger btn-sm" data-inv-del="${x.id}">حذف</button></div>`).join(''):'<p class="sub">هنوز ماده اولیه‌ای ثبت نشده.</p>';b.querySelectorAll('[data-inv-del]').forEach(btn=>btn.onclick=async()=>{if(!confirm('این ماده حذف شود؟'))return;try{await apiCall('/api/menu/inventory/delete',{id:btn.dataset.invDel});loadInventory();}catch(e){alert(e.message)}});}
-document.getElementById('addInventoryBtn').addEventListener('click',async()=>{const name=document.getElementById('invName').value.trim();const qty=Number(document.getElementById('invQty').value)||0;const minQty=Number(document.getElementById('invMin').value)||0;const unit=document.getElementById('invUnit').value;if(!name){showMsg('inventoryMsg','نام ماده اولیه را وارد کن.','err');return}try{await apiCall('/api/menu/inventory',{name,qty,minQty,unit});document.getElementById('invName').value='';document.getElementById('invQty').value='';document.getElementById('invMin').value='';hideMsg('inventoryMsg');loadInventory();}catch(e){showMsg('inventoryMsg',e.message,'err')}});
+document.getElementById('addInventoryBtn')?.addEventListener('click',async()=>{const name=document.getElementById('invName').value.trim();const qty=Number(document.getElementById('invQty').value)||0;const minQty=Number(document.getElementById('invMin').value)||0;const unit=document.getElementById('invUnit').value;if(!name){showMsg('inventoryMsg','نام ماده اولیه را وارد کن.','err');return}try{await apiCall('/api/menu/inventory',{name,qty,minQty,unit});document.getElementById('invName').value='';document.getElementById('invQty').value='';document.getElementById('invMin').value='';hideMsg('inventoryMsg');loadInventory();}catch(e){showMsg('inventoryMsg',e.message,'err')}});
 async function loadActivity(){try{const d=await apiCall('/api/menu/activity');activityLog=d.activity||[];const b=document.getElementById('activityList');b.innerHTML=activityLog.length?activityLog.map(x=>`<div class="activity-row"><div class="meta"><div class="name">${escapeHtml(x.action)}</div><div class="sub">${escapeHtml(x.detail||'')}</div></div><div class="time">${timeAgo(x.createdAt)}</div></div>`).join(''):'<p class="sub">هنوز فعالیتی ثبت نشده.</p>';}catch(e){const b=document.getElementById('activityList');if(b)b.innerHTML='<p class="sub">'+escapeHtml(e.message)+'</p>';}}
 document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.tool;if(t==='add-product')openAddProductTool();if(t==='availability')openAvailabilityTool();if(t==='price')openPriceTool();if(t==='preview')openPreviewTool();if(t==='tables')openTablesTool();if(t==='inventory'){switchMainTab('settings');setTimeout(()=>{document.getElementById('inventoryList')?.scrollIntoView({behavior:'smooth',block:'start'});loadInventory()},80)}if(t==='export')openExportTool();if(t==='activity'){switchMainTab('settings');setTimeout(()=>{document.getElementById('activityList')?.scrollIntoView({behavior:'smooth',block:'start'});loadActivity()},80)}}));
+/* ============ مرکز عملیات زنده v4 ============ */
+function opsOpen(path){ if(path==='kds') window.location.href='kds.html'; else if(path==='display') openOpsDisplay(); else if(path==='tables') openTablesTool(); else if(path==='orders') switchMainTab('orders'); }
+function openOpsDisplay(){
+  const active=(orders||[]).filter(o=>o.status==='ready');
+  openToolModal('📺 نمایش سفارش‌های آماده', '<p class="sub">این صفحه برای نمایش روی مانیتور مشتری طراحی شده است.</p><div id="readyDisplayPreview" class="ops-list"></div><div class="modal-actions"><button class="btn-primary" id="openReadyScreen">باز کردن صفحه تمام‌صفحه</button><button class="btn-ghost" id="closeReadyScreen">بستن</button></div>',m=>{
+    m.querySelector('#readyDisplayPreview').innerHTML=active.length?active.map(o=>`<div class="ops-order"><div><div class="otitle">سفارش #${escapeHtml(String(o.id).slice(-6))}</div><div class="otime">${escapeHtml(o.customerName||('میز '+(o.tableNumber||'—')))}</div></div><span class="mini-pill ok">آماده</span></div>`).join(''):'<div class="ops-empty">فعلاً سفارشی آماده نیست.</div>';
+    m.querySelector('#closeReadyScreen').onclick=closeToolModal;
+    m.querySelector('#openReadyScreen').onclick=()=>{const w=window.open('','_blank','noopener');if(!w){alert('مرورگر اجازه باز کردن پنجره جدید را نداد.');return;}w.document.write(`<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>سفارش‌های آماده</title><style>body{margin:0;background:#070b12;color:#eaf0f4;font-family:Arial,sans-serif;padding:40px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.card{background:#141d2b;border:1px solid #4df0c9;border-radius:22px;padding:28px;text-align:center}.n{font-size:44px;font-weight:900;color:#4df0c9}.t{font-size:20px;margin-top:8px}</style></head><body><h1>🔔 سفارش‌های آماده</h1><div class="grid">${active.map(o=>`<div class="card"><div class="n">#${escapeHtml(String(o.id).slice(-6))}</div><div class="t">${escapeHtml(o.customerName||('میز '+(o.tableNumber||'—')))}</div></div>`).join('')||'<div class="card">در حال حاضر سفارشی آماده نیست.</div>'}</div></body></html>`);w.document.close();};
+  });
+}
+async function loadOpsCenter(){
+  try{ await loadOrders(); }catch(e){}
+  try{ await loadTables(); }catch(e){}
+  const list=orders||[]; const active=list.filter(o=>!['done','cancelled'].includes(o.status));
+  const calls=list.filter(o=>o.type==='call-waiter' && o.status!=='done');
+  document.getElementById('opsActiveOrders').textContent=active.length.toLocaleString('fa-IR');
+  document.getElementById('opsWaiterCalls').textContent=calls.length.toLocaleString('fa-IR');
+  const today=new Date().toDateString(); const sales=list.filter(o=>new Date(o.createdAt).toDateString()===today && o.type!=='call-waiter' && !['cancelled'].includes(o.status)).reduce((a,o)=>a+Number(o.total||0),0);
+  document.getElementById('opsTodaySales').textContent=(sales/1000000).toFixed(sales>=1000000?1:2)+'M';
+  const busyTables=new Set(active.map(o=>String(o.tableNumber||'')).filter(Boolean));
+  document.getElementById('opsBusyTables').textContent=busyTables.size.toLocaleString('fa-IR');
+  const tg=document.getElementById('opsTableGrid'); const tables=window.__opsTables||[];
+  tg.innerHTML=tables.length?tables.map(t=>{const busy=busyTables.has(String(t.label));const call=calls.some(o=>String(o.tableNumber)===String(t.label));return `<div class="ops-table ${busy?'busy':''} ${call?'alert':''}" data-ops-table="${escapeHtml(t.id)}"><div class="tno">${escapeHtml(t.label)}</div><div class="tstate">${call?'🔔 گارسون':busy?'🟠 درگیر':'🟢 آزاد'}</div></div>`}).join(''):'<div class="ops-empty" style="grid-column:1/-1">هنوز میزی ساخته نشده.</div>';
+  document.getElementById('opsOrderList').innerHTML=list.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8).map(o=>`<div class="ops-order"><div><div class="otitle">${o.type==='call-waiter'?'🔔 درخواست گارسون':'🧾 سفارش #'+escapeHtml(String(o.id).slice(-6))}</div><div class="otime">${escapeHtml(o.tableNumber?'میز '+o.tableNumber:(o.customerName||'بدون میز'))} · ${timeAgo(o.createdAt)}</div></div><span class="mini-pill ${o.status==='ready'?'ok':o.status==='preparing'?'hot':'vio'}">${escapeHtml(STATUS_LABEL[o.status]||o.status)}</span></div>`).join('')||'<div class="ops-empty">سفارشی ثبت نشده.</div>';
+  document.getElementById('opsLastRefresh').textContent='بروزرسانی '+new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+}
+// loadTables موجود پروژه خروجی‌اش را در tableGrid می‌ریزد؛ این wrapper همان داده را برای مرکز عملیات هم می‌گیرد.
+const _loadTablesV4=loadTables;
+loadTables=async function(){const r=await _loadTablesV4();try{const d=await apiCall('/api/menu/tables');window.__opsTables=d.tables||[];}catch(e){window.__opsTables=[];}return r;};
+document.querySelectorAll('[data-ops]').forEach(b=>b.addEventListener('click',()=>opsOpen(b.dataset.ops)));
+document.getElementById('opsRefresh')?.addEventListener('click',loadOpsCenter);
+
 /* ============ شروع ============ */
 (async function init(){
   if (BytelabAuth.isLoggedIn()){
