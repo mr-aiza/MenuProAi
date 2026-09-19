@@ -262,6 +262,7 @@
       <div class="cafe-tag" id="topbarBtype"></div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" id="topbarRefreshBtn" title="تازه‌سازی اطلاعات">↻</button>
       <button class="icon-btn" id="topbarOrdersBtn" title="سفارش‌ها">🧾<span class="dot hidden" id="topbarOrdersDot">0</span></button>
       <button class="icon-btn" id="topbarLogoutBtn" title="خروج">⎋</button>
     </div>
@@ -509,8 +510,12 @@
       </div>
 
       <div class="card">
-        <h2>کدهای تخفیف فعلی</h2>
-        <div id="discountsList"></div>
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h2 style="margin:0;">کدهای تخفیف فعلی</h2>
+          <button class="btn-ghost btn-sm" id="refreshDiscountsBtn">↻ تازه‌سازی</button>
+        </div>
+        <div class="msg" id="discountsLoadMsg"></div>
+        <div id="discountsList"><p class="sub">در حال دریافت…</p></div>
       </div>
     </div>
 
@@ -709,6 +714,19 @@ document.querySelectorAll('#bottomNav .nav-btn').forEach(btn => {
 });
 document.getElementById('topbarOrdersBtn').addEventListener('click', () => switchMainTab('orders'));
 
+document.getElementById('topbarRefreshBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('topbarRefreshBtn');
+  if (btn.dataset.busy === '1') return;
+  btn.dataset.busy = '1';
+  btn.textContent = '…';
+  try {
+    await refreshDashboardData();
+  } finally {
+    btn.dataset.busy = '0';
+    btn.textContent = '↻';
+  }
+});
+
 function switchMainTab(which){
   document.querySelectorAll('#bottomNav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.maintab === which));
   document.getElementById('menuPane').classList.toggle('hidden', which !== 'menu');
@@ -740,11 +758,22 @@ async function loadDiscounts(){
   try{
     const data = await apiCall('/api/menu/discounts');
     renderDiscounts(data.discounts || []);
+    hideMsg('discountsLoadMsg');
   }catch(e){
-    document.getElementById('discountsList').innerHTML =
-      '<p class="sub">هنوز کد تخفیفی نساخته‌اید.</p>';
+    const box = document.getElementById('discountsList');
+    if (box) box.innerHTML = '<p class="sub">'+escapeHtml(e.message || 'خطا در دریافت کدهای تخفیف')+'</p>';
+    showMsg('discountsLoadMsg', 'خطا در دریافت کدهای تخفیف: ' + e.message, 'err');
   }
 }
+
+document.getElementById('refreshDiscountsBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('refreshDiscountsBtn');
+  if (btn.dataset.busy === '1') return;
+  btn.dataset.busy = '1';
+  btn.textContent = '…';
+  try { await loadDiscounts(); }
+  finally { btn.dataset.busy = '0'; btn.textContent = '↻ تازه‌سازی'; }
+});
 
 function renderDiscounts(list){
   const box = document.getElementById('discountsList');
@@ -1441,6 +1470,26 @@ function currentBtypeMeta(){
   return BUSINESS_TYPES.find(b => b.id === (currentMenu && currentMenu.businessType)) || BUSINESS_TYPES[0];
 }
 
+/* ============ تازه‌سازی داده‌های داشبورد ============ */
+async function refreshDashboardData(){
+  try{
+    const data = await apiCall('/api/menu/mine');
+    currentMenu = data.menu;
+    const active = document.querySelector('#bottomNav .nav-btn.active')?.dataset.maintab || 'menu';
+    renderDashboard();
+    // renderDashboard خودش همه‌ی داده‌های اصلی را می‌گیرد؛ اینجا فقط تب فعال
+    // را دوباره می‌خوانیم تا نتیجه‌ی رفرش بلافاصله روی همان صفحه دیده شود.
+    if (active === 'orders') await loadOrders();
+    else if (active === 'discounts') await loadDiscounts();
+    else if (active === 'analytics') await loadAnalytics();
+    else if (active === 'ops') await loadOpsCenter();
+    else if (active === 'settings') { await loadTables(); await loadInventory(); await loadActivity(); }
+  }catch(e){
+    alert('تازه‌سازی انجام نشد: ' + (e.message || 'خطای نامشخص'));
+    throw e;
+  }
+}
+
 /* ============ رندر داشبورد ============ */
 function renderDashboard(){
   document.getElementById('introBlock').classList.add('hidden');
@@ -1459,6 +1508,11 @@ function renderDashboard(){
   renderMenuQrCode();
   loadInventory();
   loadActivity();
+  loadTables();
+  // داده‌های ذخیره‌شده را همان لحظه‌ی ورود به داشبورد هم بخوان؛
+  // قبلاً بعضی لیست‌ها فقط بعد از انجام یک تغییر تازه به‌روز می‌شدند.
+  loadDiscounts();
+  loadAnalytics();
 
   selectedCatId = null;
   renderCategories();
