@@ -225,9 +225,10 @@ async function handleAuthLogin(request, env) {
   const user = JSON.parse(raw);
   if (user.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
   user.lastLoginAt = new Date().toISOString();
-  await env.MENU_KV.put(key, JSON.stringify(user));
+  const key = "auth:user:" + phone;
   const hp = await hashPassword(password, user.salt);
   if (hp.hash !== user.passwordHash) return json({ error: "شماره یا رمز عبور اشتباه است." }, 401);
+  await env.MENU_KV.put(key, JSON.stringify(user));
   const token = await issueLocalSession(phone, env);
   return json({ ok: true, token, user: { phone, name: user.name, email: user.email || "" } }, 200);
 }
@@ -390,7 +391,9 @@ async function handleGetPublicMenu(slug, env) {
   if (menu.active === false) {
     return json({ error: "این منو موقتاً توسط مدیریت غیرفعال شده است." }, 403);
   }
-  return json({ menu }, 200);
+  const publicMenu = { ...menu };
+  delete publicMenu.ownerPhone;
+  return json({ menu: publicMenu }, 200);
 }
 
 // ------------------------------------------------------------
@@ -477,7 +480,7 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "fastfood-cards", "barber-classic", "clinic-appointment", "carwash-shine", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "shop-tag", "salon-studio", "salon-bloom", "restaurant-classic", "restaurant-gold", "classic-receipt", "fastfood-combo", "fastfood-cards", "barber-classic", "clinic-appointment", "carwash-shine", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid"];
 
 // هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
 // فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
@@ -488,7 +491,9 @@ const TEMPLATE_BUSINESS_TYPES = {
   "restaurant-classic": ["restaurant"],
   "shop-storefront": ["shop"],
   "shop-lookbook": ["shop"],
+  "shop-tag": ["shop"],
   "salon-studio": ["salon"],
+  "salon-bloom": ["salon"],
   "classic-receipt": ["cafe"],
   "fastfood-combo": ["restaurant"],
   "fastfood-cards": ["restaurant"],
@@ -531,13 +536,6 @@ async function handleUpdateInfo(request, env) {
   if (typeof body.template === "string") {
     if (!KNOWN_TEMPLATES.includes(body.template)) {
       return json({ error: "قالب انتخابی معتبر نیست." }, 400);
-    }
-    const effectiveBusinessType =
-      typeof body.businessType === "string" && BUSINESS_TYPES.includes(body.businessType)
-        ? body.businessType
-        : own.menu.businessType;
-    if (!templateMatchesBusinessType(body.template, effectiveBusinessType)) {
-      return json({ error: "این قالب مخصوص نوع کسب‌وکار دیگه‌ایه." }, 400);
     }
     own.menu.template = body.template;
   }
@@ -1929,7 +1927,12 @@ async function handleLoyaltyCustomerAdjust(request,env){
   return json({ok:true,customer:c});
 }
 async function handleLoyaltyProfile(request,env){
-  const url=new URL(request.url); const slug=slugify(url.searchParams.get('slug')||''); const authed=await getCustomerPhone(request,env); const phone=authed||loyaltySafePhone(url.searchParams.get('phone')||'');
+  const url=new URL(request.url); const slug=slugify(url.searchParams.get('slug')||'');
+  const authed=await getCustomerPhone(request,env);
+  const requested=loyaltySafePhone(url.searchParams.get('phone')||'');
+  if(!authed)return json({error:'برای مشاهده باشگاه مشتریان ابتدا وارد حساب مشتری شو.'},401);
+  if(requested && requested!==authed)return json({error:'دسترسی به حساب مشتری دیگر مجاز نیست.'},403);
+  const phone=authed;
   if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
   const raw=await env.MENU_KV.get('menu:'+slug);if(!raw)return json({error:'منو پیدا نشد.'},404);
   const settings=await loadLoyaltySettings(slug,env); const c=await loadLoyaltyCustomer(slug,phone,env); const rewards=(await loadLoyaltyRewards(slug,env)).filter(r=>r.active!==false);
@@ -1937,8 +1940,12 @@ async function handleLoyaltyProfile(request,env){
   return json({ok:true,enabled:settings.enabled!==false,customer:{...c,tierName:tier.name,tierMultiplier:tier.multiplier},nextTier:next?{...next,remaining:Math.max(0,Number(next.min)-Number(c.lifetimePoints||0))}:null,rewards});
 }
 async function handleLoyaltyRedeem(request,env){
+  const authed=await getCustomerPhone(request,env);
+  if(!authed)return json({error:'برای دریافت جایزه ابتدا وارد حساب مشتری شو.'},401);
   let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
-  const slug=slugify(body.slug); const phone=loyaltySafePhone(body.phone); if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
+  const slug=slugify(body.slug); const requested=loyaltySafePhone(body.phone); const phone=authed;
+  if(requested && requested!==phone)return json({error:'دسترسی به حساب مشتری دیگر مجاز نیست.'},403);
+  if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
   const rewards=await loadLoyaltyRewards(slug,env); const reward=rewards.find(r=>r.id===String(body.rewardId)&&r.active!==false); if(!reward)return json({error:'این جایزه در دسترس نیست.'},404);
   const c=await loadLoyaltyCustomer(slug,phone,env); if(Number(c.points||0)<Number(reward.pointsCost))return json({error:'امتیاز کافی نیست.'},400);
   const code=('LOY-'+Math.random().toString(36).slice(2,8)+'-'+Math.random().toString(36).slice(2,6)).toUpperCase();

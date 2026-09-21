@@ -1387,6 +1387,15 @@ const TEMPLATES = [
     tier: 'free',
   },
   {
+    id: 'restaurant-gold',
+    name: 'قالب رستوران — Gold',
+    desc: 'قالب رستورانی با ظاهر طلایی و تمرکز روی معرفی غذاها.',
+    img: '',
+    icon: '🥂',
+    businessType: ['restaurant'],
+    tier: 'free',
+  },
+  {
     id: 'fastfood-combo',
     name: 'قالب فست‌فود',
     desc: 'تابلوی نئونی پرانرژی — راه‌راه هشدار زرد-مشکی، نشان شماره‌ی کمبو روی هر آیتم، برای فست‌فود و ساندویچی.',
@@ -1467,6 +1476,15 @@ const TEMPLATES = [
     tier: 'free',
   },
   {
+    id: 'shop-tag',
+    name: 'قالب فروشگاهی — تگ',
+    desc: 'قالب فروشگاهی با تمرکز روی قیمت و برچسب‌های محصول.',
+    img: '',
+    icon: '🏷️',
+    businessType: ['shop'],
+    tier: 'free',
+  },
+  {
     id: 'carwash-shine',
     name: 'قالب کارواش',
     desc: 'آبی برق و شیشه‌ای با راه‌راه چهارخونه‌ی پرچم مسابقه زیر هر دسته — برای کارواش، دیتیلینگ و مراکز خدمات خودرو.',
@@ -1479,6 +1497,15 @@ const TEMPLATES = [
     name: 'قالب سالن زیبایی',
     desc: 'طراحی مخصوص نمایش خدمات آرایشگاه/سالن و دریافت درخواست نوبت.',
     img: 'portfolio/templates/salon-studio/salon-studio.png',
+    businessType: ['salon'],
+    tier: 'free',
+  },
+  {
+    id: 'salon-bloom',
+    name: 'قالب سالن — Bloom',
+    desc: 'قالب ظریف و گل‌دار برای سالن‌های زیبایی و خدمات مراقبتی.',
+    img: '',
+    icon: '🌸',
     businessType: ['salon'],
     tier: 'free',
   },
@@ -1565,7 +1592,7 @@ function renderSettingsTemplatePicker(){
   const grid = document.getElementById('tmplSettingsGrid');
   const activeId = (currentMenu && currentMenu.template) || 'classic-menu';
   const btypeId = (currentMenu && currentMenu.businessType) || 'cafe';
-  // فقط قالب‌های مخصوص همون نوع کسب‌وکار این کافه/فروشگاه/سالن رو نشون بده.
+  // همه قالب‌های فعال پلتفرم را نشان بده؛ نوع کسب‌وکار انتخاب قالب را محدود نمی‌کند.
   const list = templatesForBtype(btypeId);
   const free = list.filter(t => t.tier !== 'premium');
   const premium = list.filter(t => t.tier === 'premium');

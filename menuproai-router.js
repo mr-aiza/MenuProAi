@@ -48,7 +48,7 @@ async function resolveTemplateKey(slug) {
   try {
     const res = await fetch(
       MENUPROAI_API + "/api/menu/public/" + encodeURIComponent(slug),
-      { cf: { cacheTtl: 120, cacheEverything: true } }
+      { cf: { cacheTtl: 0, cacheEverything: false } }
     );
     if (!res.ok) return DEFAULT_TEMPLATE;
     const data = await res.json();
@@ -74,14 +74,14 @@ export default {
       const templateKey = await resolveTemplateKey(slug);
       const templateUrl = TEMPLATE_FILES[templateKey] || TEMPLATE_FILES[DEFAULT_TEMPLATE];
 
-      const res = await fetch(templateUrl, { cf: { cacheTtl: 300, cacheEverything: true } });
+      const res = await fetch(templateUrl, { cf: { cacheTtl: 0, cacheEverything: false }, cache: "no-store" });
       if (!res.ok) {
         return new Response("قالب صفحه در دسترس نیست", { status: 502 });
       }
       const html = await res.text();
       return new Response(html, {
         status: 200,
-        headers: { "Content-Type": "text/html; charset=utf-8" },
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store, no-cache, must-revalidate" },
       });
     } catch (e) {
       return new Response("خطا در بارگذاری صفحه", { status: 500 });
