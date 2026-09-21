@@ -251,45 +251,6 @@
   @media(min-width:641px){.ops-grid{grid-template-columns:repeat(4,1fr)}.ops-actions{grid-template-columns:repeat(4,1fr)}.ops-table-grid{grid-template-columns:repeat(5,1fr)}}
 
   .loyalty-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}.loyalty-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.loyalty-stat .num{font-size:20px;font-weight:900;color:var(--cyan)}.loyalty-stat .lbl{font-size:11px;color:var(--muted)}.loyalty-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px}.loyalty-row .meta{min-width:0;flex:1}.loyalty-row .name{font-weight:800;font-size:13px}.loyalty-row .sub{font-size:11px;margin:2px 0 0}.tier-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.tier-grid .tier{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px}.tier-grid input{margin-bottom:6px;font-size:13px}.reward-form{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;align-items:end}.reward-form input,.reward-form select{margin-bottom:0}.loyalty-table-search{display:flex;gap:8px}.loyalty-table-search input{margin-bottom:0}.loyalty-progress{height:7px;background:var(--panel-3);border-radius:999px;overflow:hidden;margin-top:7px}.loyalty-progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px}@media(max-width:520px){.reward-form{grid-template-columns:1fr 1fr}.reward-form input:first-child{grid-column:1/-1}}
-
-  /* ============ داشبورد همه‌کاره / خانه ============ */
-  .home-hero{background:linear-gradient(135deg,rgba(77,240,201,.12),rgba(156,123,255,.10));border-color:rgba(77,240,201,.28);}
-  .home-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-  .home-kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.2px;margin-bottom:3px;}
-  .home-title{font-size:22px;font-weight:900;}
-  .home-sub{font-size:12px;color:var(--muted);margin-top:4px;}
-  .live-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(77,240,201,.10);color:var(--cyan);font-size:10px;font-weight:800;white-space:nowrap;}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(77,240,201,.08);}
-  .home-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px;}
-  .home-kpi{background:rgba(15,22,32,.72);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0;}
-  .home-kpi .v{font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .home-kpi .l{font-size:10.5px;color:var(--muted);margin-top:2px;}
-  .home-kpi.accent .v{color:var(--cyan);}
-  .home-kpi.warn .v{color:#ffd36b;}
-  .home-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-  .home-action{border:1px solid var(--line);background:var(--panel-2);color:var(--paper);border-radius:13px;padding:12px 9px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;text-align:center;}
-  .home-action .ha-ic{font-size:20px;display:block;margin-bottom:3px;}
-  .home-action:hover{border-color:var(--cyan);}
-  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .home-mini{background:var(--panel-2);border:1px solid var(--line);border-radius:13px;padding:12px;}
-  .home-mini .hm-num{font-size:20px;font-weight:900;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
-  .home-mini .hm-label{font-size:10.5px;color:var(--muted);}
-  .home-list{display:flex;flex-direction:column;gap:7px;}
-  .home-list-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;font-size:11.5px;}
-  .home-list-row .main{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .home-list-row .meta{color:var(--muted);font-size:10px;white-space:nowrap;}
-  .home-alert{border-right:3px solid #ffd36b;background:rgba(255,211,107,.06);}
-  .home-alert.danger{border-right-color:var(--danger);background:rgba(255,138,138,.06);}
-  .home-empty{font-size:11.5px;color:var(--muted);padding:10px 0;text-align:center;}
-  .home-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
-  .home-section-title strong{font-size:14px;}
-  .home-section-title span{font-size:10.5px;color:var(--muted);}
-  .progress{height:7px;background:var(--panel);border-radius:999px;overflow:hidden;margin-top:8px;}
-  .progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px;width:0;}
-  @media(min-width:700px){
-    .home-kpis{grid-template-columns:repeat(4,1fr);}
-    .home-actions{grid-template-columns:repeat(4,1fr);}
-  }
 </style>
 </head>
 <body>
@@ -383,6 +344,45 @@
   <!-- ============ داشبورد اصلی (بعد از ساخت منو) ============ -->
   <div class="hidden" id="dashboardWrap" style="padding-top:14px;">
 
+
+  /* ============ داشبورد همه‌کاره / خانه ============ */
+  .home-hero{background:linear-gradient(135deg,rgba(77,240,201,.12),rgba(156,123,255,.10));border-color:rgba(77,240,201,.28);}
+  .home-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .home-kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.2px;margin-bottom:3px;}
+  .home-title{font-size:22px;font-weight:900;}
+  .home-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+  .live-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(77,240,201,.10);color:var(--cyan);font-size:10px;font-weight:800;white-space:nowrap;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(77,240,201,.08);}
+  .home-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px;}
+  .home-kpi{background:rgba(15,22,32,.72);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0;}
+  .home-kpi .v{font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .home-kpi .l{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .home-kpi.accent .v{color:var(--cyan);}
+  .home-kpi.warn .v{color:#ffd36b;}
+  .home-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .home-action{border:1px solid var(--line);background:var(--panel-2);color:var(--paper);border-radius:13px;padding:12px 9px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;text-align:center;}
+  .home-action .ha-ic{font-size:20px;display:block;margin-bottom:3px;}
+  .home-action:hover{border-color:var(--cyan);}
+  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .home-mini{background:var(--panel-2);border:1px solid var(--line);border-radius:13px;padding:12px;}
+  .home-mini .hm-num{font-size:20px;font-weight:900;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
+  .home-mini .hm-label{font-size:10.5px;color:var(--muted);}
+  .home-list{display:flex;flex-direction:column;gap:7px;}
+  .home-list-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;font-size:11.5px;}
+  .home-list-row .main{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .home-list-row .meta{color:var(--muted);font-size:10px;white-space:nowrap;}
+  .home-alert{border-right:3px solid #ffd36b;background:rgba(255,211,107,.06);}
+  .home-alert.danger{border-right-color:var(--danger);background:rgba(255,138,138,.06);}
+  .home-empty{font-size:11.5px;color:var(--muted);padding:10px 0;text-align:center;}
+  .home-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+  .home-section-title strong{font-size:14px;}
+  .home-section-title span{font-size:10.5px;color:var(--muted);}
+  .progress{height:7px;background:var(--panel);border-radius:999px;overflow:hidden;margin-top:8px;}
+  .progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px;width:0;}
+  @media(min-width:700px){
+    .home-kpis{grid-template-columns:repeat(4,1fr);}
+    .home-actions{grid-template-columns:repeat(4,1fr);}
+  }
     <!-- ---- خانه / داشبورد همه‌کاره ---- -->
     <div id="homePane">
       <div class="card home-hero">
@@ -1501,7 +1501,9 @@ let selectedTemplateId = null;
 const pendingTemplateFromUrl = new URLSearchParams(location.search).get('template');
 
 function templatesForBtype(btypeId){
-  return TEMPLATES.filter(t => t.businessType.includes(btypeId));
+  // کاربر می‌تواند بعد از ساخت منو بین تمام قالب‌های فعال پلتفرم جابه‌جا شود.
+  // نوع کسب‌وکار فقط برای متن‌ها/پیش‌فرض‌هاست و انتخاب قالب را محدود نمی‌کند.
+  return TEMPLATES.slice();
 }
 
 function tmplCardMedia(t){

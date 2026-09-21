@@ -225,7 +225,6 @@ async function handleAuthLogin(request, env) {
   const user = JSON.parse(raw);
   if (user.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
   user.lastLoginAt = new Date().toISOString();
-  const key = "auth:user:" + phone;
   await env.MENU_KV.put(key, JSON.stringify(user));
   const hp = await hashPassword(password, user.salt);
   if (hp.hash !== user.passwordHash) return json({ error: "شماره یا رمز عبور اشتباه است." }, 401);
@@ -478,7 +477,7 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "restaurant-classic", "restaurant-gold", "classic-receipt", "fastfood-combo", "fastfood-cards", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid", "shop-storefront", "shop-lookbook", "shop-tag", "carwash-shine", "salon-studio", "salon-bloom", "barber-classic", "clinic-appointment"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "fastfood-cards", "barber-classic", "clinic-appointment", "carwash-shine", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid"];
 
 // هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
 // فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
@@ -487,12 +486,9 @@ const TEMPLATE_BUSINESS_TYPES = {
   "classic-menu": ["cafe"],
   "modern-grid": ["cafe"],
   "restaurant-classic": ["restaurant"],
-  "restaurant-gold": ["restaurant"],
   "shop-storefront": ["shop"],
   "shop-lookbook": ["shop"],
-  "shop-tag": ["shop"],
   "salon-studio": ["salon"],
-  "salon-bloom": ["salon"],
   "classic-receipt": ["cafe"],
   "fastfood-combo": ["restaurant"],
   "fastfood-cards": ["restaurant"],
@@ -507,8 +503,10 @@ const TEMPLATE_BUSINESS_TYPES = {
   "luna-grid": ["cafe"],
 };
 function templateMatchesBusinessType(template, businessType) {
-  const allowed = TEMPLATE_BUSINESS_TYPES[template];
-  return !allowed || allowed.includes(businessType);
+  // همه قالب‌های موجود برای همه نوع کسب‌وکار قابل انتخاب‌اند.
+  // businessType همچنان برای اطلاعات و رفتارهای خود منو نگه داشته می‌شود،
+  // اما نباید جلوی تعویض ظاهر/قالب را بگیرد.
+  return KNOWN_TEMPLATES.includes(template);
 }
 
 async function handleUpdateInfo(request, env) {
@@ -534,8 +532,13 @@ async function handleUpdateInfo(request, env) {
     if (!KNOWN_TEMPLATES.includes(body.template)) {
       return json({ error: "قالب انتخابی معتبر نیست." }, 400);
     }
-    // تعویض قالب از داخل داشبورد عمداً بین همه قالب‌های ثبت‌شده آزاد است.
-    // محدودیت نوع کسب‌وکار فقط در مرحله ساخت اولیه منو اعمال می‌شود.
+    const effectiveBusinessType =
+      typeof body.businessType === "string" && BUSINESS_TYPES.includes(body.businessType)
+        ? body.businessType
+        : own.menu.businessType;
+    if (!templateMatchesBusinessType(body.template, effectiveBusinessType)) {
+      return json({ error: "این قالب مخصوص نوع کسب‌وکار دیگه‌ایه." }, 400);
+    }
     own.menu.template = body.template;
   }
   if (typeof body.businessType === "string") {
@@ -969,10 +972,6 @@ async function saveOrders(slug, orders, env) {
 async function handleCreateOrder(request, env) {
   const customerPhoneAuth = await getCustomerPhone(request, env);
   if (!customerPhoneAuth) return json({ error: "برای ثبت سفارش ابتدا وارد حساب مشتری شو." }, 401);
-  const customerRaw = await env.MENU_KV.get(customerUserKey(customerPhoneAuth));
-  if (!customerRaw) return json({ error: "حساب مشتری پیدا نشد. دوباره وارد شو." }, 401);
-  const customerUser = JSON.parse(customerRaw);
-  if (customerUser.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
 
   let body;
   try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
@@ -1000,6 +999,11 @@ async function handleCreateOrder(request, env) {
     lines.push({ id: menuItem.id, name: menuItem.name, price: menuItem.price, qty, lineTotal });
   }
   if (!lines.length) return json({ error: "هیچ‌کدام از آیتم‌های سبد خرید معتبر نیست." }, 400);
+
+  const customerRaw = await env.MENU_KV.get(customerUserKey(customerPhoneAuth));
+  if (!customerRaw) return json({ error: "حساب مشتری پیدا نشد. دوباره وارد شو." }, 401);
+  const customerUser = JSON.parse(customerRaw);
+  if (customerUser.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
 
   // نام و شماره از حساب تاییدشده گرفته می‌شود؛ کلاینت نمی‌تواند سفارش را
   // به نام/شماره شخص دیگری ثبت کند.
