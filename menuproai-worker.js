@@ -225,6 +225,7 @@ async function handleAuthLogin(request, env) {
   const user = JSON.parse(raw);
   if (user.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
   user.lastLoginAt = new Date().toISOString();
+  const key = "auth:user:" + phone;
   await env.MENU_KV.put(key, JSON.stringify(user));
   const hp = await hashPassword(password, user.salt);
   if (hp.hash !== user.passwordHash) return json({ error: "شماره یا رمز عبور اشتباه است." }, 401);
@@ -477,7 +478,7 @@ function randomId(prefix) {
 // ============================================================
 // قالب‌های معتبر — باید دقیقاً با کلیدهای TEMPLATE_FILES تو
 // menuproai-router.js و آرایه‌ی TEMPLATES تو dashboard.html یکی باشه.
-const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "shop-storefront", "shop-lookbook", "salon-studio", "restaurant-classic", "classic-receipt", "fastfood-combo", "fastfood-cards", "barber-classic", "clinic-appointment", "carwash-shine", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid"];
+const KNOWN_TEMPLATES = ["classic-menu", "modern-grid", "restaurant-classic", "restaurant-gold", "classic-receipt", "fastfood-combo", "fastfood-cards", "zoghali-noir", "bubble-pop", "editorial-leaf", "diet-filter", "ultra-gold", "luna-grid", "shop-storefront", "shop-lookbook", "shop-tag", "carwash-shine", "salon-studio", "salon-bloom", "barber-classic", "clinic-appointment"];
 
 // هر قالب فقط مخصوص کدوم نوع(های) کسب‌وکاره — قالب کافه نباید رو یه
 // فروشگاه ست بشه و برعکس. هر قالب جدیدی که اضافه می‌کنی، اینجا هم
@@ -486,9 +487,12 @@ const TEMPLATE_BUSINESS_TYPES = {
   "classic-menu": ["cafe"],
   "modern-grid": ["cafe"],
   "restaurant-classic": ["restaurant"],
+  "restaurant-gold": ["restaurant"],
   "shop-storefront": ["shop"],
   "shop-lookbook": ["shop"],
+  "shop-tag": ["shop"],
   "salon-studio": ["salon"],
+  "salon-bloom": ["salon"],
   "classic-receipt": ["cafe"],
   "fastfood-combo": ["restaurant"],
   "fastfood-cards": ["restaurant"],
@@ -530,13 +534,8 @@ async function handleUpdateInfo(request, env) {
     if (!KNOWN_TEMPLATES.includes(body.template)) {
       return json({ error: "قالب انتخابی معتبر نیست." }, 400);
     }
-    const effectiveBusinessType =
-      typeof body.businessType === "string" && BUSINESS_TYPES.includes(body.businessType)
-        ? body.businessType
-        : own.menu.businessType;
-    if (!templateMatchesBusinessType(body.template, effectiveBusinessType)) {
-      return json({ error: "این قالب مخصوص نوع کسب‌وکار دیگه‌ایه." }, 400);
-    }
+    // تعویض قالب از داخل داشبورد عمداً بین همه قالب‌های ثبت‌شده آزاد است.
+    // محدودیت نوع کسب‌وکار فقط در مرحله ساخت اولیه منو اعمال می‌شود.
     own.menu.template = body.template;
   }
   if (typeof body.businessType === "string") {
