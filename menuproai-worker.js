@@ -1199,6 +1199,7 @@ async function handleUpdateOrderStatus(request, env) {
   orders[idx].status = status;
   orders[idx].updatedAt = new Date().toISOString();
   await saveOrders(own.slug, orders, env);
+  if (status === 'done') await awardLoyaltyForOrder(own.slug, orders[idx], env);
   await addActivity(own.slug, env, "تغییر وضعیت سفارش", `${String(orders[idx].id).slice(-6)}: ${previousStatus} → ${status}`);
   return json({ ok: true, order: orders[idx] }, 200);
 }
@@ -1537,6 +1538,7 @@ async function handleAdminUpdateOrderStatus(request, env) {
   orders[idx].status = status;
   orders[idx].updatedAt = new Date().toISOString();
   await saveOrders(slug, orders, env);
+  if (status === 'done') await awardLoyaltyForOrder(slug, orders[idx], env);
   return json({ ok: true, order: orders[idx] }, 200);
 }
 
@@ -1700,6 +1702,162 @@ async function handleGlobalExport(request, env) {
   const cafes=[]; for(const slug of slugs){const raw=await env.MENU_KV.get('menu:'+slug);if(raw)try{const menu=JSON.parse(raw);cafes.push({menu,orders:await loadOrders(slug,env)})}catch{}}
   await globalLog(env,'ساخت Backup سراسری',{cafes:cafes.length,users:safeUsers.length});
   return json({ok:true,generatedAt:new Date().toISOString(),users:safeUsers,cafes});
+}
+
+
+// ============================================================
+// باشگاه مشتریان — Loyalty V1
+// ============================================================
+const LOYALTY_DEFAULTS = {
+  enabled: true,
+  pointsPerUnit: 1,
+  unitAmount: 1000,
+  firstOrderBonus: 50,
+  tiers: [
+    { id:'bronze', name:'برنزی', min:0, multiplier:1 },
+    { id:'silver', name:'نقره‌ای', min:500, multiplier:1.15 },
+    { id:'gold', name:'طلایی', min:1500, multiplier:1.35 },
+    { id:'platinum', name:'پلاتینی', min:4000, multiplier:1.6 }
+  ]
+};
+
+function loyaltyCustomerKey(slug, phone){ return 'loyalty:customer:' + slug + ':' + normalizePhone(phone); }
+function loyaltyLedgerPrefix(slug, phone){ return 'loyalty:ledger:' + slug + ':' + normalizePhone(phone) + ':'; }
+function loyaltyAwardKey(slug, orderId){ return 'loyalty:award:' + slug + ':' + orderId; }
+function loyaltySettingsKey(slug){ return 'loyalty:settings:' + slug; }
+function loyaltyRewardsKey(slug){ return 'loyalty:rewards:' + slug; }
+function loyaltySafePhone(v){ return normalizePhone(String(v||'').trim()); }
+function loyaltyDefaults(){ return JSON.parse(JSON.stringify(LOYALTY_DEFAULTS)); }
+function loyaltyTier(settings, lifetime){
+  const tiers=Array.isArray(settings.tiers)&&settings.tiers.length?settings.tiers:LOYALTY_DEFAULTS.tiers;
+  let current=tiers[0];
+  for(const t of tiers){ if(Number(lifetime)>=Number(t.min||0)) current=t; }
+  return current;
+}
+async function loadLoyaltySettings(slug,env){
+  const raw=await env.MENU_KV.get(loyaltySettingsKey(slug));
+  if(!raw) return loyaltyDefaults();
+  try { return {...loyaltyDefaults(),...JSON.parse(raw)}; } catch { return loyaltyDefaults(); }
+}
+async function saveLoyaltySettings(slug,settings,env){ await env.MENU_KV.put(loyaltySettingsKey(slug),JSON.stringify(settings)); }
+async function loadLoyaltyRewards(slug,env){
+  const raw=await env.MENU_KV.get(loyaltyRewardsKey(slug));
+  if(!raw) return [];
+  try{return JSON.parse(raw)||[]}catch{return []}
+}
+async function saveLoyaltyRewards(slug,list,env){ await env.MENU_KV.put(loyaltyRewardsKey(slug),JSON.stringify(list.slice(0,100))); }
+async function loadLoyaltyCustomer(slug,phone,env){
+  const p=loyaltySafePhone(phone); if(!p)return null;
+  const raw=await env.MENU_KV.get(loyaltyCustomerKey(slug,p));
+  if(raw) try{return JSON.parse(raw)}catch{}
+  return {phone:p,name:'',points:0,lifetimePoints:0,orders:0,totalSpent:0,tier:'bronze',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+}
+async function saveLoyaltyCustomer(slug,customer,env){ await env.MENU_KV.put(loyaltyCustomerKey(slug,customer.phone),JSON.stringify(customer)); }
+async function loyaltyAddLedger(slug,phone,entry,env){
+  const id=entry.id||randomId('loy');
+  await env.MENU_KV.put(loyaltyLedgerPrefix(slug,phone)+id,JSON.stringify({...entry,id,createdAt:entry.createdAt||new Date().toISOString()}));
+}
+async function loyaltyLedger(slug,phone,env){
+  const keys=await listAllKeys(env,loyaltyLedgerPrefix(slug,phone)); const rows=[];
+  for(const k of keys){const raw=await env.MENU_KV.get(k);if(raw)try{rows.push(JSON.parse(raw))}catch{}}
+  rows.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0)); return rows.slice(0,200);
+}
+async function awardLoyaltyForOrder(slug,order,env){
+  if(!order || order.type==='call-waiter' || order.status!=='done') return null;
+  const phone=loyaltySafePhone(order.customerPhone); if(!phone) return null;
+  const awardKey=loyaltyAwardKey(slug,order.id); if(await env.MENU_KV.get(awardKey)) return null;
+  const settings=await loadLoyaltySettings(slug,env); if(settings.enabled===false){await env.MENU_KV.put(awardKey,'disabled');return null;}
+  const customer=await loadLoyaltyCustomer(slug,phone,env);
+  if(!customer.name) customer.name=String(order.customerName||'').trim().slice(0,60);
+  const base=Math.max(0,Number(order.total)||0);
+  const firstBonus=customer.orders===0?Math.max(0,Number(settings.firstOrderBonus)||0):0;
+  const tier=loyaltyTier(settings,customer.lifetimePoints);
+  const mult=Math.max(0,Number(tier.multiplier)||1);
+  const earned=Math.floor(base/Math.max(1,Number(settings.unitAmount)||1000)*Math.max(0,Number(settings.pointsPerUnit)||1)*mult)+firstBonus;
+  customer.points=Math.max(0,Number(customer.points)||0)+earned;
+  customer.lifetimePoints=Math.max(0,Number(customer.lifetimePoints)||0)+earned;
+  customer.orders=Number(customer.orders||0)+1;
+  customer.totalSpent=Number(customer.totalSpent||0)+base;
+  customer.lastOrderAt=order.createdAt||new Date().toISOString();
+  customer.tier=loyaltyTier(settings,customer.lifetimePoints).id;
+  customer.updatedAt=new Date().toISOString();
+  await saveLoyaltyCustomer(slug,customer,env);
+  await loyaltyAddLedger(slug,phone,{type:'earn',amount:earned,balance:customer.points,orderId:order.id,description:'امتیاز سفارش '+String(order.id).slice(-6),meta:{subtotal:order.subtotal,total:order.total,firstBonus}},env);
+  await env.MENU_KV.put(awardKey,JSON.stringify({points:earned,at:new Date().toISOString()}));
+  return {earned,customer};
+}
+
+async function requireOwnSlug(request,env){
+  const phone=await getAuthedPhone(request,env); if(!phone)return {error:json({error:'لطفاً ابتدا وارد حساب کاربری شو.'},401)};
+  const own=await loadOwnMenu(phone,env); if(!own)return {error:json({error:'هنوز منویی نساخته‌اید.'},404)};
+  return {phone,own};
+}
+async function handleLoyaltySettings(request,env){
+  const auth=await requireOwnSlug(request,env); if(auth.error)return auth.error;
+  const slug=auth.own.slug;
+  if(request.method==='GET') return json({ok:true,settings:await loadLoyaltySettings(slug,env),rewards:await loadLoyaltyRewards(slug,env)});
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const base=await loadLoyaltySettings(slug,env);
+  const settings={...base,enabled:body.enabled!==false,pointsPerUnit:Math.max(0,Math.min(100,Number(body.pointsPerUnit)||1)),unitAmount:Math.max(100,Math.min(100000000,Number(body.unitAmount)||1000)),firstOrderBonus:Math.max(0,Math.min(100000,Number(body.firstOrderBonus)||0))};
+  if(Array.isArray(body.tiers)) settings.tiers=body.tiers.slice(0,6).map((t,i)=>({id:String(t.id||('tier'+i)).replace(/[^a-z0-9_-]/gi,'').slice(0,30),name:String(t.name||'سطح').slice(0,30),min:Math.max(0,Number(t.min)||0),multiplier:Math.max(0.1,Math.min(5,Number(t.multiplier)||1))}));
+  await saveLoyaltySettings(slug,settings,env);
+  await addActivity(slug,env,'تنظیمات باشگاه مشتریان','تنظیمات امتیاز و سطوح بروزرسانی شد');
+  return json({ok:true,settings});
+}
+async function handleLoyaltyRewards(request,env){
+  const auth=await requireOwnSlug(request,env); if(auth.error)return auth.error;
+  const slug=auth.own.slug;
+  if(request.method==='GET') return json({ok:true,rewards:await loadLoyaltyRewards(slug,env)});
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const list=await loadLoyaltyRewards(slug,env);
+  if(body.action==='delete'){
+    const next=list.filter(x=>x.id!==String(body.id)); await saveLoyaltyRewards(slug,next,env); return json({ok:true,rewards:next});
+  }
+  if(body.action==='toggle'){
+    const r=list.find(x=>x.id===String(body.id)); if(!r)return json({error:'جایزه پیدا نشد.'},404); r.active=body.active!==false; await saveLoyaltyRewards(slug,list,env); return json({ok:true,reward:r});
+  }
+  const title=String(body.title||'').trim().slice(0,80); const pointsCost=Math.max(1,Math.round(Number(body.pointsCost)||0));
+  const type=body.type==='fixed'?'fixed':'percent'; const value=Math.max(1,type==='percent'?Math.min(100,Number(body.value)||0):Math.round(Number(body.value)||0));
+  if(!title||!value)return json({error:'عنوان و مقدار جایزه الزامی است.'},400);
+  const reward={id:randomId('reward'),title,type,value,pointsCost,active:true,createdAt:new Date().toISOString()}; list.unshift(reward); await saveLoyaltyRewards(slug,list,env); return json({ok:true,reward});
+}
+async function handleLoyaltyCustomers(request,env){
+  const auth=await requireOwnSlug(request,env); if(auth.error)return auth.error;
+  const slug=auth.own.slug; const q=String(new URL(request.url).searchParams.get('q')||'').trim().toLowerCase();
+  const keys=await listAllKeys(env,'loyalty:customer:'+slug+':'); const rows=[];
+  for(const k of keys){const raw=await env.MENU_KV.get(k);if(raw)try{const c=JSON.parse(raw);if(!q||[c.phone,c.name,c.tier].some(v=>String(v||'').toLowerCase().includes(q)))rows.push(c)}catch{}}
+  rows.sort((a,b)=>(Number(b.points)||0)-(Number(a.points)||0));
+  const stats={customers:rows.length,points:rows.reduce((n,c)=>n+Number(c.points||0),0),lifetimePoints:rows.reduce((n,c)=>n+Number(c.lifetimePoints||0),0),spent:rows.reduce((n,c)=>n+Number(c.totalSpent||0),0),tiers:{}};
+  rows.forEach(c=>stats.tiers[c.tier]=(stats.tiers[c.tier]||0)+1);
+  return json({ok:true,customers:rows,stats});
+}
+async function handleLoyaltyCustomerAdjust(request,env){
+  const auth=await requireOwnSlug(request,env); if(auth.error)return auth.error;
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const phone=loyaltySafePhone(body.phone); const amount=Math.trunc(Number(body.amount)||0); if(!phone||!amount)return json({error:'شماره و مقدار امتیاز معتبر نیست.'},400);
+  const c=await loadLoyaltyCustomer(auth.own.slug,phone,env); c.points=Math.max(0,Number(c.points||0)+amount); if(amount>0)c.lifetimePoints=Number(c.lifetimePoints||0)+amount; c.tier=loyaltyTier(await loadLoyaltySettings(auth.own.slug,env),c.lifetimePoints).id;c.updatedAt=new Date().toISOString();await saveLoyaltyCustomer(auth.own.slug,c,env);
+  await loyaltyAddLedger(auth.own.slug,phone,{type:amount>0?'adjust_add':'adjust_sub',amount,balance:c.points,description:String(body.note||'تعدیل دستی امتیاز').slice(0,120)},env);
+  await addActivity(auth.own.slug,env,'تعدیل امتیاز مشتری',phone+' · '+amount);
+  return json({ok:true,customer:c});
+}
+async function handleLoyaltyProfile(request,env){
+  const url=new URL(request.url); const slug=slugify(url.searchParams.get('slug')||''); const phone=loyaltySafePhone(url.searchParams.get('phone')||'');
+  if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
+  const raw=await env.MENU_KV.get('menu:'+slug);if(!raw)return json({error:'منو پیدا نشد.'},404);
+  const settings=await loadLoyaltySettings(slug,env); const c=await loadLoyaltyCustomer(slug,phone,env); const rewards=(await loadLoyaltyRewards(slug,env)).filter(r=>r.active!==false);
+  const tier=loyaltyTier(settings,c.lifetimePoints); const tiers=settings.tiers||[]; const idx=tiers.findIndex(t=>t.id===tier.id); const next=tiers[idx+1]||null;
+  return json({ok:true,enabled:settings.enabled!==false,customer:{...c,tierName:tier.name,tierMultiplier:tier.multiplier},nextTier:next?{...next,remaining:Math.max(0,Number(next.min)-Number(c.lifetimePoints||0))}:null,rewards});
+}
+async function handleLoyaltyRedeem(request,env){
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const slug=slugify(body.slug); const phone=loyaltySafePhone(body.phone); if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
+  const rewards=await loadLoyaltyRewards(slug,env); const reward=rewards.find(r=>r.id===String(body.rewardId)&&r.active!==false); if(!reward)return json({error:'این جایزه در دسترس نیست.'},404);
+  const c=await loadLoyaltyCustomer(slug,phone,env); if(Number(c.points||0)<Number(reward.pointsCost))return json({error:'امتیاز کافی نیست.'},400);
+  const code=('LOY-'+Math.random().toString(36).slice(2,8)+'-'+Math.random().toString(36).slice(2,6)).toUpperCase();
+  const discounts=await loadDiscounts(slug,env); discounts.push({code,type:reward.type,value:Number(reward.value),maxUses:1,usedCount:0,expiresAt:new Date(Date.now()+30*86400000).toISOString().slice(0,10),active:true,loyaltyRewardId:reward.id}); await saveDiscounts(slug,discounts,env);
+  c.points=Number(c.points||0)-Number(reward.pointsCost);c.tier=loyaltyTier(await loadLoyaltySettings(slug,env),c.lifetimePoints).id;c.updatedAt=new Date().toISOString();await saveLoyaltyCustomer(slug,c,env);
+  await loyaltyAddLedger(slug,phone,{type:'redeem',amount:-Number(reward.pointsCost),balance:c.points,description:'دریافت جایزه: '+reward.title,meta:{rewardId:reward.id,code}},env);
+  return json({ok:true,code,expiresAt:discounts[discounts.length-1].expiresAt,reward,customer:c});
 }
 
 // ============================================================
@@ -1875,6 +2033,12 @@ export default {
         return await handleAdminUpdateOrderStatus(request, env);
       }
 
+      if (url.pathname === "/api/menu/loyalty/settings" && (request.method === "GET" || request.method === "POST")) return await handleLoyaltySettings(request, env);
+      if (url.pathname === "/api/menu/loyalty/rewards" && (request.method === "GET" || request.method === "POST")) return await handleLoyaltyRewards(request, env);
+      if (url.pathname === "/api/menu/loyalty/customers" && request.method === "GET") return await handleLoyaltyCustomers(request, env);
+      if (url.pathname === "/api/menu/loyalty/customers/adjust" && request.method === "POST") return await handleLoyaltyCustomerAdjust(request, env);
+      if (url.pathname === "/api/menu/loyalty/profile" && request.method === "GET") return await handleLoyaltyProfile(request, env);
+      if (url.pathname === "/api/menu/loyalty/redeem" && request.method === "POST") return await handleLoyaltyRedeem(request, env);
       if (url.pathname === "/api/admin/global/overview" && request.method === "GET") return await handleGlobalOverview(request, env);
       if (url.pathname === "/api/admin/global/users" && request.method === "GET") return await handleGlobalUsers(request, env);
       if (url.pathname === "/api/admin/global/users/status" && request.method === "POST") return await handleGlobalUserStatus(request, env);
