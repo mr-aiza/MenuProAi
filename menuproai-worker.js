@@ -2078,7 +2078,16 @@ async function handleLoyaltyProfile(request,env){
   const phone=authed;
   if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
   const raw=await env.MENU_KV.get('menu:'+slug);if(!raw)return json({error:'منو پیدا نشد.'},404);
-  const settings=await loadLoyaltySettings(slug,env); const c=await loadLoyaltyCustomer(slug,phone,env); const rewards=(await loadLoyaltyRewards(slug,env)).filter(r=>r.active!==false);
+  const settings=await loadLoyaltySettings(slug,env);
+  // Backfill completed historical orders for this customer. This keeps loyalty data correct
+  // when the loyalty feature is enabled after customers already placed orders.
+  if(settings.enabled!==false){
+    const orders=await loadOrders(slug,env);
+    const mine=orders.filter(o=>o.type!=='call-waiter' && o.status==='done' && loyaltySafePhone(o.customerPhone||'')===phone)
+      .sort((a,b)=>Date.parse(a.createdAt||0)-Date.parse(b.createdAt||0));
+    for(const order of mine) await awardLoyaltyForOrder(slug,order,env);
+  }
+  const c=await loadLoyaltyCustomer(slug,phone,env); const rewards=(await loadLoyaltyRewards(slug,env)).filter(r=>r.active!==false);
   const tier=loyaltyTier(settings,c.lifetimePoints); const tiers=settings.tiers||[]; const idx=tiers.findIndex(t=>t.id===tier.id); const next=tiers[idx+1]||null;
   return json({ok:true,enabled:settings.enabled!==false,customer:{...c,tierName:tier.name,tierMultiplier:tier.multiplier},nextTier:next?{...next,remaining:Math.max(0,Number(next.min)-Number(c.lifetimePoints||0))}:null,rewards});
 }

@@ -193,7 +193,7 @@ button{cursor:pointer}
 .featured-head h3{font-size:17px;font-weight:900}
 .featured-head p{font-size:9.5px;color:var(--muted)}
 .featured-track{
-  display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 36px)/4);
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-flow:row;
   gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 2px 8px;
 }
 .featured-track::-webkit-scrollbar{display:none}
@@ -215,7 +215,7 @@ button{cursor:pointer}
 
 /* Premium showcase images: show the complete sample instead of cropping it. */
 .featured-img{
-  aspect-ratio:.72/1;
+  aspect-ratio:1.38/1;
   padding:7px;
   background:
     radial-gradient(circle at 50% 30%,rgba(242,200,102,.10),transparent 58%),
@@ -307,7 +307,7 @@ footer a{color:var(--cyan)}
 /* responsive */
 @media(max-width:1050px){
   .grid{grid-template-columns:repeat(3,1fr)}
-  .featured-track{grid-auto-columns:calc((100% - 24px)/3)}
+  .featured-track{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:800px){
   .container{width:min(100% - 24px,1240px)}
@@ -319,7 +319,7 @@ footer a{color:var(--cyan)}
   .toolbar{grid-template-columns:1fr;top:73px}
   .filters{order:2}
   .grid{grid-template-columns:repeat(2,1fr)}
-  .featured-track{grid-auto-columns:calc((100% - 12px)/2)}
+  .featured-track{grid-auto-columns:minmax(0,1fr);grid-template-columns:repeat(2,minmax(0,1fr));overflow-x:visible}
   .mobile-nav{display:flex}
   footer{padding-bottom:94px}
 }
@@ -354,7 +354,7 @@ footer a{color:var(--cyan)}
   .featured-wrap{padding:12px;border-radius:20px}
   .featured-head h3{font-size:15px}
   .featured-head p{display:none}
-  .featured-track{grid-auto-columns:78%}
+  .featured-track{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr;overflow-x:visible}
   .featured-body{padding:9px}
   .featured-actions .btn{min-height:32px}
 }
@@ -421,7 +421,7 @@ footer a{color:var(--cyan)}
 
   <div class="container stats" aria-label="آمار قالب‌ها">
     <div class="stat"><strong id="statTotal">۰</strong><span>قالب آماده</span></div>
-    <div class="stat"><strong>۵</strong><span>دسته‌بندی کاربردی</span></div>
+    <div class="stat"><strong>۴</strong><span>دسته‌بندی کاربردی</span></div>
     <div class="stat"><strong>۲</strong><span>قالب ویژه</span></div>
   </div>
 
@@ -440,7 +440,6 @@ footer a{color:var(--cyan)}
         <input id="templateSearch" type="search" placeholder="جستجوی قالب؛ کافه، رستوران، فست‌فود..." autocomplete="off">
       </label>
       <div class="filters" id="filters" role="tablist" aria-label="فیلتر قالب‌ها">
-        <button class="filter active" data-filter="all">▦ همه</button>
         <button class="filter" data-filter="cafe">☕ کافه</button>
         <button class="filter" data-filter="restaurant">🍽️ رستوران</button>
         <button class="filter" data-filter="shop">🛍️ فروشگاه</button>
@@ -451,10 +450,9 @@ footer a{color:var(--cyan)}
     <section class="featured-wrap reveal" aria-label="قالب‌های ویژه">
       <div class="featured-head">
         <div>
-          <h3>👑 قالب‌های ویژه</h3>
+          <h3>قالب‌های ویژه 👑</h3>
           <p>فقط قالب‌های ویژه؛ برای مشاهده کامل، روی هر نمونه بزن.</p>
         </div>
-        <span class="count-pill">فقط ویژه ⭐</span>
       </div>
       <div class="featured-track" id="featuredTrack"></div>
     </section>
@@ -574,7 +572,7 @@ function renderFeatured(){
 }
 function render(){
   const q=search.value.trim();
-  const list=TEMPLATES.filter(t=>matches(t,q));
+  const list=TEMPLATES.filter(t=>t.tier!=='premium' && matches(t,q));
   grid.innerHTML=list.map(card).join('');
   empty.classList.toggle('show',list.length===0);
   count.textContent=`${toFa(list.length)} قالب`;
