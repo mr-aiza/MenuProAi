@@ -232,6 +232,18 @@ button{cursor:pointer}
 }
 .featured-card:hover .featured-img img{transform:scale(1.015)}
 
+/* graphic header poster */
+.hero-poster-wrap{padding:30px 0 8px}
+.hero-poster{display:block;position:relative;max-width:980px;margin:0 auto;border-radius:28px;overflow:hidden;border:1px solid rgba(83,137,255,.24);background:#06101f;box-shadow:0 28px 90px rgba(0,0,0,.42),0 0 70px rgba(62,111,255,.10);transition:transform .25s ease,box-shadow .25s ease}
+.hero-poster:hover{transform:translateY(-3px);box-shadow:0 34px 100px rgba(0,0,0,.5),0 0 85px rgba(62,111,255,.16)}
+.hero-poster img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain;background:#06101f}
+.hero-poster-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px}
+@media(max-width:720px){
+  .hero-poster-wrap{padding:18px 10px 6px}
+  .hero-poster{border-radius:20px}
+  .hero-poster-actions{margin-top:12px}
+}
+
 /* all templates */
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
 .card{
@@ -395,27 +407,13 @@ footer a{color:var(--cyan)}
 </header>
 
 <main>
-  <section class="hero container">
-    <div class="hero-copy">
-      <span class="eyebrow">✨ منوی دیجیتال حرفه‌ای، آماده برای کسب‌وکار شما</span>
-      <h1>قالب دلخواهت رو <span>انتخاب کن</span></h1>
-      <p>قالب‌های آماده و قابل شخصی‌سازی MenuProAI را ببین، جستجو کن و قبل از شروع، منوی واقعی را با پیش‌نمایش زنده بررسی کن.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#templates">✨ مشاهده قالب‌ها</a>
-        <a class="btn btn-ghost" href="dashboard.html">🚀 ساخت منوی جدید</a>
-      </div>
-    </div>
-
-    <div class="hero-visual" aria-hidden="true">
-      <div class="orbit"></div>
-      <div class="phone-glow"></div>
-      <div class="phone">
-        <div class="phone-screen">
-          <img src="portfolio/templates/ultra-gold/ultra-gold.png" alt="پیش‌نمایش قالب ویژه Ultra Gold">
-        </div>
-      </div>
-      <div class="float-card float-one">👑 قالب ویژه <b>Premium</b></div>
-      <div class="float-card float-two">✨ پیش‌نمایش زنده <b>✓</b></div>
+  <section class="hero-poster-wrap container" aria-label="معرفی MenuProAI">
+    <a class="hero-poster" href="#templates" aria-label="مشاهده قالب‌های MenuProAI">
+      <img src="assets/menuproai-header-poster.png" alt="پوستر گرافیکی MenuProAI و معرفی قالب‌های منوی دیجیتال" fetchpriority="high">
+    </a>
+    <div class="hero-poster-actions">
+      <a class="btn btn-primary" href="#templates">✨ مشاهده قالب‌ها</a>
+      <a class="btn btn-ghost" href="dashboard.html">🚀 ساخت منوی جدید</a>
     </div>
   </section>
 
