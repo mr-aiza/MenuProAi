@@ -120,6 +120,83 @@ async function issueLocalSession(phone, env) {
   return token;
 }
 
+
+// ============================================================
+// حساب مشتری منوی دیجیتال
+// جدا از حساب صاحب کافه است تا مشتری بتواند یک حساب امن و دائمی
+// داشته باشد و سفارش‌ها/امتیازهایش با شماره موبایل خودش ثبت شوند.
+// ============================================================
+const CUSTOMER_SESSION_TTL = 60 * 60 * 24 * 90; // 90 روز
+
+function customerUserKey(phone){ return "customer:user:" + normalizePhone(phone); }
+function customerSessionKey(token){ return "customer:session:" + token; }
+
+async function issueCustomerSession(phone, env){
+  const token = bytesToHex(crypto.getRandomValues(new Uint8Array(32)));
+  await env.MENU_KV.put(customerSessionKey(token), normalizePhone(phone), { expirationTtl: CUSTOMER_SESSION_TTL });
+  return token;
+}
+
+async function getCustomerPhone(request, env){
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if(!token) return null;
+  const phone = await env.MENU_KV.get(customerSessionKey(token));
+  return phone ? normalizePhone(phone) : null;
+}
+
+async function handleCustomerRegister(request, env){
+  let body; try{ body=await request.json(); }catch{return json({error:"بدنه درخواست نامعتبر است."},400);}
+  const phone=normalizePhone(body.phone);
+  const name=String(body.name||"").trim().slice(0,80);
+  const password=String(body.password||"");
+  if(!isValidPhone(phone)) return json({error:"شماره موبایل معتبر نیست."},400);
+  if(name.length<2) return json({error:"نام را وارد کن."},400);
+  if(password.length<6) return json({error:"رمز عبور باید حداقل ۶ کاراکتر باشد."},400);
+  const key=customerUserKey(phone);
+  if(await env.MENU_KV.get(key)) return json({error:"این شماره قبلاً حساب دارد. وارد حساب شو."},409);
+  const hp=await hashPassword(password);
+  const user={phone,name,passwordHash:hp.hash,salt:hp.salt,status:"active",createdAt:new Date().toISOString(),lastLoginAt:new Date().toISOString()};
+  await env.MENU_KV.put(key,JSON.stringify(user));
+  const token=await issueCustomerSession(phone,env);
+  return json({ok:true,token,user:{phone,name}},200);
+}
+
+async function handleCustomerLogin(request, env){
+  let body; try{ body=await request.json(); }catch{return json({error:"بدنه درخواست نامعتبر است."},400);}
+  const phone=normalizePhone(body.phone);
+  const password=String(body.password||"");
+  if(!isValidPhone(phone)||!password) return json({error:"شماره موبایل و رمز عبور را وارد کن."},400);
+  const key=customerUserKey(phone);
+  const raw=await env.MENU_KV.get(key);
+  if(!raw) return json({error:"حساب مشتری پیدا نشد. ابتدا ثبت‌نام کن."},401);
+  const user=JSON.parse(raw);
+  if(user.status==="blocked") return json({error:"این حساب توسط مدیریت مسدود شده است."},403);
+  const hp=await hashPassword(password,user.salt);
+  if(hp.hash!==user.passwordHash) return json({error:"شماره موبایل یا رمز عبور اشتباه است."},401);
+  user.lastLoginAt=new Date().toISOString();
+  await env.MENU_KV.put(key,JSON.stringify(user));
+  const token=await issueCustomerSession(phone,env);
+  return json({ok:true,token,user:{phone,name:user.name}},200);
+}
+
+async function handleCustomerMe(request, env){
+  const phone=await getCustomerPhone(request,env);
+  if(!phone) return json({authenticated:false},200);
+  const raw=await env.MENU_KV.get(customerUserKey(phone));
+  if(!raw) return json({authenticated:false},200);
+  const u=JSON.parse(raw);
+  if(u.status==="blocked") return json({authenticated:false},200);
+  return json({authenticated:true,user:{phone,name:u.name}},200);
+}
+
+async function handleCustomerLogout(request, env){
+  const authHeader=request.headers.get("Authorization")||"";
+  const token=authHeader.startsWith("Bearer ")?authHeader.slice(7).trim():"";
+  if(token) await env.MENU_KV.delete(customerSessionKey(token));
+  return json({ok:true},200);
+}
+
 async function handleAuthRegister(request, env) {
   let body; try { body = await request.json(); } catch { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
   const phone = normalizePhone(body.phone);
@@ -891,6 +968,9 @@ async function saveOrders(slug, orders, env) {
 }
 
 async function handleCreateOrder(request, env) {
+  const customerPhoneAuth = await getCustomerPhone(request, env);
+  if (!customerPhoneAuth) return json({ error: "برای ثبت سفارش ابتدا وارد حساب مشتری شو." }, 401);
+
   let body;
   try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
 
@@ -918,10 +998,16 @@ async function handleCreateOrder(request, env) {
   }
   if (!lines.length) return json({ error: "هیچ‌کدام از آیتم‌های سبد خرید معتبر نیست." }, 400);
 
-  const customerName = String(body.customerName || "").trim().slice(0, 60);
-  const customerPhone = String(body.customerPhone || "").trim().slice(0, 20);
-  if (!customerName) return json({ error: "نام مشتری الزامی است." }, 400);
-  if (!customerPhone) return json({ error: "شماره تلفن مشتری الزامی است." }, 400);
+  const customerRaw = await env.MENU_KV.get(customerUserKey(customerPhoneAuth));
+  if (!customerRaw) return json({ error: "حساب مشتری پیدا نشد. دوباره وارد شو." }, 401);
+  const customerUser = JSON.parse(customerRaw);
+  if (customerUser.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
+
+  // نام و شماره از حساب تاییدشده گرفته می‌شود؛ کلاینت نمی‌تواند سفارش را
+  // به نام/شماره شخص دیگری ثبت کند.
+  const customerName = String(customerUser.name || "").trim().slice(0, 60);
+  const customerPhone = customerPhoneAuth;
+  if (!customerName) return json({ error: "نام حساب مشتری معتبر نیست." }, 400);
 
   // اعمال کد تخفیف — همیشه سمت سرور محاسبه می‌شه، به قیمت/تخفیفی که کلاینت فرستاده اعتماد نمی‌کنیم
   const subtotal = total;
@@ -1016,13 +1102,13 @@ async function handleCallWaiter(request, env) {
 async function handleGetOrderHistory(request, env) {
   const url = new URL(request.url);
   const slug = slugify(url.searchParams.get("slug") || "");
-  const phoneRaw = String(url.searchParams.get("phone") || "").trim().slice(0, 20);
+  const customerPhone = await getCustomerPhone(request, env);
   if (!slug) return json({ error: "اسلاگ کافه مشخص نیست." }, 400);
-  if (!phoneRaw) return json({ error: "شماره تلفن مشخص نیست." }, 400);
+  if (!customerPhone) return json({ error: "برای دیدن سفارش‌ها ابتدا وارد حساب مشتری شو." }, 401);
 
   const orders = await loadOrders(slug, env);
   const mine = orders
-    .filter((o) => String(o.customerPhone || "").trim() === phoneRaw)
+    .filter((o) => normalizePhone(o.customerPhone || "") === customerPhone)
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
     .slice(0, 50)
     // فقط چیزی که برای مشتری لازمه رو برمی‌گردونیم (نه اطلاعات داخلی)
@@ -1841,7 +1927,7 @@ async function handleLoyaltyCustomerAdjust(request,env){
   return json({ok:true,customer:c});
 }
 async function handleLoyaltyProfile(request,env){
-  const url=new URL(request.url); const slug=slugify(url.searchParams.get('slug')||''); const phone=loyaltySafePhone(url.searchParams.get('phone')||'');
+  const url=new URL(request.url); const slug=slugify(url.searchParams.get('slug')||''); const authed=await getCustomerPhone(request,env); const phone=authed||loyaltySafePhone(url.searchParams.get('phone')||'');
   if(!slug||!phone)return json({error:'کافه یا شماره مشتری مشخص نیست.'},400);
   const raw=await env.MENU_KV.get('menu:'+slug);if(!raw)return json({error:'منو پیدا نشد.'},404);
   const settings=await loadLoyaltySettings(slug,env); const c=await loadLoyaltyCustomer(slug,phone,env); const rewards=(await loadLoyaltyRewards(slug,env)).filter(r=>r.active!==false);
@@ -1887,6 +1973,18 @@ export default {
       }
       if (url.pathname === "/api/auth/me" && request.method === "GET") {
         return await handleAuthMe(request, env);
+      }
+      if (url.pathname === "/api/customer/register" && request.method === "POST") {
+        return await handleCustomerRegister(request, env);
+      }
+      if (url.pathname === "/api/customer/login" && request.method === "POST") {
+        return await handleCustomerLogin(request, env);
+      }
+      if (url.pathname === "/api/customer/me" && request.method === "GET") {
+        return await handleCustomerMe(request, env);
+      }
+      if (url.pathname === "/api/customer/logout" && request.method === "POST") {
+        return await handleCustomerLogout(request, env);
       }
 
       if (url.pathname === "/api/menu/create" && request.method === "POST") {

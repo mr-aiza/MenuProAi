@@ -1593,5 +1593,35 @@ waiterConfirm.addEventListener('click', async () => {
 updateCartBadge();
 </script>
 
+
+<!-- MenuProAI Loyalty Club -->
+<style>
+#mpLoyaltyBtn{position:fixed;left:14px;bottom:84px;z-index:90;border:1px solid rgba(77,240,201,.45);background:rgba(10,20,27,.95);color:#4df0c9;border-radius:999px;padding:10px 14px;font-family:inherit;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer}
+#mpLoyaltyOverlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:120;display:none;align-items:flex-end;justify-content:center;padding:14px}
+#mpLoyaltyOverlay.show{display:flex}.mp-loy-modal{width:min(560px,100%);max-height:88vh;overflow:auto;background:#101820;color:#eef4f6;border:1px solid #24323e;border-radius:24px;padding:18px;font-family:inherit}.mp-loy-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.mp-loy-head h3{margin:0;color:#4df0c9}.mp-loy-close{background:#1a2430;border:1px solid #293744;color:#fff;border-radius:10px;padding:7px 11px}.mp-loy-score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.mp-loy-score>div{background:#151f29;border:1px solid #273642;border-radius:14px;padding:12px;text-align:center}.mp-loy-score b{display:block;font-size:19px;color:#4df0c9}.mp-loy-score span{font-size:10px;color:#91a0aa}.mp-loy-reward{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#151f29;border:1px solid #273642;border-radius:14px;padding:12px;margin:8px 0}.mp-loy-reward button{background:#4df0c9;color:#06120f;border:0;border-radius:999px;padding:8px 12px;font-weight:800}.mp-loy-reward button:disabled{opacity:.4}.mp-loy-input{width:100%;background:#151f29;border:1px solid #293744;color:#fff;border-radius:10px;padding:11px;margin:6px 0;font-family:inherit}.mp-loy-muted{color:#91a0aa;font-size:12px}.mp-loy-code{margin-top:12px;padding:12px;border-radius:12px;border:1px dashed #4df0c9;text-align:center;color:#4df0c9;font-family:monospace;font-size:18px;direction:ltr}
+</style>
+<button id="mpLoyaltyBtn" type="button">⭐ باشگاه مشتریان</button>
+<div id="mpLoyaltyOverlay"><div class="mp-loy-modal"><div class="mp-loy-head"><h3>⭐ باشگاه مشتریان</h3><button class="mp-loy-close" type="button" id="mpLoyaltyClose">بستن</button></div><div id="mpLoyaltyBody" class="mp-loy-muted" style="margin-top:12px">در حال دریافت اطلاعات…</div></div></div>
+<script>
+(function(){
+  const api=window.MENUPROAI_API||'https://menuproai-api.bytelab.workers.dev';
+  const btn=document.getElementById('mpLoyaltyBtn'), overlay=document.getElementById('mpLoyaltyOverlay'), close=document.getElementById('mpLoyaltyClose'), body=document.getElementById('mpLoyaltyBody');
+  if(!btn||!overlay)return;
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function identity(){try{return JSON.parse(localStorage.getItem('bolut_identity_'+((window.MENU&&MENU.slug)||''))||'null')}catch{return null}}
+  function save(n,p){localStorage.setItem('bolut_identity_'+((window.MENU&&MENU.slug)||''),JSON.stringify({name:n,phone:p}))}
+  async function load(){
+    let id=identity();
+    if(!id||!id.phone){body.innerHTML='<p>برای دیدن امتیازها نام و شماره موبایل خودت را وارد کن.</p><input class="mp-loy-input" id="mpLoyName" placeholder="نام"><input class="mp-loy-input" id="mpLoyPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><button class="mp-loy-reward" id="mpLoyStart" style="width:100%;justify-content:center">شروع باشگاه</button>';document.getElementById('mpLoyStart').onclick=()=>{const n=document.getElementById('mpLoyName').value.trim(),p=document.getElementById('mpLoyPhone').value.trim();if(!n||!/^0?9\d{9}$/.test(p.replace(/\s/g,''))){alert('نام و شماره معتبر وارد کن.');return}save(n,p);load()};return}
+    body.textContent='در حال دریافت…';
+    try{const r=await fetch(api+'/api/menu/loyalty/profile?slug='+encodeURIComponent(MENU.slug)+'&phone='+encodeURIComponent(id.phone),{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');if(d.enabled===false){body.innerHTML='<p>باشگاه مشتریان این مجموعه فعلاً فعال نیست.</p>';return}
+      const c=d.customer||{}; body.innerHTML='<div class="mp-loy-score"><div><b>'+Number(c.points||0).toLocaleString('fa-IR')+'</b><span>امتیاز فعلی</span></div><div><b>'+esc(c.tierName||c.tier||'برنزی')+'</b><span>سطح مشتری</span></div><div><b>'+Number(c.orders||0).toLocaleString('fa-IR')+'</b><span>تعداد سفارش</span></div></div>'+(d.nextTier?'<div class="mp-loy-muted">تا سطح '+esc(d.nextTier.name)+'، '+Number(d.nextTier.remaining||0).toLocaleString('fa-IR')+' امتیاز دیگر لازم است.</div>':'<div class="mp-loy-muted">به بالاترین سطح رسیده‌ای 🎉</div>')+'<h4 style="margin:18px 0 8px">🎁 جوایز</h4>'+(d.rewards||[]).map(r=>'<div class="mp-loy-reward"><div><b>'+esc(r.title)+'</b><div class="mp-loy-muted">'+Number(r.pointsCost).toLocaleString('fa-IR')+' امتیاز · '+(r.type==='percent'?Number(r.value)+'٪ تخفیف':Number(r.value).toLocaleString('fa-IR')+' تومان تخفیف')+'</div></div><button data-reward="'+esc(r.id)+'" '+(Number(c.points||0)<Number(r.pointsCost)?'disabled':'')+'>دریافت</button></div>').join('')+'<div id="mpLoyCode"></div>';
+      body.querySelectorAll('[data-reward]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const rr=await fetch(api+'/api/menu/loyalty/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:MENU.slug,phone:id.phone,rewardId:x.dataset.reward})});const dd=await rr.json();if(!rr.ok)throw new Error(dd.error||'خطا');document.getElementById('mpLoyCode').innerHTML='<div class="mp-loy-code">'+esc(dd.code)+'</div><div class="mp-loy-muted" style="text-align:center;margin-top:6px">کد را در سبد خرید وارد کن · اعتبار تا '+esc(dd.expiresAt)+'</div>';load()}catch(e){alert(e.message);x.disabled=false}});
+    }catch(e){body.innerHTML='<p>دریافت اطلاعات باشگاه ناموفق بود: '+esc(e.message)+'</p>'}
+  }
+  btn.onclick=()=>{overlay.classList.add('show');load()};close.onclick=()=>overlay.classList.remove('show');overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('show')});
+})();
+</script>
+
 </body>
 </html>
