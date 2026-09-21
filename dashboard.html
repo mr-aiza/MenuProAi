@@ -249,47 +249,6 @@
   .ops-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px;background:var(--panel-2);border-radius:12px}
   .pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 5px rgba(77,240,201,.08);margin-left:5px}
   @media(min-width:641px){.ops-grid{grid-template-columns:repeat(4,1fr)}.ops-actions{grid-template-columns:repeat(4,1fr)}.ops-table-grid{grid-template-columns:repeat(5,1fr)}}
-
-  .loyalty-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}.loyalty-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.loyalty-stat .num{font-size:20px;font-weight:900;color:var(--cyan)}.loyalty-stat .lbl{font-size:11px;color:var(--muted)}.loyalty-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px}.loyalty-row .meta{min-width:0;flex:1}.loyalty-row .name{font-weight:800;font-size:13px}.loyalty-row .sub{font-size:11px;margin:2px 0 0}.tier-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.tier-grid .tier{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px}.tier-grid input{margin-bottom:6px;font-size:13px}.reward-form{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;align-items:end}.reward-form input,.reward-form select{margin-bottom:0}.loyalty-table-search{display:flex;gap:8px}.loyalty-table-search input{margin-bottom:0}.loyalty-progress{height:7px;background:var(--panel-3);border-radius:999px;overflow:hidden;margin-top:7px}.loyalty-progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px}@media(max-width:520px){.reward-form{grid-template-columns:1fr 1fr}.reward-form input:first-child{grid-column:1/-1}}
-
-  /* ============ داشبورد همه‌کاره / خانه ============ */
-  .home-hero{background:linear-gradient(135deg,rgba(77,240,201,.12),rgba(156,123,255,.10));border-color:rgba(77,240,201,.28);}
-  .home-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-  .home-kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.2px;margin-bottom:3px;}
-  .home-title{font-size:22px;font-weight:900;}
-  .home-sub{font-size:12px;color:var(--muted);margin-top:4px;}
-  .live-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(77,240,201,.10);color:var(--cyan);font-size:10px;font-weight:800;white-space:nowrap;}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(77,240,201,.08);}
-  .home-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px;}
-  .home-kpi{background:rgba(15,22,32,.72);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0;}
-  .home-kpi .v{font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .home-kpi .l{font-size:10.5px;color:var(--muted);margin-top:2px;}
-  .home-kpi.accent .v{color:var(--cyan);}
-  .home-kpi.warn .v{color:#ffd36b;}
-  .home-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-  .home-action{border:1px solid var(--line);background:var(--panel-2);color:var(--paper);border-radius:13px;padding:12px 9px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;text-align:center;}
-  .home-action .ha-ic{font-size:20px;display:block;margin-bottom:3px;}
-  .home-action:hover{border-color:var(--cyan);}
-  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .home-mini{background:var(--panel-2);border:1px solid var(--line);border-radius:13px;padding:12px;}
-  .home-mini .hm-num{font-size:20px;font-weight:900;color:var(--cyan);font-family:'JetBrains Mono',monospace;}
-  .home-mini .hm-label{font-size:10.5px;color:var(--muted);}
-  .home-list{display:flex;flex-direction:column;gap:7px;}
-  .home-list-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;font-size:11.5px;}
-  .home-list-row .main{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .home-list-row .meta{color:var(--muted);font-size:10px;white-space:nowrap;}
-  .home-alert{border-right:3px solid #ffd36b;background:rgba(255,211,107,.06);}
-  .home-alert.danger{border-right-color:var(--danger);background:rgba(255,138,138,.06);}
-  .home-empty{font-size:11.5px;color:var(--muted);padding:10px 0;text-align:center;}
-  .home-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
-  .home-section-title strong{font-size:14px;}
-  .home-section-title span{font-size:10.5px;color:var(--muted);}
-  .progress{height:7px;background:var(--panel);border-radius:999px;overflow:hidden;margin-top:8px;}
-  .progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px;width:0;}
-  @media(min-width:700px){
-    .home-kpis{grid-template-columns:repeat(4,1fr);}
-    .home-actions{grid-template-columns:repeat(4,1fr);}
-  }
 </style>
 </head>
 <body>
@@ -382,75 +341,6 @@
 
   <!-- ============ داشبورد اصلی (بعد از ساخت منو) ============ -->
   <div class="hidden" id="dashboardWrap" style="padding-top:14px;">
-
-    <!-- ---- خانه / داشبورد همه‌کاره ---- -->
-    <div id="homePane">
-      <div class="card home-hero">
-        <div class="home-head">
-          <div>
-            <div class="home-kicker">CONTROL CENTER</div>
-            <div class="home-title">داشبورد همه‌کاره</div>
-            <div class="home-sub" id="homeDateLabel">وضعیت امروز کسب‌وکار</div>
-          </div>
-          <div class="live-pill"><i class="live-dot"></i> زنده</div>
-        </div>
-        <div class="home-kpis">
-          <div class="home-kpi accent"><div class="v" id="homeRevenueToday">—</div><div class="l">فروش امروز · تومان</div></div>
-          <div class="home-kpi"><div class="v" id="homeOrdersToday">—</div><div class="l">سفارش امروز</div></div>
-          <div class="home-kpi"><div class="v" id="homeOpenOrders">—</div><div class="l">سفارش باز</div></div>
-          <div class="home-kpi warn"><div class="v" id="homeLowStock">—</div><div class="l">موجودی کم</div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>⚡ کارهای سریع</strong><span>بدون رفتن بین صفحات</span></div>
-        <div class="home-actions">
-          <button class="home-action" data-home-action="orders"><span class="ha-ic">🧾</span>سفارش‌ها</button>
-          <button class="home-action" data-home-action="add-product"><span class="ha-ic">➕</span>محصول جدید</button>
-          <button class="home-action" data-home-action="tables"><span class="ha-ic">🪑</span>میزها</button>
-          <button class="home-action" data-home-action="inventory"><span class="ha-ic">📦</span>انبار</button>
-          <button class="home-action" data-home-action="discounts"><span class="ha-ic">🏷️</span>تخفیف</button>
-          <button class="home-action" data-home-action="loyalty"><span class="ha-ic">⭐</span>باشگاه مشتریان</button>
-          <button class="home-action" data-home-action="preview"><span class="ha-ic">👁️</span>پیش‌نمایش</button>
-          <button class="home-action" data-home-action="analytics"><span class="ha-ic">📊</span>گزارش‌ها</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>📈 خلاصه کسب‌وکار</strong><span>اطلاعات همین لحظه</span></div>
-        <div class="home-grid">
-          <div class="home-mini"><div class="hm-num" id="homeTotalProducts">—</div><div class="hm-label">محصول فعال</div></div>
-          <div class="home-mini"><div class="hm-num" id="homeCategories">—</div><div class="hm-label">دسته‌بندی</div></div>
-          <div class="home-mini"><div class="hm-num" id="homeTables">—</div><div class="hm-label">میز</div></div>
-          <div class="home-mini"><div class="hm-num" id="homeCustomers">—</div><div class="hm-label">عضو باشگاه</div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>🚨 نیاز به توجه</strong><span id="homeAlertCount">—</span></div>
-        <div class="home-list" id="homeAlerts"><div class="home-empty">در حال بررسی…</div></div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>🧾 آخرین سفارش‌ها</strong><button class="btn-ghost btn-sm" id="homeSeeOrders">مشاهده همه</button></div>
-        <div class="home-list" id="homeRecentOrders"><div class="home-empty">در حال دریافت…</div></div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>⭐ مشتریان وفادار</strong><span id="homeLoyaltyHint">—</span></div>
-        <div class="home-list" id="homeTopCustomers"><div class="home-empty">در حال دریافت…</div></div>
-      </div>
-
-      <div class="card">
-        <div class="home-section-title"><strong>🔗 دسترسی سریع</strong><span>منوی عمومی</span></div>
-        <div class="public-link" id="homePublicLink">—</div>
-        <div class="row" style="margin-top:10px;">
-          <button class="btn-primary btn-sm" id="homeOpenPublic" style="flex:1;">باز کردن منو</button>
-          <button class="btn-ghost btn-sm" id="homeCopyPublic" style="flex:1;">کپی لینک</button>
-          <button class="btn-ghost btn-sm" id="homeRefresh" style="flex:1;">↻ تازه‌سازی</button>
-        </div>
-      </div>
-    </div>
 
     <!-- ---- تب منوساز ---- -->
     <div id="menuPane">
@@ -701,52 +591,6 @@
       </div>
     </div>
 
-
-    <!-- ---- تب باشگاه مشتریان ---- -->
-    <div class="hidden" id="loyaltyPane">
-      <div class="card">
-        <h2>⭐ باشگاه مشتریان <span class="h2-hint">وفاداری و امتیاز</span></h2>
-        <div class="loyalty-stats">
-          <div class="loyalty-stat"><div class="num" id="loyCustomers">۰</div><div class="lbl">مشتری عضو</div></div>
-          <div class="loyalty-stat"><div class="num" id="loyPoints">۰</div><div class="lbl">امتیاز در گردش</div></div>
-          <div class="loyalty-stat"><div class="num" id="loySpent">۰</div><div class="lbl">خرید ثبت‌شده</div></div>
-          <div class="loyalty-stat"><div class="num" id="loyGold">۰</div><div class="lbl">مشتری طلایی+</div></div>
-        </div>
-        <div class="msg" id="loyaltyMsg"></div>
-        <label class="checkbox-row"><input type="checkbox" id="loyEnabled"> فعال بودن باشگاه مشتریان</label>
-        <div class="modal-row">
-          <div><label>هر چند تومان = امتیاز</label><input id="loyUnitAmount" dir="ltr" inputmode="numeric"></div>
-          <div><label>تعداد امتیاز</label><input id="loyPointsPerUnit" dir="ltr" inputmode="numeric"></div>
-          <div><label>جایزه ثبت‌نام/اولین خرید</label><input id="loyFirstBonus" dir="ltr" inputmode="numeric"></div>
-        </div>
-        <button class="btn-primary btn-block" id="saveLoyaltySettings">ذخیره تنظیمات باشگاه</button>
-      </div>
-
-      <div class="card">
-        <h2>سطوح مشتریان</h2>
-        <p class="sub">سطح بر اساس مجموع امتیازهای کسب‌شده تعیین می‌شود. ضریب، امتیاز خرید همان سطح را افزایش می‌دهد.</p>
-        <div class="tier-grid" id="loyaltyTiers"></div>
-      </div>
-
-      <div class="card">
-        <h2>🎁 جوایز قابل دریافت</h2>
-        <div class="reward-form">
-          <div><label>عنوان جایزه</label><input id="loyRewardTitle" placeholder="مثلاً ۲۰٪ تخفیف"></div>
-          <div><label>هزینه امتیاز</label><input id="loyRewardPoints" dir="ltr" inputmode="numeric" placeholder="500"></div>
-          <div><label>نوع تخفیف</label><select id="loyRewardType"><option value="percent">درصدی</option><option value="fixed">مبلغ ثابت</option></select></div>
-          <div><label>مقدار</label><input id="loyRewardValue" dir="ltr" inputmode="numeric" placeholder="20"></div>
-        </div>
-        <button class="btn-primary btn-sm" id="addLoyaltyReward" style="margin-top:10px">+ افزودن جایزه</button>
-        <div id="loyaltyRewards" style="margin-top:14px"></div>
-      </div>
-
-      <div class="card">
-        <h2>👥 اعضای باشگاه</h2>
-        <div class="loyalty-table-search"><input id="loyaltyCustomerSearch" placeholder="جستجوی نام، شماره یا سطح..."><button class="btn-ghost btn-sm" id="refreshLoyaltyCustomers">↻</button></div>
-        <div id="loyaltyCustomers" style="margin-top:12px"></div>
-      </div>
-    </div>
-
     <!-- ---- تب تنظیمات ---- -->
     <div class="hidden" id="settingsPane">
       <div class="card">
@@ -827,13 +671,10 @@
 
 <!-- ============ ناوبری پایین (فقط بعد از ساخت منو) ============ -->
 <div class="bottom-nav hidden" id="bottomNav">
-  <button class="nav-btn active" data-maintab="home"><span class="ic">🏠</span>خانه</button>
-  <button class="nav-btn" data-maintab="menu"><span class="ic">🍽️</span>منو</button><span class="ic">🍽️</span>منو</button>
+  <button class="nav-btn active" data-maintab="menu"><span class="ic">🍽️</span>منو</button>
   <button class="nav-btn" data-maintab="orders"><span class="ic">🧾</span>سفارش‌ها<span class="dot hidden" id="navOrdersDot">0</span></button>
   <button class="nav-btn" data-maintab="discounts"><span class="ic">🏷️</span>تخفیف‌ها</button>
   <button class="nav-btn" data-maintab="analytics"><span class="ic">📊</span>آمار</button>
-  <button class="nav-btn" data-maintab="loyalty"><span class="ic">⭐</span>باشگاه</button>
-  
   <button class="nav-btn" data-maintab="ops"><span class="ic">⚡</span>عملیات</button>
   <button class="nav-btn" data-maintab="settings"><span class="ic">⚙️</span>تنظیمات</button>
 </div>
@@ -900,102 +741,6 @@ function switchAuthTab(which){
   hideMsg('authMsg');
 }
 
-/* ============ داشبورد همه‌کاره / خانه ============ */
-function homeMoney(n){
-  return Number(n||0).toLocaleString('fa-IR');
-}
-function homeDate(){
-  return new Date().toLocaleDateString('fa-IR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-}
-async function loadHomeDashboard(){
-  if (!currentMenu) return;
-  const now = Date.now(), day = 86400000;
-  document.getElementById('homeDateLabel').textContent = homeDate() + ' · ' + (currentMenu.cafeName || 'کسب‌وکار');
-  document.getElementById('homePublicLink').textContent = PUBLIC_BASE + currentMenu.slug + '/menu.html';
-
-  const results = await Promise.allSettled([
-    apiCall('/api/menu/orders'),
-    apiCall('/api/menu/inventory'),
-    apiCall('/api/menu/tables'),
-    apiCall('/api/menu/loyalty/customers')
-  ]);
-  const ord = results[0].status==='fulfilled' ? (results[0].value.orders||[]) : [];
-  const inv = results[1].status==='fulfilled' ? (results[1].value.inventory||[]) : [];
-  const tables = results[2].status==='fulfilled' ? (results[2].value.tables||[]) : [];
-  const customers = results[3].status==='fulfilled' ? (results[3].value.customers||[]) : [];
-
-  const valid = ord.filter(o => o.type !== 'call-waiter' && o.status !== 'cancelled');
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-  const today = valid.filter(o => new Date(o.createdAt||0).getTime() >= todayStart.getTime());
-  const revenue = today.reduce((s,o)=>s+(Number(o.total)||0),0);
-  const open = ord.filter(o => !['done','cancelled','served'].includes(String(o.status||'').toLowerCase()) && o.type !== 'call-waiter');
-  const low = inv.filter(x => {
-    const qty=Number(x.quantity ?? x.stock ?? x.qty);
-    const min=Number(x.minStock ?? x.minimum ?? x.minQuantity ?? 0);
-    return Number.isFinite(qty) && Number.isFinite(min) && min>0 && qty<=min;
-  });
-
-  document.getElementById('homeRevenueToday').textContent = homeMoney(revenue);
-  document.getElementById('homeOrdersToday').textContent = today.length.toLocaleString('fa-IR');
-  document.getElementById('homeOpenOrders').textContent = open.length.toLocaleString('fa-IR');
-  document.getElementById('homeLowStock').textContent = low.length.toLocaleString('fa-IR');
-  document.getElementById('homeTotalProducts').textContent = (currentMenu.items||[]).filter(i=>i.available!==false).length.toLocaleString('fa-IR');
-  document.getElementById('homeCategories').textContent = (currentMenu.categories||[]).length.toLocaleString('fa-IR');
-  document.getElementById('homeTables').textContent = tables.length.toLocaleString('fa-IR');
-  document.getElementById('homeCustomers').textContent = customers.length.toLocaleString('fa-IR');
-
-  const alerts=[];
-  if(open.length) alerts.push({danger:false, text:`${open.length.toLocaleString('fa-IR')} سفارش باز داری.`, action:'orders'});
-  if(low.length) alerts.push({danger:true, text:`${low.length.toLocaleString('fa-IR')} قلم موجودی به حداقل رسیده.`, action:'inventory'});
-  const unavailable=(currentMenu.items||[]).filter(i=>i.available===false);
-  if(unavailable.length) alerts.push({danger:false,text:`${unavailable.length.toLocaleString('fa-IR')} محصول فعلاً ناموجود است.`,action:'menu'});
-  const newOrders=ord.filter(o=>String(o.status||'')==='new');
-  if(newOrders.length) alerts.push({danger:false,text:`${newOrders.length.toLocaleString('fa-IR')} سفارش جدید نیاز به بررسی دارد.`,action:'orders'});
-  document.getElementById('homeAlertCount').textContent = alerts.length ? `${alerts.length.toLocaleString('fa-IR')} مورد` : 'همه‌چیز مرتب';
-  document.getElementById('homeAlerts').innerHTML = alerts.length ? alerts.slice(0,6).map(a=>`
-    <div class="home-list-row home-alert${a.danger?' danger':''}" data-home-goto="${a.action}">
-      <span class="main">${a.danger?'⚠️':'🔔'} ${escapeHtml(a.text)}</span><span class="meta">مشاهده ›</span>
-    </div>`).join('') : '<div class="home-empty">✅ مورد فوری برای رسیدگی وجود ندارد.</div>';
-
-  const recent=[...ord].filter(o=>o.type!=='call-waiter').sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,5);
-  document.getElementById('homeRecentOrders').innerHTML = recent.length ? recent.map(o=>{
-    const name=o.customerName||o.customerPhone||('سفارش '+(o.id||'').slice(-5));
-    const status={new:'جدید',seen:'دیده‌شده',preparing:'آماده‌سازی',ready:'آماده',done:'تحویل‌شده'}[o.status]||o.status||'—';
-    return `<div class="home-list-row"><span class="main">${escapeHtml(name)}</span><span class="meta">${escapeHtml(status)} · ${homeMoney(o.total)} تومان</span></div>`;
-  }).join('') : '<div class="home-empty">هنوز سفارشی ثبت نشده.</div>';
-
-  const top=[...customers].sort((a,b)=>(Number(b.totalSpent||b.spent||0)-Number(a.totalSpent||a.spent||0))).slice(0,5);
-  document.getElementById('homeLoyaltyHint').textContent = customers.length ? `${customers.length.toLocaleString('fa-IR')} عضو` : 'بدون عضو';
-  document.getElementById('homeTopCustomers').innerHTML = top.length ? top.map(c=>{
-    const name=c.name||c.phone||'مشتری';
-    const pts=Number(c.points||0);
-    return `<div class="home-list-row"><span class="main">⭐ ${escapeHtml(name)}</span><span class="meta">${pts.toLocaleString('fa-IR')} امتیاز</span></div>`;
-  }).join('') : '<div class="home-empty">هنوز عضو باشگاه مشتریان ثبت نشده.</div>';
-}
-
-document.querySelectorAll('[data-home-action]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const a=btn.dataset.homeAction;
-    if(a==='add-product'){ switchMainTab('menu'); setTimeout(()=>document.querySelector('[data-tool="add-product"]')?.click(),0); }
-    else if(a==='tables'){ switchMainTab('settings'); setTimeout(()=>document.getElementById('tablesPane')?.scrollIntoView({behavior:'smooth'}),0); }
-    else if(a==='inventory'){ switchMainTab('settings'); setTimeout(()=>document.getElementById('inventoryPane')?.scrollIntoView({behavior:'smooth'}),0); }
-    else if(a==='preview'){ window.open(PUBLIC_BASE + currentMenu.slug + '/menu.html','_blank','noopener'); }
-    else switchMainTab(a);
-  });
-});
-document.getElementById('homeSeeOrders').addEventListener('click',()=>switchMainTab('orders'));
-document.getElementById('homeRefresh').addEventListener('click',()=>refreshDashboardData());
-document.getElementById('homeOpenPublic').addEventListener('click',()=>window.open(PUBLIC_BASE + currentMenu.slug + '/menu.html','_blank','noopener'));
-document.getElementById('homeCopyPublic').addEventListener('click',async()=>{
-  const url=PUBLIC_BASE + currentMenu.slug + '/menu.html';
-  try{ await navigator.clipboard.writeText(url); document.getElementById('homeCopyPublic').textContent='✓ کپی شد'; setTimeout(()=>document.getElementById('homeCopyPublic').textContent='کپی لینک',1200); }
-  catch(e){ prompt('لینک منو:',url); }
-});
-document.getElementById('homeAlerts').addEventListener('click',e=>{
-  const row=e.target.closest('[data-home-goto]'); if(row) switchMainTab(row.dataset.homeGoto);
-});
-document.getElementById('homeRecentOrders').addEventListener('click',()=>switchMainTab('orders'));
-
 /* ============ ناوبری اصلی (پایین صفحه) ============ */
 document.querySelectorAll('#bottomNav .nav-btn').forEach(btn => {
   btn.addEventListener('click', () => switchMainTab(btn.dataset.maintab));
@@ -1017,14 +762,12 @@ document.getElementById('topbarRefreshBtn').addEventListener('click', async () =
 
 function switchMainTab(which){
   document.querySelectorAll('#bottomNav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.maintab === which));
-  document.getElementById('homePane').classList.toggle('hidden', which !== 'home');
   document.getElementById('menuPane').classList.toggle('hidden', which !== 'menu');
   document.getElementById('ordersPane').classList.toggle('hidden', which !== 'orders');
   document.getElementById('discountsPane').classList.toggle('hidden', which !== 'discounts');
   document.getElementById('analyticsPane').classList.toggle('hidden', which !== 'analytics');
   document.getElementById('settingsPane').classList.toggle('hidden', which !== 'settings');
   document.getElementById('opsPane').classList.toggle('hidden', which !== 'ops');
-  document.getElementById('loyaltyPane').classList.toggle('hidden', which !== 'loyalty');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
   if (which === 'orders'){
@@ -1035,8 +778,6 @@ function switchMainTab(which){
   if (which === 'discounts') loadDiscounts();
   if (which === 'analytics') loadAnalytics();
   if (which === 'ops') loadOpsCenter();
-  if (which === 'loyalty') loadLoyalty();
-  if (which === 'home') loadHomeDashboard();
 }
 
 /* ============ کدهای تخفیف ============ */
@@ -1776,7 +1517,6 @@ async function refreshDashboardData(){
     else if (active === 'analytics') await loadAnalytics();
     else if (active === 'ops') await loadOpsCenter();
     else if (active === 'settings') { await loadTables(); await loadInventory(); await loadActivity(); }
-    else if (active === 'home') await loadHomeDashboard();
   }catch(e){
     alert('تازه‌سازی انجام نشد: ' + (e.message || 'خطای نامشخص'));
     throw e;
@@ -1806,7 +1546,6 @@ function renderDashboard(){
   // قبلاً بعضی لیست‌ها فقط بعد از انجام یک تغییر تازه به‌روز می‌شدند.
   loadDiscounts();
   loadAnalytics();
-  loadHomeDashboard();
 
   selectedCatId = null;
   renderCategories();
@@ -1816,7 +1555,6 @@ function renderDashboard(){
   loadOrders(true);
   if (ordersPollTimer) clearInterval(ordersPollTimer);
   ordersPollTimer = setInterval(() => loadOrders(true), 20000);
-  switchMainTab('home');
 }
 
 /* ============ دسته‌بندی‌ها (منوساز) ============ */
@@ -2553,41 +2291,6 @@ document.querySelectorAll('[data-order-filter]').forEach(b => b.addEventListener
   renderOrders();
 }));
 document.getElementById('orderSearch').addEventListener('input', e => { orderSearch = e.target.value.trim(); renderOrders(); });
-
-
-/* ============ باشگاه مشتریان ============ */
-let loyaltySettings=null, loyaltyRewards=[], loyaltyCustomers=[];
-async function loadLoyalty(){
-  try{
-    const [a,b]=await Promise.all([apiCall('/api/menu/loyalty/settings'),apiCall('/api/menu/loyalty/customers')]);
-    loyaltySettings=a.settings||{}; loyaltyRewards=a.rewards||[]; loyaltyCustomers=b.customers||[];
-    renderLoyaltySettings(); renderLoyaltyRewards(); renderLoyaltyCustomers(b.stats||{});
-  }catch(e){ showMsg('loyaltyMsg','خطا در دریافت باشگاه: '+e.message,'err'); }
-}
-function renderLoyaltySettings(){
-  const s=loyaltySettings||{}; document.getElementById('loyEnabled').checked=s.enabled!==false;
-  document.getElementById('loyUnitAmount').value=s.unitAmount||1000; document.getElementById('loyPointsPerUnit').value=s.pointsPerUnit||1; document.getElementById('loyFirstBonus').value=s.firstOrderBonus||0;
-  const tiers=s.tiers||[]; document.getElementById('loyaltyTiers').innerHTML=tiers.map((t,i)=>`<div class="tier"><b>${escapeHtml(t.name)}</b><label>حداقل امتیاز</label><input class="loy-tier-min" data-i="${i}" value="${Number(t.min)||0}" dir="ltr" inputmode="numeric"><label>ضریب امتیاز</label><input class="loy-tier-mult" data-i="${i}" value="${Number(t.multiplier)||1}" dir="ltr" inputmode="decimal"></div>`).join('');
-}
-function renderLoyaltyRewards(){
-  const b=document.getElementById('loyaltyRewards'); if(!loyaltyRewards.length){b.innerHTML='<p class="sub">هنوز جایزه‌ای تعریف نشده.</p>';return;}
-  b.innerHTML=loyaltyRewards.map(r=>`<div class="loyalty-row"><div class="meta"><div class="name">${escapeHtml(r.title)}</div><div class="sub">${Number(r.pointsCost).toLocaleString('fa-IR')} امتیاز → ${r.type==='percent'?Number(r.value)+'٪':' '+Number(r.value).toLocaleString('fa-IR')+' تومان'} ${r.active===false?' · غیرفعال':''}</div></div><div class="row"><button class="btn-ghost btn-sm" data-loy-toggle="${r.id}">${r.active===false?'فعال':'غیرفعال'}</button><button class="btn-danger btn-sm" data-loy-del="${r.id}">حذف</button></div></div>`).join('');
-  b.querySelectorAll('[data-loy-toggle]').forEach(x=>x.onclick=async()=>{const r=loyaltyRewards.find(y=>y.id===x.dataset.loyToggle);await apiCall('/api/menu/loyalty/rewards',{action:'toggle',id:r.id,active:r.active===false});loadLoyalty();});
-  b.querySelectorAll('[data-loy-del]').forEach(x=>x.onclick=async()=>{if(!confirm('این جایزه حذف شود؟'))return;await apiCall('/api/menu/loyalty/rewards',{action:'delete',id:x.dataset.loyDel});loadLoyalty();});
-}
-function renderLoyaltyCustomers(stats){
-  document.getElementById('loyCustomers').textContent=Number(stats.customers||loyaltyCustomers.length).toLocaleString('fa-IR'); document.getElementById('loyPoints').textContent=Number(stats.points||0).toLocaleString('fa-IR'); document.getElementById('loySpent').textContent=Number(stats.spent||0).toLocaleString('fa-IR'); document.getElementById('loyGold').textContent=Number((stats.tiers||{}).gold||0)+Number((stats.tiers||{}).platinum||0);
-  const b=document.getElementById('loyaltyCustomers'); if(!loyaltyCustomers.length){b.innerHTML='<p class="sub">هنوز مشتری باشگاه ندارید. بعد از تکمیل اولین سفارش، مشتری به‌صورت خودکار اضافه می‌شود.</p>';return;}
-  b.innerHTML=loyaltyCustomers.slice(0,100).map(c=>{const t=(loyaltySettings.tiers||[]).find(x=>x.id===c.tier)||{};return `<div class="loyalty-row"><div class="meta"><div class="name">${escapeHtml(c.name||'بدون نام')} <span class="chip active">${escapeHtml(t.name||c.tier||'')}</span></div><div class="sub">${escapeHtml(c.phone)} · ${Number(c.points||0).toLocaleString('fa-IR')} امتیاز · ${Number(c.orders||0).toLocaleString('fa-IR')} سفارش · ${Number(c.totalSpent||0).toLocaleString('fa-IR')} تومان</div></div><button class="btn-ghost btn-sm" data-loy-adjust="${escapeHtml(c.phone)}">± امتیاز</button></div>`}).join('');
-  b.querySelectorAll('[data-loy-adjust]').forEach(btn=>btn.onclick=async()=>{const amount=prompt('مقدار امتیاز (مثلاً 100 یا -50):','100');if(amount===null)return;const note=prompt('توضیح اختیاری:','تعدیل دستی');try{await apiCall('/api/menu/loyalty/customers/adjust',{phone:btn.dataset.loyAdjust,amount:Number(amount),note});loadLoyalty();}catch(e){alert(e.message)}});
-}
-document.getElementById('saveLoyaltySettings')?.addEventListener('click',async()=>{
-  const tiers=[...(loyaltySettings.tiers||[])].map((t,i)=>({...t,min:Number(document.querySelector(`.loy-tier-min[data-i="${i}"]`)?.value)||0,multiplier:Number(document.querySelector(`.loy-tier-mult[data-i="${i}"]`)?.value)||1}));
-  try{const d=await apiCall('/api/menu/loyalty/settings',{enabled:document.getElementById('loyEnabled').checked,unitAmount:Number(document.getElementById('loyUnitAmount').value)||1000,pointsPerUnit:Number(document.getElementById('loyPointsPerUnit').value)||1,firstOrderBonus:Number(document.getElementById('loyFirstBonus').value)||0,tiers});loyaltySettings=d.settings;renderLoyaltySettings();showMsg('loyaltyMsg','✓ تنظیمات باشگاه ذخیره شد.','ok');}catch(e){showMsg('loyaltyMsg',e.message,'err');}
-});
-document.getElementById('addLoyaltyReward')?.addEventListener('click',async()=>{try{await apiCall('/api/menu/loyalty/rewards',{title:document.getElementById('loyRewardTitle').value,pointsCost:Number(document.getElementById('loyRewardPoints').value),type:document.getElementById('loyRewardType').value,value:Number(document.getElementById('loyRewardValue').value)});['loyRewardTitle','loyRewardPoints','loyRewardValue'].forEach(id=>document.getElementById(id).value='');loadLoyalty();}catch(e){showMsg('loyaltyMsg',e.message,'err')}});
-document.getElementById('refreshLoyaltyCustomers')?.addEventListener('click',async()=>{try{const q=document.getElementById('loyaltyCustomerSearch').value;const d=await apiCall('/api/menu/loyalty/customers'+(q?'?q='+encodeURIComponent(q):''));loyaltyCustomers=d.customers||[];renderLoyaltyCustomers(d.stats||{});}catch(e){showMsg('loyaltyMsg',e.message,'err')}});
-document.getElementById('loyaltyCustomerSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('refreshLoyaltyCustomers').click();});
 
 /* ============ تنظیمات ============ */
 document.getElementById('saveInfoBtn').addEventListener('click', async () => {

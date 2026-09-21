@@ -859,64 +859,8 @@ if (favBtnHeader){
 loadMenu();
 
 // ---------------------- chat ----------------------
-// ---------------------- هویت مشتری (نام + شماره) ----------------------
-const ID_KEY = 'bolut_identity_' + (detectSlug() || 'x');
-function getIdentity(){
-  try{ return JSON.parse(localStorage.getItem(ID_KEY) || 'null'); }catch(e){ return null; }
-}
-function saveIdentity(name, phone){
-  localStorage.setItem(ID_KEY, JSON.stringify({ name, phone }));
-}
-
-const idOverlay = document.getElementById('idOverlay');
-const idName = document.getElementById('idName');
-const idPhone = document.getElementById('idPhone');
-const idErr = document.getElementById('idErr');
-const idConfirm = document.getElementById('idConfirm');
-const idCancel = document.getElementById('idCancel');
-const idModalTitle = document.getElementById('idModalTitle');
-const idModalDesc = document.getElementById('idModalDesc');
-
-let pendingIdentityCallback = null;
-
-// purpose: 'chat' یا 'order' — فقط برای متن مودال
-function requireIdentity(purpose, onReady){
-  const saved = getIdentity();
-  if (saved && saved.name && saved.phone){
-    onReady(saved);
-    return;
-  }
-  idModalTitle.textContent = purpose === 'chat' ? 'قبل از گفتگو با دستیار' : 'قبل از ثبت سفارش';
-  idModalDesc.textContent = purpose === 'chat'
-    ? 'برای استفاده از دستیار هوش مصنوعی، لطفاً نام و شماره تماست رو وارد کن.'
-    : btypeCopy().idPurpose;
-  idName.value = saved ? saved.name || '' : '';
-  idPhone.value = saved ? saved.phone || '' : '';
-  idErr.textContent = '';
-  pendingIdentityCallback = onReady;
-  idOverlay.classList.remove('hidden');
-  idName.focus();
-}
-
-function closeIdentityModal(){
-  idOverlay.classList.add('hidden');
-  pendingIdentityCallback = null;
-}
-
-idConfirm.addEventListener('click', () => {
-  const name = idName.value.trim();
-  const phone = idPhone.value.trim();
-  if (!name){ idErr.textContent = 'نام رو وارد کن.'; idName.focus(); return; }
-  if (!/^0?9\d{9}$/.test(phone.replace(/\s/g,''))){ idErr.textContent = 'شماره تلفن معتبر نیست.'; idPhone.focus(); return; }
-  saveIdentity(name, phone);
-  const cb = pendingIdentityCallback;
-  idOverlay.classList.add('hidden');
-  pendingIdentityCallback = null;
-  if (cb) cb({ name, phone });
-});
-idCancel.addEventListener('click', closeIdentityModal);
-idOverlay.addEventListener('click', (e) => { if (e.target === idOverlay) closeIdentityModal(); });
-
+// ---------------------- حساب مشتری MenuProAI ----------------------
+// Login/register is handled by the shared customer-account module injected below.
 // ---------------------- chat ----------------------
 const chatBtn = document.getElementById('chatBtn');
 const chatOverlay = document.getElementById('chatOverlay');
@@ -1228,7 +1172,7 @@ async function submitOrder(){
   try{
     const res = await fetch(MENUPROAI_API + '/api/menu/order', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, (window.__mpCustomerAuth && window.__mpCustomerAuth.authHeaders) ? window.__mpCustomerAuth.authHeaders() : {}),
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(()=>({}));
@@ -1456,7 +1400,7 @@ async function loadOrderHistory(){
     return;
   }
   try{
-    const res = await fetch(MENUPROAI_API + '/api/menu/order/history?slug=' + encodeURIComponent(MENU.slug) + '&phone=' + encodeURIComponent(identity.phone), { cache: 'no-store' });
+    const res = await fetch(MENUPROAI_API + '/api/menu/order/history?slug=' + encodeURIComponent(MENU.slug) + '&phone=' + encodeURIComponent(identity.phone), { cache: 'no-store', headers: (window.__mpCustomerAuth && window.__mpCustomerAuth.authHeaders) ? window.__mpCustomerAuth.authHeaders() : {} });
     const data = await res.json().catch(()=>({}));
     if (!res.ok) throw new Error(data.error || 'خطا در دریافت سفارش‌ها');
     lastLoadedOrders = Array.isArray(data.orders) ? data.orders : [];
@@ -1539,6 +1483,62 @@ waiterConfirm.addEventListener('click', async () => {
 });
 
 updateCartBadge();
+</script>
+
+
+<!-- MenuProAI Customer Account — shared across all public menu templates -->
+<style id="mpCustomerAccountStyles">
+#mpCustomerAccountBar{position:fixed;top:12px;right:12px;z-index:9998;direction:rtl;font-family:inherit}
+#mpCustomerAccountBtn{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.16);background:rgba(12,18,24,.92);backdrop-filter:blur(12px);color:#fff;border-radius:999px;padding:8px 12px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.22);font:inherit;font-size:12px;font-weight:800}
+#mpCustomerAccountBtn .mp-ca-dot{width:9px;height:9px;border-radius:50%;background:#4df0c9;box-shadow:0 0 0 4px rgba(77,240,201,.12)}
+#mpCustomerAccountBtn .mp-ca-points{color:#4df0c9;font-size:10px}
+#mpCustomerAccountOverlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.68);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:14px;direction:rtl}
+#mpCustomerAccountOverlay.show{display:flex}
+.mp-ca-modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:#101820;color:#eef4f6;border:1px solid #293744;border-radius:24px;padding:20px;font-family:inherit;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+.mp-ca-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.mp-ca-head h3{margin:0;font-size:20px}.mp-ca-close{background:#1a2430;border:1px solid #293744;color:#fff;border-radius:10px;padding:7px 11px;cursor:pointer;font:inherit}
+.mp-ca-sub{color:#91a0aa;font-size:12px;margin:7px 0 16px}.mp-ca-input{width:100%;background:#151f29;border:1px solid #293744;color:#fff;border-radius:12px;padding:12px;margin:6px 0 10px;font-family:inherit;box-sizing:border-box;outline:none}.mp-ca-input:focus{border-color:#4df0c9}.mp-ca-label{display:block;font-size:11px;color:#aebac2;margin-top:7px}
+.mp-ca-actions{display:flex;gap:8px;margin-top:8px}.mp-ca-primary{flex:1;background:#4df0c9;color:#06120f;border:0;border-radius:999px;padding:12px;font-weight:900;cursor:pointer;font-family:inherit}.mp-ca-secondary{background:#18232d;color:#fff;border:1px solid #293744;border-radius:999px;padding:12px 16px;cursor:pointer;font-family:inherit}
+.mp-ca-switch{display:flex;gap:6px;background:#151f29;padding:4px;border-radius:999px;margin-bottom:14px}.mp-ca-switch button{flex:1;border:0;background:transparent;color:#91a0aa;border-radius:999px;padding:9px;font:inherit;cursor:pointer}.mp-ca-switch button.active{background:#24343e;color:#4df0c9;font-weight:800}
+.mp-ca-error{color:#ff8d8d;font-size:12px;min-height:18px;margin-top:6px}.mp-ca-account{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.mp-ca-stat{background:#151f29;border:1px solid #273642;border-radius:14px;padding:12px;text-align:center}.mp-ca-stat b{display:block;font-size:19px;color:#4df0c9}.mp-ca-stat span{font-size:10px;color:#91a0aa}.mp-ca-welcome{background:linear-gradient(135deg,#14252a,#151f29);border:1px solid #29423f;border-radius:16px;padding:14px;margin-bottom:12px}.mp-ca-welcome strong{font-size:17px}.mp-ca-muted{color:#91a0aa;font-size:12px}.mp-ca-logout{width:100%;background:#18232d;color:#fff;border:1px solid #394854;border-radius:999px;padding:11px;font-family:inherit;font-weight:800;cursor:pointer}
+@media(max-width:560px){#mpCustomerAccountBar{top:8px;right:8px}.mp-ca-modal{padding:16px;border-radius:20px}.mp-ca-account{grid-template-columns:repeat(3,1fr)}#mpCustomerAccountBtn{padding:7px 10px;font-size:11px}}
+</style>
+<div id="mpCustomerAccountBar"><button id="mpCustomerAccountBtn" type="button"><span class="mp-ca-dot"></span><span id="mpCustomerAccountLabel">ورود / ثبت‌نام</span></button></div>
+<div id="mpCustomerAccountOverlay">
+  <div class="mp-ca-modal">
+    <div class="mp-ca-head"><h3>👤 حساب مشتری</h3><button class="mp-ca-close" type="button" id="mpCustomerAccountClose">✕</button></div>
+    <div id="mpCustomerAccountBody"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const API=window.MENUPROAI_API||'https://menuproai-api.bytelab.workers.dev';
+  const TOKEN_KEY='menuproai_customer_token_v1';
+  const USER_KEY='menuproai_customer_user_v1';
+  const barBtn=document.getElementById('mpCustomerAccountBtn'), label=document.getElementById('mpCustomerAccountLabel');
+  const overlay=document.getElementById('mpCustomerAccountOverlay'), close=document.getElementById('mpCustomerAccountClose'), body=document.getElementById('mpCustomerAccountBody');
+  if(!barBtn||!overlay)return;
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const token=()=>localStorage.getItem(TOKEN_KEY)||'';
+  const user=()=>{try{return JSON.parse(localStorage.getItem(USER_KEY)||'null')}catch{return null}};
+  const saveUser=(u,t)=>{if(t)localStorage.setItem(TOKEN_KEY,t);if(u)localStorage.setItem(USER_KEY,JSON.stringify(u));updateBar(u)};
+  const clearUser=()=>{localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);updateBar(null)};
+  function authHeaders(extra){const h=Object.assign({},extra||{});const t=token();if(t)h.Authorization='Bearer '+t;return h}
+  function updateBar(u){if(u&&u.name){label.innerHTML='سلام '+esc(u.name)+(u.points!=null?' <span class="mp-ca-points">· '+Number(u.points).toLocaleString('fa-IR')+' امتیاز</span>':'');}else label.textContent='ورود / ثبت‌نام'}
+  async function me(){const t=token();if(!t)return null;try{const r=await fetch(API+'/api/customer/me',{headers:authHeaders(),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.authenticated){clearUser();return null}const u=d.user||{};saveUser(u);return u}catch{return user()}}
+  async function loyalty(u){if(!u||!window.MENU||!MENU.slug)return null;try{const r=await fetch(API+'/api/menu/loyalty/profile?slug='+encodeURIComponent(MENU.slug)+'&phone='+encodeURIComponent(u.phone||''),{headers:authHeaders(),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)return null;return d}catch{return null}}
+  function renderLogin(purpose){body.innerHTML='<div class="mp-ca-switch"><button id="mpCaLoginTab" class="active" type="button">ورود</button><button id="mpCaRegTab" type="button">ثبت‌نام</button></div><div class="mp-ca-sub">برای ثبت سفارش، سفارش‌های قبلی و امتیازهای باشگاه، وارد حساب خودت شو.</div><div id="mpCaForm"></div>';const loginTab=document.getElementById('mpCaLoginTab'),regTab=document.getElementById('mpCaRegTab');const draw=(reg)=>{document.getElementById('mpCaForm').innerHTML=(reg?'<label class="mp-ca-label">نام و نام خانوادگی</label><input class="mp-ca-input" id="mpCaName" placeholder="مثلاً علی رضایی">':'')+'<label class="mp-ca-label">شماره موبایل</label><input class="mp-ca-input" id="mpCaPhone" dir="ltr" inputmode="tel" placeholder="09xxxxxxxxx"><label class="mp-ca-label">رمز عبور</label><input class="mp-ca-input" id="mpCaPassword" type="password" autocomplete="current-password" placeholder="حداقل ۶ کاراکتر"><div class="mp-ca-error" id="mpCaError"></div><div class="mp-ca-actions"><button class="mp-ca-primary" id="mpCaSubmit" type="button">'+(reg?'ساخت حساب':'ورود به حساب')+'</button><button class="mp-ca-secondary" id="mpCaCancel" type="button">انصراف</button></div>';document.getElementById('mpCaSubmit').onclick=async()=>{const err=document.getElementById('mpCaError'),btn=document.getElementById('mpCaSubmit');const phone=document.getElementById('mpCaPhone').value.replace(/\s/g,'');const password=document.getElementById('mpCaPassword').value;const nameEl=document.getElementById('mpCaName');const name=nameEl?nameEl.value.trim():'';if(!/^0?9\d{9}$/.test(phone)||phone.length<10){err.textContent='شماره موبایل معتبر نیست.';return}if(password.length<6){err.textContent='رمز عبور باید حداقل ۶ کاراکتر باشد.';return}if(reg&&name.length<2){err.textContent='نام را وارد کن.';return}btn.disabled=true;btn.textContent='در حال بررسی…';try{const r=await fetch(API+(reg?'/api/customer/register':'/api/customer/login'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg?{name,phone,password}:{phone,password})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'عملیات ناموفق بود.');saveUser(d.user,d.token);overlay.classList.remove('show');if(window.__mpCustomerReady)window.__mpCustomerReady(d.user);window.__mpCustomerReady=null;await refreshAccountBar()}catch(e){err.textContent=e.message;btn.disabled=false;btn.textContent=reg?'ساخت حساب':'ورود به حساب'}};document.getElementById('mpCaCancel').onclick=()=>{overlay.classList.remove('show');window.__mpCustomerReady=null}};loginTab.onclick=()=>{loginTab.classList.add('active');regTab.classList.remove('active');draw(false)};regTab.onclick=()=>{regTab.classList.add('active');loginTab.classList.remove('active');draw(true)};draw(false)}
+  async function renderAccount(u){const d=await loyalty(u);const c=d&&d.customer||{};const pts=Number(c.points||0);const orders=Number(c.orders||0);body.innerHTML='<div class="mp-ca-welcome"><strong>سلام '+esc(u.name||'دوست عزیز')+' 👋</strong><div class="mp-ca-muted" style="margin-top:4px">'+esc(u.phone||'')+' · حساب مشتری MenuProAI</div></div><div class="mp-ca-account"><div class="mp-ca-stat"><b>'+pts.toLocaleString('fa-IR')+'</b><span>امتیاز</span></div><div class="mp-ca-stat"><b>'+esc(c.tierName||c.tier||'برنزی')+'</b><span>سطح</span></div><div class="mp-ca-stat"><b>'+orders.toLocaleString('fa-IR')+'</b><span>سفارش</span></div></div>'+(d&&d.nextTier?'<div class="mp-ca-muted" style="margin-bottom:14px">تا سطح '+esc(d.nextTier.name)+'، '+Number(d.nextTier.remaining||0).toLocaleString('fa-IR')+' امتیاز دیگر لازم است.</div>':'')+'<button class="mp-ca-logout" id="mpCaLogout" type="button">خروج از حساب</button>';document.getElementById('mpCaLogout').onclick=async()=>{try{if(token())await fetch(API+'/api/customer/logout',{method:'POST',headers:authHeaders()})}catch{}clearUser();overlay.classList.remove('show');window.__mpCustomerReady=null}}
+  async function refreshAccountBar(){const u=await me();if(u){const d=await loyalty(u);if(d&&d.customer){u.points=Number(d.customer.points||0);u.tier=d.customer.tierName||d.customer.tier||'';saveUser(u)}}updateBar(u);return u}
+  async function openAccount(){const u=await refreshAccountBar();overlay.classList.add('show');if(u)renderAccount(u);else renderLogin('account')}
+  window.__mpCustomerAuth={token,user,authHeaders,refreshAccountBar,openAccount,clearUser};
+  barBtn.onclick=openAccount;close.onclick=()=>overlay.classList.remove('show');overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('show')});
+  window.__mpCustomerReady=null;
+  window.requireIdentity=async function(purpose,onReady){const u=await refreshAccountBar();if(u){onReady({name:u.name||'',phone:u.phone||''});return}window.__mpCustomerReady=onReady;overlay.classList.add('show');renderLogin(purpose)};
+  // جایگزینی هویت قدیمی: کدهای قبلی قالب‌ها همچنان getIdentity/saveIdentity را می‌شناسند.
+  window.getIdentity=function(){const u=user();return u?{name:u.name||'',phone:u.phone||''}:null};
+  window.saveIdentity=function(name,phone){const u=user()||{};saveUser(Object.assign({},u,{name,phone}),token())};
+  refreshAccountBar();
+})();
 </script>
 
 </body>

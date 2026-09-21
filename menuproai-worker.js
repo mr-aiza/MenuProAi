@@ -970,6 +970,10 @@ async function saveOrders(slug, orders, env) {
 async function handleCreateOrder(request, env) {
   const customerPhoneAuth = await getCustomerPhone(request, env);
   if (!customerPhoneAuth) return json({ error: "برای ثبت سفارش ابتدا وارد حساب مشتری شو." }, 401);
+  const customerRaw = await env.MENU_KV.get(customerUserKey(customerPhoneAuth));
+  if (!customerRaw) return json({ error: "حساب مشتری پیدا نشد. دوباره وارد شو." }, 401);
+  const customerUser = JSON.parse(customerRaw);
+  if (customerUser.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
 
   let body;
   try { body = await request.json(); } catch (e) { return json({ error: "بدنه درخواست نامعتبر است." }, 400); }
@@ -997,11 +1001,6 @@ async function handleCreateOrder(request, env) {
     lines.push({ id: menuItem.id, name: menuItem.name, price: menuItem.price, qty, lineTotal });
   }
   if (!lines.length) return json({ error: "هیچ‌کدام از آیتم‌های سبد خرید معتبر نیست." }, 400);
-
-  const customerRaw = await env.MENU_KV.get(customerUserKey(customerPhoneAuth));
-  if (!customerRaw) return json({ error: "حساب مشتری پیدا نشد. دوباره وارد شو." }, 401);
-  const customerUser = JSON.parse(customerRaw);
-  if (customerUser.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
 
   // نام و شماره از حساب تاییدشده گرفته می‌شود؛ کلاینت نمی‌تواند سفارش را
   // به نام/شماره شخص دیگری ثبت کند.
