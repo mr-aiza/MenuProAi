@@ -17,27 +17,27 @@
 // کلید = همون مقداری که تو TEMPLATES آرایه‌ی dashboard.html و
 // فیلد "template" رکورد منو (تو menuproai-worker.js) ذخیره می‌شه.
 const TEMPLATE_FILES = {
-  "classic-menu": "https://mr-aiza.github.io/MenuProAi/public-menu.html",
-  "modern-grid": "https://mr-aiza.github.io/MenuProAi/public-menu-modern.html",
-  "shop-storefront": "https://mr-aiza.github.io/MenuProAi/public-menu-shop.html",
-  "shop-lookbook": "https://mr-aiza.github.io/MenuProAi/public-menu-shop2.html",
-  "shop-tag": "https://mr-aiza.github.io/MenuProAi/public-menu-shop-tag.html",
-  "salon-studio": "https://mr-aiza.github.io/MenuProAi/public-menu-salon.html",
-  "salon-bloom": "https://mr-aiza.github.io/MenuProAi/public-menu-salon-bloom.html",
-  "restaurant-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant.html",
-  "restaurant-gold": "https://mr-aiza.github.io/MenuProAi/public-menu-restaurant-gold.html",
-  "classic-receipt": "https://mr-aiza.github.io/MenuProAi/public-menu-receipt.html",
-  "fastfood-combo": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood.html",
-  "fastfood-cards": "https://mr-aiza.github.io/MenuProAi/public-menu-fastfood-cards.html",
-  "barber-classic": "https://mr-aiza.github.io/MenuProAi/public-menu-barber.html",
-  "clinic-appointment": "https://mr-aiza.github.io/MenuProAi/public-menu-clinic.html",
-  "carwash-shine": "https://mr-aiza.github.io/MenuProAi/public-menu-carwash.html",
-  "zoghali-noir": "https://mr-aiza.github.io/MenuProAi/public-menu-zoghali.html",
-  "bubble-pop": "https://mr-aiza.github.io/MenuProAi/public-menu-bubble-pop.html",
-  "editorial-leaf": "https://mr-aiza.github.io/MenuProAi/public-menu-editorial-leaf.html",
-  "diet-filter": "https://mr-aiza.github.io/MenuProAi/public-menu-diet-filter.html",
-  "ultra-gold": "https://mr-aiza.github.io/MenuProAi/public-menu-ultra-gold.html",
-  "luna-grid": "https://mr-aiza.github.io/MenuProAi/public-menu-luna-grid.html",
+  "classic-menu": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu.html",
+  "modern-grid": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-modern.html",
+  "shop-storefront": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-shop.html",
+  "shop-lookbook": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-shop2.html",
+  "shop-tag": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-shop-tag.html",
+  "salon-studio": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-salon.html",
+  "salon-bloom": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-salon-bloom.html",
+  "restaurant-classic": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-restaurant.html",
+  "restaurant-gold": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-restaurant-gold.html",
+  "classic-receipt": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-receipt.html",
+  "fastfood-combo": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-fastfood.html",
+  "fastfood-cards": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-fastfood-cards.html",
+  "barber-classic": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-barber.html",
+  "clinic-appointment": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-clinic.html",
+  "carwash-shine": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-carwash.html",
+  "zoghali-noir": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-zoghali.html",
+  "bubble-pop": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-bubble-pop.html",
+  "editorial-leaf": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-editorial-leaf.html",
+  "diet-filter": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-diet-filter.html",
+  "ultra-gold": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-ultra-gold.html",
+  "luna-grid": "https://raw.githubusercontent.com/mr-aiza/MenuProAi/main/public-menu-luna-grid.html",
 };
 const DEFAULT_TEMPLATE = "classic-menu";
 
@@ -48,7 +48,7 @@ async function resolveTemplateKey(slug) {
   try {
     const res = await fetch(
       MENUPROAI_API + "/api/menu/public/" + encodeURIComponent(slug),
-      { cf: { cacheTtl: 0, cacheEverything: false } }
+      {}
     );
     if (!res.ok) return DEFAULT_TEMPLATE;
     const data = await res.json();
@@ -74,7 +74,7 @@ export default {
       const templateKey = await resolveTemplateKey(slug);
       const templateUrl = TEMPLATE_FILES[templateKey] || TEMPLATE_FILES[DEFAULT_TEMPLATE];
 
-      const res = await fetch(templateUrl, { cf: { cacheTtl: 0, cacheEverything: false }, cache: "no-store" });
+      const res = await fetch(templateUrl);
       if (!res.ok) {
         return new Response("قالب صفحه در دسترس نیست", { status: 502 });
       }
