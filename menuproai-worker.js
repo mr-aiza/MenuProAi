@@ -1094,9 +1094,152 @@ async function handleCallWaiter(request, env) {
   const orders = await loadOrders(slug, env);
   orders.push(ticket);
   await saveOrders(slug, orders, env);
+  await pushNotification(slug, env, "waiter", "درخواست گارسون 🔔", `میز ${tableNumber}`, ticket.id);
 
   return json({ ok: true, order: ticket }, 200);
 }
+
+
+// ============================================================
+// MenuProAI Business Suite — Reservations / CRM / Reviews /
+// Notifications / Employees / Invoice Settings / Advanced Analytics
+// ============================================================
+async function loadArrayKV(key, env){
+  const raw = await env.MENU_KV.get(key);
+  if(!raw) return [];
+  try { const v=JSON.parse(raw); return Array.isArray(v)?v:[]; } catch(e){ return []; }
+}
+async function saveArrayKV(key, list, env, max=500){
+  await env.MENU_KV.put(key, JSON.stringify((list||[]).slice(-max)));
+}
+async function ownerContext(request, env){
+  const phone=await getAuthedPhone(request,env);
+  if(!phone) return {error:json({error:"لطفاً ابتدا وارد حساب کاربری شو."},401)};
+  const own=await loadOwnMenu(phone,env);
+  if(!own) return {error:json({error:"هنوز منویی نساخته‌اید."},404)};
+  return {phone, ...own};
+}
+async function pushNotification(slug, env, type, title, body, refId=""){
+  const list=await loadArrayKV("notifications:"+slug,env);
+  const n={id:randomId("ntf"),type:String(type||"system"),title:String(title||"").slice(0,120),body:String(body||"").slice(0,300),refId:String(refId||"").slice(0,80),read:false,createdAt:new Date().toISOString()};
+  list.push(n); await saveArrayKV("notifications:"+slug,list,env,300); return n;
+}
+
+// ---------- Reservations ----------
+async function handleCreateReservation(request, env){
+  let body; try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
+  const slug=slugify(body.slug||""); if(!slug)return json({error:"شناسه منو نامعتبر است."},400);
+  const raw=await env.MENU_KV.get("menu:"+slug); if(!raw)return json({error:"منو پیدا نشد."},404);
+  const menu=JSON.parse(raw); if(menu.active===false)return json({error:"این مجموعه فعلاً پذیرای رزرو نیست."},403);
+  const name=String(body.name||"").trim().slice(0,60), phone=normalizePhone(body.phone||""), guests=Math.max(1,Math.min(30,Number(body.guests)||0));
+  const date=String(body.date||"").trim(), time=String(body.time||"").trim(), note=String(body.note||"").trim().slice(0,300);
+  if(!name)return json({error:"نام الزامی است."},400);
+  if(!/^09\d{9}$/.test(phone))return json({error:"شماره موبایل معتبر وارد کن."},400);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time))return json({error:"تاریخ یا ساعت رزرو نامعتبر است."},400);
+  const when=new Date(date+"T"+time+":00"); if(Number.isNaN(when.getTime())||when.getTime()<Date.now()-5*60*1000)return json({error:"زمان رزرو باید در آینده باشد."},400);
+  const reservations=await loadArrayKV("reservations:"+slug,env);
+  const active=reservations.filter(r=>!['cancelled','rejected'].includes(r.status) && r.date===date && r.time===time);
+  if(active.length>=20)return json({error:"ظرفیت این ساعت فعلاً تکمیل شده است."},409);
+  const r={id:randomId("res"),name,phone,date,time,guests,note,status:"pending",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  reservations.push(r); await saveArrayKV("reservations:"+slug,reservations,env,500);
+  await addActivity(slug,env,"رزرو جدید",`${name} — ${guests} نفر — ${date} ${time}`);
+  await pushNotification(slug,env,"reservation","رزرو جدید 📅",`${name} — ${guests} نفر — ${date} ${time}`,r.id);
+  return json({ok:true,reservation:r},200);
+}
+async function handleGetReservations(request,env){
+  const c=await ownerContext(request,env); if(c.error)return c.error;
+  const list=await loadArrayKV("reservations:"+c.slug,env); list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  return json({ok:true,reservations:list.slice(0,300)},200);
+}
+async function handleUpdateReservation(request,env){
+  const c=await ownerContext(request,env); if(c.error)return c.error;
+  let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
+  const allowed=["pending","confirmed","seated","completed","cancelled","rejected"];
+  if(!allowed.includes(String(body.status)))return json({error:"وضعیت رزرو نامعتبر است."},400);
+  const list=await loadArrayKV("reservations:"+c.slug,env), i=list.findIndex(x=>x.id===String(body.id||"")); if(i<0)return json({error:"رزرو پیدا نشد."},404);
+  list[i].status=String(body.status); list[i].updatedAt=new Date().toISOString(); await saveArrayKV("reservations:"+c.slug,list,env,500);
+  await addActivity(c.slug,env,"تغییر رزرو",`${list[i].name} → ${list[i].status}`);
+  await pushNotification(c.slug,env,"reservation_status","وضعیت رزرو تغییر کرد",`${list[i].name} — ${list[i].status}`,list[i].id);
+  return json({ok:true,reservation:list[i]},200);
+}
+
+// ---------- CRM ----------
+async function handleCRM(request,env){
+  const c=await ownerContext(request,env); if(c.error)return c.error;
+  const url=new URL(request.url), q=String(url.searchParams.get("q")||"").trim().toLowerCase();
+  const orders=await loadOrders(c.slug,env).then(a=>a.filter(o=>o.type!=="call-waiter"));
+  const map={};
+  for(const o of orders){
+    const phone=normalizePhone(o.customerPhone||""); if(!phone)continue;
+    if(!map[phone])map[phone]={phone,name:o.customerName||"بدون نام",orders:0,totalSpent:0,lastVisit:o.createdAt,products:{},firstVisit:o.createdAt};
+    const x=map[phone]; x.orders++; x.totalSpent+=Number(o.total)||0; x.name=o.customerName||x.name;
+    if(new Date(o.createdAt)>new Date(x.lastVisit))x.lastVisit=o.createdAt; if(new Date(o.createdAt)<new Date(x.firstVisit))x.firstVisit=o.createdAt;
+    for(const it of (o.items||[])){const k=String(it.id||it.name);x.products[k]=(x.products[k]||0)+(Number(it.qty)||0)}
+  }
+  const loyaltyKeys=await listAllKeys(env,"loyalty:customer:"+c.slug+":"); const loyMap={}; for(const k of loyaltyKeys){const raw=await env.MENU_KV.get(k); if(raw) try{const x=JSON.parse(raw); loyMap[normalizePhone(x.phone||"")]=x;}catch(e){}}
+  let customers=Object.values(map).map(x=>{const top=Object.entries(x.products).sort((a,b)=>b[1]-a[1])[0];const days=Math.max(0,Math.floor((Date.now()-new Date(x.lastVisit).getTime())/86400000));return {phone:x.phone,name:x.name,orders:x.orders,totalSpent:x.totalSpent,avgOrder:x.orders?Math.round(x.totalSpent/x.orders):0,lastVisit:x.lastVisit,firstVisit:x.firstVisit,inactiveDays:days,segment:days>=30?"inactive":(x.orders>=5?"vip":"active"),favoriteItemId:top?top[0]:null,points:Number((loyMap[x.phone]||{}).points||0)};});
+  if(q)customers=customers.filter(x=>[x.name,x.phone,x.segment].some(v=>String(v||"").toLowerCase().includes(q)));
+  customers.sort((a,b)=>b.totalSpent-a.totalSpent);
+  const total=customers.length, active=customers.filter(x=>x.inactiveDays<30).length, inactive=customers.filter(x=>x.inactiveDays>=30).length, vip=customers.filter(x=>x.orders>=5).length;
+  return json({ok:true,stats:{total,active,inactive,vip},customers:customers.slice(0,300)},200);
+}
+
+// ---------- Reviews ----------
+async function handleCreateReview(request,env){
+  let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
+  const slug=slugify(body.slug||""); if(!slug)return json({error:"منو مشخص نیست."},400);
+  const orderId=String(body.orderId||""), phone=normalizePhone(body.phone||""), rating=Math.max(1,Math.min(5,Number(body.rating)||0)), text=String(body.text||"").trim().slice(0,500);
+  if(!orderId||!/^09\d{9}$/.test(phone)||!rating)return json({error:"سفارش، شماره و امتیاز الزامی است."},400);
+  const orders=await loadOrders(slug,env), order=orders.find(o=>o.id===orderId); if(!order)return json({error:"سفارش پیدا نشد."},404);
+  if(normalizePhone(order.customerPhone||"")!==phone)return json({error:"این سفارش متعلق به این شماره نیست."},403);
+  if(order.status!=="done")return json({error:"بعد از تکمیل سفارش می‌توانی نظر ثبت کنی."},409);
+  const reviews=await loadArrayKV("reviews:"+slug,env); if(reviews.some(r=>r.orderId===orderId))return json({error:"برای این سفارش قبلاً نظر ثبت شده است."},409);
+  const r={id:randomId("rev"),orderId,phone,name:String(body.name||order.customerName||"مشتری").trim().slice(0,60),rating,text,status:"published",createdAt:new Date().toISOString()};
+  reviews.push(r); await saveArrayKV("reviews:"+slug,reviews,env,500);
+  await addActivity(slug,env,"ثبت نظر مشتری",`${r.name} — ${rating}/5`); await pushNotification(slug,env,"review","نظر جدید ⭐",`${r.name} — امتیاز ${rating}/5`,r.id);
+  return json({ok:true,review:r},200);
+}
+async function handleGetReviews(request,env){
+  const url=new URL(request.url),slug=slugify(url.searchParams.get("slug")||""); if(!slug)return json({error:"منو مشخص نیست."},400);
+  const reviews=await loadArrayKV("reviews:"+slug,env); const published=reviews.filter(r=>r.status!=="hidden").sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const avg=published.length?Math.round((published.reduce((s,r)=>s+Number(r.rating||0),0)/published.length)*10)/10:0;
+  return json({ok:true,stats:{count:published.length,avg},reviews:published.slice(0,100)},200);
+}
+async function handleOwnerReviews(request,env){
+  const c=await ownerContext(request,env);if(c.error)return c.error; const list=await loadArrayKV("reviews:"+c.slug,env); const avg=list.length?Math.round(list.reduce((s,r)=>s+Number(r.rating||0),0)/list.length*10)/10:0; return json({ok:true,stats:{count:list.length,avg},reviews:list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,300)},200);
+}
+async function handleReviewStatus(request,env){
+  const c=await ownerContext(request,env);if(c.error)return c.error;let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const list=await loadArrayKV("reviews:"+c.slug,env),i=list.findIndex(x=>x.id===String(body.id||""));if(i<0)return json({error:"نظر پیدا نشد."},404);list[i].status=body.status==="hidden"?"hidden":"published";await saveArrayKV("reviews:"+c.slug,list,env,500);return json({ok:true,review:list[i]},200);
+}
+
+// ---------- Notifications ----------
+async function handleNotifications(request,env){
+  const c=await ownerContext(request,env);if(c.error)return c.error;const list=await loadArrayKV("notifications:"+c.slug,env);list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));return json({ok:true,unread:list.filter(x=>!x.read).length,notifications:list.slice(0,100)},200);
+}
+async function handleMarkNotifications(request,env){
+  const c=await ownerContext(request,env);if(c.error)return c.error;let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const list=await loadArrayKV("notifications:"+c.slug,env);const ids=Array.isArray(body.ids)?body.ids.map(String):[];list.forEach(n=>{if(body.all||ids.includes(n.id))n.read=true});await saveArrayKV("notifications:"+c.slug,list,env,300);return json({ok:true},200);
+}
+
+// ---------- Employees ----------
+const DEFAULT_STAFF_PERMISSIONS={manager:["menu","orders","analytics","crm","reservations","reviews","invoices","staff"],cashier:["orders","invoices","crm"],kitchen:["orders"],service:["orders","reservations"]};
+async function handleGetEmployees(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;const list=await loadArrayKV("staff:"+c.slug,env);return json({ok:true,employees:list},200)}
+async function handleAddEmployee(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;let b;try{b=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const name=String(b.name||"").trim().slice(0,60),role=String(b.role||"cashier");if(!name)return json({error:"نام کارمند الزامی است."},400);if(!Object.keys(DEFAULT_STAFF_PERMISSIONS).includes(role))return json({error:"نقش نامعتبر است."},400);const list=await loadArrayKV("staff:"+c.slug,env);const e={id:randomId("stf"),name,role,phone:normalizePhone(b.phone||""),active:b.active!==false,permissions:Array.isArray(b.permissions)?b.permissions.slice(0,30):DEFAULT_STAFF_PERMISSIONS[role],notes:String(b.notes||"").slice(0,250),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};list.push(e);await saveArrayKV("staff:"+c.slug,list,env,100);await addActivity(c.slug,env,"افزودن کارمند",`${name} — ${role}`);return json({ok:true,employee:e},200)}
+async function handleUpdateEmployee(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;let b;try{b=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const list=await loadArrayKV("staff:"+c.slug,env),i=list.findIndex(x=>x.id===String(b.id||""));if(i<0)return json({error:"کارمند پیدا نشد."},404);if(b.name!=null)list[i].name=String(b.name).trim().slice(0,60);if(b.role!=null&&Object.keys(DEFAULT_STAFF_PERMISSIONS).includes(String(b.role)))list[i].role=String(b.role);if(b.phone!=null)list[i].phone=normalizePhone(b.phone);if(b.active!=null)list[i].active=!!b.active;if(Array.isArray(b.permissions))list[i].permissions=b.permissions.slice(0,30);if(b.notes!=null)list[i].notes=String(b.notes).slice(0,250);list[i].updatedAt=new Date().toISOString();await saveArrayKV("staff:"+c.slug,list,env,100);return json({ok:true,employee:list[i]},200)}
+async function handleDeleteEmployee(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;let b;try{b=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const list=await loadArrayKV("staff:"+c.slug,env),next=list.filter(x=>x.id!==String(b.id||""));await saveArrayKV("staff:"+c.slug,next,env,100);return json({ok:true,employees:next},200)}
+
+// ---------- Professional invoice settings ----------
+async function handleInvoiceSettings(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;const key="invoice-settings:"+c.slug;if(request.method==="GET"){const raw=await env.MENU_KV.get(key);return json({ok:true,settings:raw?JSON.parse(raw):{taxPercent:0,servicePercent:0,footer:"ممنون از انتخاب شما ❤️",invoicePrefix:"INV"}},200)}let b;try{b=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)};const s={businessName:String(b.businessName||c.menu.cafeName||"").slice(0,80),address:String(b.address||"").slice(0,180),phone:String(b.phone||"").slice(0,30),taxPercent:Math.max(0,Math.min(30,Number(b.taxPercent)||0)),servicePercent:Math.max(0,Math.min(30,Number(b.servicePercent)||0)),footer:String(b.footer||"").slice(0,180),invoicePrefix:String(b.invoicePrefix||"INV").replace(/[^A-Za-z0-9_-]/g,"").slice(0,10)||"INV"};await env.MENU_KV.put(key,JSON.stringify(s));return json({ok:true,settings:s},200)}
+
+// ---------- Advanced analytics ----------
+function buildAdvancedAnalytics(orders){
+  const valid=(orders||[]).filter(o=>o.type!=="call-waiter"&&o.status!=="cancelled"); const now=Date.now(), DAY=86400000;
+  let revenue=0, today=0, week=0, month=0, items=0; const daily={}, cats={}, products={}, hours=Array.from({length:24},()=>({orders:0,revenue:0})); const customers={};
+  for(let i=29;i>=0;i--){const d=new Date(now-i*DAY);const k=d.toISOString().slice(0,10);daily[k]={date:k,revenue:0,orders:0}}
+  for(const o of valid){const ts=new Date(o.createdAt).getTime(),d=new Date(o.createdAt),k=d.toISOString().slice(0,10),t=Number(o.total)||0;revenue+=t;if(now-ts<DAY)today+=t;if(now-ts<7*DAY)week+=t;if(now-ts<30*DAY)month+=t;if(daily[k]){daily[k].revenue+=t;daily[k].orders++}const h=d.getHours();hours[h].orders++;hours[h].revenue+=t;const phone=normalizePhone(o.customerPhone||"");if(phone){customers[phone]=(customers[phone]||{phone,name:o.customerName||"",orders:0,spent:0,last:o.createdAt});customers[phone].orders++;customers[phone].spent+=t;customers[phone].last=o.createdAt;}
+    for(const it of (o.items||[])){const id=String(it.id||it.name);if(!products[id])products[id]={id,name:it.name||"محصول",qty:0,revenue:0};products[id].qty+=Number(it.qty)||0;products[id].revenue+=Number(it.lineTotal)||((Number(it.price)||0)*(Number(it.qty)||0));items+=Number(it.qty)||0;const cat=it.categoryName||it.category||"سایر";cats[cat]=(cats[cat]||0)+(Number(it.lineTotal)||((Number(it.price)||0)*(Number(it.qty)||0)));}}
+  const cust=Object.values(customers), repeat=cust.filter(x=>x.orders>=2).length; return {revenueToday:today,revenueWeek:week,revenueMonth:month,totalRevenue:revenue,totalOrders:valid.length,itemsSold:items,avgOrder:valid.length?Math.round(revenue/valid.length):0,repeatRate:cust.length?Math.round(repeat/cust.length*100):0,daily:Object.values(daily),hours,hourPeak:[...hours.map((x,i)=>({...x,hour:i}))].sort((a,b)=>b.revenue-a.revenue).slice(0,5),categories:Object.entries(cats).map(([name,revenue])=>({name,revenue})).sort((a,b)=>b.revenue-a.revenue),products:Object.values(products).sort((a,b)=>b.revenue-a.revenue).slice(0,15),customers:cust.sort((a,b)=>b.spent-a.spent).slice(0,10)};
+}
+async function handleAdvancedAnalytics(request,env){const c=await ownerContext(request,env);if(c.error)return c.error;return json({ok:true,analytics:buildAdvancedAnalytics(await loadOrders(c.slug,env))},200)}
 
 // GET /api/menu/order/history?slug=...&phone=...   ← عمومی، بدون لاگین — تاریخچه سفارش‌های یک مشتری تو یک کافه
 async function handleGetOrderHistory(request, env) {
@@ -2088,6 +2231,21 @@ export default {
         const parts = url.pathname.replace("/api/menu/order/status/", "").split("/");
         return await handleGetOrderStatus(parts[0], parts[1], env);
       }
+      if (url.pathname === "/api/menu/reservations" && request.method === "GET") return await handleGetReservations(request, env);
+      if (url.pathname === "/api/menu/reservations" && request.method === "POST") return await handleCreateReservation(request, env);
+      if (url.pathname === "/api/menu/reservations/status" && request.method === "POST") return await handleUpdateReservation(request, env);
+      if (url.pathname === "/api/menu/crm" && request.method === "GET") return await handleCRM(request, env);
+      if (url.pathname === "/api/menu/reviews" && request.method === "GET") { const u=new URL(request.url); return u.searchParams.get("owner")==="1" ? await handleOwnerReviews(request,env) : await handleGetReviews(request,env); }
+      if (url.pathname === "/api/menu/reviews" && request.method === "POST") return await handleCreateReview(request, env);
+      if (url.pathname === "/api/menu/reviews/status" && request.method === "POST") return await handleReviewStatus(request, env);
+      if (url.pathname === "/api/menu/notifications" && request.method === "GET") return await handleNotifications(request, env);
+      if (url.pathname === "/api/menu/notifications/read" && request.method === "POST") return await handleMarkNotifications(request, env);
+      if (url.pathname === "/api/menu/employees" && request.method === "GET") return await handleGetEmployees(request, env);
+      if (url.pathname === "/api/menu/employees" && request.method === "POST") return await handleAddEmployee(request, env);
+      if (url.pathname === "/api/menu/employees/update" && request.method === "POST") return await handleUpdateEmployee(request, env);
+      if (url.pathname === "/api/menu/employees/delete" && request.method === "POST") return await handleDeleteEmployee(request, env);
+      if (url.pathname === "/api/menu/invoice-settings" && (request.method === "GET" || request.method === "POST")) return await handleInvoiceSettings(request, env);
+      if (url.pathname === "/api/menu/analytics/advanced" && request.method === "GET") return await handleAdvancedAnalytics(request, env);
       if (url.pathname === "/api/menu/admin/list" && request.method === "GET") {
         return await handleAdminListCafes(request, env);
       }

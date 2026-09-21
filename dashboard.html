@@ -251,6 +251,8 @@
   @media(min-width:641px){.ops-grid{grid-template-columns:repeat(4,1fr)}.ops-actions{grid-template-columns:repeat(4,1fr)}.ops-table-grid{grid-template-columns:repeat(5,1fr)}}
 
   .loyalty-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}.loyalty-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.loyalty-stat .num{font-size:20px;font-weight:900;color:var(--cyan)}.loyalty-stat .lbl{font-size:11px;color:var(--muted)}.loyalty-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px}.loyalty-row .meta{min-width:0;flex:1}.loyalty-row .name{font-weight:800;font-size:13px}.loyalty-row .sub{font-size:11px;margin:2px 0 0}.tier-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.tier-grid .tier{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px}.tier-grid input{margin-bottom:6px;font-size:13px}.reward-form{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;align-items:end}.reward-form input,.reward-form select{margin-bottom:0}.loyalty-table-search{display:flex;gap:8px}.loyalty-table-search input{margin-bottom:0}.loyalty-progress{height:7px;background:var(--panel-3);border-radius:999px;overflow:hidden;margin-top:7px}.loyalty-progress>i{display:block;height:100%;background:var(--cyan);border-radius:999px}@media(max-width:520px){.reward-form{grid-template-columns:1fr 1fr}.reward-form input:first-child{grid-column:1/-1}}
+
+  .feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.feature-card{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px}.feature-card b{font-size:13px}.feature-card .big{font-size:21px;font-weight:900;color:var(--cyan);margin-top:4px}.feature-list{display:flex;flex-direction:column;gap:8px}.feature-row{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.feature-row .meta{min-width:0;flex:1}.feature-row .name{font-weight:800;font-size:13px}.feature-row .sub{font-size:11px;color:var(--muted);margin:0}.star-row{display:flex;gap:4px}.star-btn{background:transparent;border:0;color:#6d7885;padding:0;font-size:24px}.star-btn.on{color:#ffd166}.mini-chart{display:flex;align-items:flex-end;gap:4px;height:130px;padding:8px 0}.mini-chart i{flex:1;background:linear-gradient(180deg,var(--cyan),rgba(77,240,201,.15));border-radius:6px 6px 2px 2px;min-height:3px}.notif-item.unread{border-color:var(--cyan);background:rgba(77,240,201,.05)}
 </style>
 </head>
 <body>
@@ -263,7 +265,7 @@
       <div class="cafe-tag" id="topbarSlug"></div>
       <div class="cafe-tag" id="topbarBtype"></div>
     </div>
-    <div class="topbar-actions">
+    <div class="topbar-actions"><button class="icon-btn" id="notificationBell" title="اعلان‌ها">🔔<span class="dot hidden" id="notificationBadge">0</span></button>
       <button class="icon-btn" id="topbarRefreshBtn" title="تازه‌سازی اطلاعات">↻</button>
       <button class="icon-btn" id="topbarOrdersBtn" title="سفارش‌ها">🧾<span class="dot hidden" id="topbarOrdersDot">0</span></button>
       <button class="icon-btn" id="topbarLogoutBtn" title="خروج">⎋</button>
@@ -808,11 +810,43 @@
       </div>
 
       <div class="card">
-        <h2>کارکنان و دسترسی‌ها</h2>
-        <div class="inventory-row"><div class="meta"><div class="name">مدیر</div><div class="sub">دسترسی کامل به منو، سفارش و تنظیمات</div></div><span class="chip active">کامل</span></div>
-        <div class="inventory-row"><div class="meta"><div class="name">صندوقدار</div><div class="sub">سفارش‌ها، پرداخت و فاکتور</div></div><span class="chip">محدود</span></div>
-        <div class="inventory-row"><div class="meta"><div class="name">آشپزخانه</div><div class="sub">مشاهده و تغییر وضعیت سفارش‌ها</div></div><span class="chip">محدود</span></div>
-        <p class="sub" style="margin:8px 0 0">اتصال حساب‌های جداگانه کارکنان می‌تواند در مرحله بعد به احراز هویت فعلی متصل شود.</p>
+        <h2>مدیریت کارکنان <span class="h2-hint">نقش، دسترسی و وضعیت</span></h2>
+        <div class="msg" id="staffMsg"></div>
+        <div class="row"><input id="staffName" placeholder="نام و نام خانوادگی"><input id="staffPhone" dir="ltr" placeholder="موبایل"></div>
+        <select id="staffRole"><option value="manager">مدیر</option><option value="cashier">صندوقدار</option><option value="kitchen">آشپزخانه</option><option value="service">سرویس</option></select>
+        <input id="staffNotes" placeholder="یادداشت / توضیح">
+        <button class="btn-primary btn-block" id="addStaffBtn">+ افزودن کارمند</button>
+        <div id="staffList" style="margin-top:14px"></div>
+      </div>
+
+
+      <div class="card" id="reservationsCard">
+        <h2>📅 رزرو میز <button class="btn-ghost btn-sm" id="refreshReservations">↻</button></h2>
+        <div id="reservationStats" class="sub">در حال دریافت…</div><div id="reservationsList" class="feature-list"></div>
+      </div>
+      <div class="card" id="crmCard">
+        <h2>👥 CRM واقعی <button class="btn-ghost btn-sm" id="refreshCRM">↻</button></h2>
+        <div id="crmStats" class="feature-grid"></div><input id="crmSearch" placeholder="جستجوی نام، شماره یا مشتری غیرفعال…"><div id="crmList" class="feature-list"></div>
+      </div>
+      <div class="card" id="reviewsCard">
+        <h2>⭐ نظرسنجی و Review <button class="btn-ghost btn-sm" id="refreshReviews">↻</button></h2>
+        <div id="reviewStats" class="feature-grid"></div><div id="reviewsList" class="feature-list"></div>
+      </div>
+      <div class="card" id="notificationsCard">
+        <h2>🔔 Notification Center <button class="btn-ghost btn-sm" id="markAllNotifications">خوانده شد</button></h2>
+        <div id="notificationsList" class="feature-list"></div>
+      </div>
+      <div class="card" id="invoiceSettingsCard">
+        <h2>🧾 فاکتور حرفه‌ای</h2>
+        <div class="msg" id="invoiceMsg"></div>
+        <input id="invBusinessName" placeholder="نام کسب‌وکار"><input id="invAddress" placeholder="آدرس"><input id="invPhone" dir="ltr" placeholder="شماره تماس">
+        <div class="row"><input id="invTax" dir="ltr" inputmode="decimal" placeholder="مالیات ٪"><input id="invService" dir="ltr" inputmode="decimal" placeholder="سرویس ٪"></div>
+        <input id="invPrefix" dir="ltr" placeholder="پیشوند فاکتور مثل INV"><input id="invFooter" placeholder="متن پایین فاکتور">
+        <button class="btn-primary btn-block" id="saveInvoiceSettings">ذخیره تنظیمات فاکتور</button>
+      </div>
+      <div class="card" id="advancedAnalyticsCard">
+        <h2>📈 داشبورد تحلیل پیشرفته <button class="btn-ghost btn-sm" id="refreshAdvancedAnalytics">↻</button></h2>
+        <div id="advancedStats" class="feature-grid"></div><div id="advancedDailyChart" class="mini-chart"></div><div id="advancedInsights" class="feature-list"></div>
       </div>
 
       <div class="card">
@@ -2397,7 +2431,7 @@ document.getElementById('enableNotifBtn').addEventListener('click', async () => 
 /* ============ خروجی PDF فاکتور سفارش (برای دکمه‌ی «فاکتور» کنار هر سفارش) ============ */
 // data: { items:[{name, price, qty}], subtotal, discountCode, discountAmount, total, dateObj, orderNo, statusLabel, filename }
 function buildInvoiceHtml(data){
-  const itemsHtml = data.items.map(it => {
+  const inv=window.__invoiceSettings||{}; const itemsHtml = data.items.map(it => {
     const lineTotal = it.price * it.qty;
     return `<tr><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${escapeHtml(it.name)}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:center;">${it.qty}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${it.price.toLocaleString('fa-IR')}</td><td style="padding:8px; border-bottom:1px solid #e5e7eb;">${lineTotal.toLocaleString('fa-IR')}</td></tr>`;
   }).join('');
@@ -2405,11 +2439,11 @@ function buildInvoiceHtml(data){
   return `
     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1a1a1a; padding-bottom:12px; margin-bottom:16px;">
       <div>
-        <div style="font-size:19px; font-weight:800;">${escapeHtml(currentMenu.cafeName || 'کافه')}
-          <div style="display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px;">menuproai.bytelabpro.xyz</div>
+        <div style="font-size:19px; font-weight:800;">${escapeHtml(inv.businessName || currentMenu.cafeName || 'کسب‌وکار')}
+          <div style="display:block; font-size:11px; color:#6b7280; font-weight:400; margin-top:3px;">${escapeHtml(inv.address||'')} ${inv.phone?' · '+escapeHtml(inv.phone):''}</div>
         </div>
       </div>
-      <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">فاکتور</div>
+      <div style="background:#1a1a1a; color:#D9A566; font-weight:800; padding:6px 12px; border-radius:6px; font-size:11px;">${escapeHtml(data.invoicePrefix || inv.invoicePrefix || 'INV')} · ${escapeHtml(data.orderNo || '')}</div>
     </div>
     <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:14px;">
       <span>${data.dateObj.toLocaleDateString('fa-IR')} — ${data.dateObj.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' })}</span>
@@ -2436,11 +2470,12 @@ function buildInvoiceHtml(data){
         <span>تخفیف${data.discountCode ? ' (' + escapeHtml(data.discountCode) + ')' : ''}</span>
         <span>− ${data.discountAmount.toLocaleString('fa-IR')}</span>
       </div>` : ''}
-      <div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
+      ${inv.taxPercent?`<div style="display:flex;justify-content:space-between;padding:3px 0;color:#6b7280;"><span>مالیات (${inv.taxPercent}٪)</span><span>مطابق تنظیمات</span></div>`:''}${inv.servicePercent?`<div style="display:flex;justify-content:space-between;padding:3px 0;color:#6b7280;"><span>سرویس (${inv.servicePercent}٪)</span><span>مطابق تنظیمات</span></div>`:''}<div style="display:flex; justify-content:space-between; font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px;">
         <span>جمع کل</span>
         <span>${data.total.toLocaleString('fa-IR')} تومان</span>
       </div>
     </div>
+    ${inv.footer?`<div style="margin-top:18px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:center;color:#6b7280;font-size:10.5px;">${escapeHtml(inv.footer)}</div>`:''}
   `;
 }
 
@@ -2716,5 +2751,23 @@ document.getElementById('opsRefresh')?.addEventListener('click',loadOpsCenter);
 <div class="modal-backdrop hidden" id="toolModalBackdrop">
   <div class="modal" id="toolModal"></div>
 </div>
+
+<script>
+/* MenuProAI Business Suite — corrected feature layer */
+async function loadBusinessSuite(){
+  if(!currentMenu?.slug)return;
+  await Promise.allSettled([loadReservations(),loadCRM(),loadOwnerReviews(),loadNotifications(),loadEmployees(),loadInvoiceSettings(),loadAdvancedAnalytics()]);
+}
+async function loadReservations(){try{const d=await apiCall('/api/menu/reservations');const list=d.reservations||[];document.getElementById('reservationStats').textContent=`${list.filter(x=>x.status==='pending').length.toLocaleString('fa-IR')} رزرو در انتظار تأیید · ${list.filter(x=>x.status==='confirmed').length.toLocaleString('fa-IR')} تأیید شده`;document.getElementById('reservationsList').innerHTML=list.slice(0,12).map(r=>`<div class="feature-row"><div class="meta"><div class="name">${escapeHtml(r.name)} · ${r.guests} نفر</div><div class="sub">${r.date} · ${r.time} · ${escapeHtml(r.phone)}${r.note?' · '+escapeHtml(r.note):''}</div></div><select data-res-status="${r.id}" style="width:auto;margin:0;padding:6px 8px"><option value="pending" ${r.status==='pending'?'selected':''}>در انتظار</option><option value="confirmed" ${r.status==='confirmed'?'selected':''}>تأیید</option><option value="seated" ${r.status==='seated'?'selected':''}>حاضر شد</option><option value="completed" ${r.status==='completed'?'selected':''}>تکمیل</option><option value="cancelled" ${r.status==='cancelled'?'selected':''}>لغو</option></select></div>`).join('')||'<div class="sub">هنوز رزروی ثبت نشده.</div>';document.querySelectorAll('[data-res-status]').forEach(s=>s.onchange=async()=>{await apiCall('/api/menu/reservations/status',{id:s.dataset.resStatus,status:s.value});loadReservations()})}catch(e){document.getElementById('reservationStats').textContent=e.message}}
+async function loadCRM(){try{const q=document.getElementById('crmSearch')?.value||'';const d=await apiCall('/api/menu/crm'+(q?'?q='+encodeURIComponent(q):''));const st=d.stats||{};document.getElementById('crmStats').innerHTML=[['مشتری',st.total],['فعال',st.active],['غیرفعال',st.inactive],['VIP',st.vip]].map(x=>`<div class="feature-card"><b>${x[0]}</b><div class="big">${Number(x[1]||0).toLocaleString('fa-IR')}</div></div>`).join('');document.getElementById('crmList').innerHTML=(d.customers||[]).slice(0,15).map(c=>`<div class="feature-row"><div class="meta"><div class="name">${escapeHtml(c.name||'بدون نام')} <span class="chip ${c.segment==='vip'?'active':''}">${c.segment}</span></div><div class="sub">${escapeHtml(c.phone)} · ${c.orders} سفارش · ${Number(c.totalSpent).toLocaleString('fa-IR')} تومان · آخرین خرید ${timeAgo(c.lastVisit)}</div></div><b>${Number(c.avgOrder).toLocaleString('fa-IR')}</b></div>`).join('')||'<div class="sub">مشتری ثبت‌شده‌ای پیدا نشد.</div>'}catch(e){document.getElementById('crmList').innerHTML='<div class="sub">'+escapeHtml(e.message)+'</div>'}}
+async function loadOwnerReviews(){try{const d=await apiCall('/api/menu/reviews?owner=1');document.getElementById('reviewStats').innerHTML=`<div class="feature-card"><b>میانگین رضایت</b><div class="big">${d.stats?.avg||0} ⭐</div></div><div class="feature-card"><b>تعداد نظر</b><div class="big">${Number(d.stats?.count||0).toLocaleString('fa-IR')}</div></div>`;document.getElementById('reviewsList').innerHTML=(d.reviews||[]).slice(0,15).map(r=>`<div class="feature-row"><div class="meta"><div class="name">${escapeHtml(r.name)} · ${'⭐'.repeat(Number(r.rating||0))}</div><div class="sub">${escapeHtml(r.text||'بدون متن')} · ${timeAgo(r.createdAt)}</div></div><button class="btn-ghost btn-sm" data-review-id="${r.id}" data-review-status="${r.status==='hidden'?'published':'hidden'}">${r.status==='hidden'?'نمایش':'مخفی'}</button></div>`).join('')||'<div class="sub">هنوز نظری ثبت نشده.</div>';document.querySelectorAll('[data-review-id]').forEach(b=>b.onclick=async()=>{await apiCall('/api/menu/reviews/status',{id:b.dataset.reviewId,status:b.dataset.reviewStatus});loadOwnerReviews()})}catch(e){document.getElementById('reviewsList').innerHTML='<div class="sub">'+escapeHtml(e.message)+'</div>'}}
+async function loadNotifications(){try{const d=await apiCall('/api/menu/notifications');const badge=document.getElementById('notificationBadge');badge.textContent=Number(d.unread||0).toLocaleString('fa-IR');badge.classList.toggle('hidden',!d.unread);document.getElementById('notificationsList').innerHTML=(d.notifications||[]).slice(0,20).map(n=>`<div class="feature-row notif-item ${n.read?'':'unread'}"><div class="meta"><div class="name">${escapeHtml(n.title)}</div><div class="sub">${escapeHtml(n.body)} · ${timeAgo(n.createdAt)}</div></div>${n.read?'':'<span class="chip active">جدید</span>'}</div>`).join('')||'<div class="sub">اعلان جدیدی نیست.</div>'}catch(e){document.getElementById('notificationsList').innerHTML='<div class="sub">'+escapeHtml(e.message)+'</div>'}}
+async function loadEmployees(){try{const d=await apiCall('/api/menu/employees');const labels={manager:'مدیر',cashier:'صندوقدار',kitchen:'آشپزخانه',service:'سرویس'};document.getElementById('staffList').innerHTML=(d.employees||[]).map(e=>`<div class="feature-row"><div class="meta"><div class="name">${escapeHtml(e.name)} <span class="chip ${e.active?'active':''}">${labels[e.role]||e.role}</span></div><div class="sub">${escapeHtml(e.phone||'بدون موبایل')} · ${e.permissions?.length||0} دسترسی · ${e.active?'فعال':'غیرفعال'}</div></div><div class="item-actions"><button class="btn-ghost btn-sm" data-staff-toggle="${e.id}">${e.active?'غیرفعال':'فعال'}</button><button class="btn-danger btn-sm" data-staff-delete="${e.id}">حذف</button></div></div>`).join('')||'<div class="sub">هنوز کارمندی اضافه نشده.</div>';document.querySelectorAll('[data-staff-toggle]').forEach(b=>b.onclick=async()=>{const id=b.dataset.staffToggle;const e=(d.employees||[]).find(x=>x.id===id);await apiCall('/api/menu/employees/update',{id,active:!e.active});loadEmployees()});document.querySelectorAll('[data-staff-delete]').forEach(b=>b.onclick=async()=>{if(confirm('این کارمند حذف شود؟')){await apiCall('/api/menu/employees/delete',{id:b.dataset.staffDelete});loadEmployees()}})}catch(e){showMsg('staffMsg',e.message,'err')}}
+async function loadInvoiceSettings(){try{const d=await apiCall('/api/menu/invoice-settings');const s=d.settings||{};window.__invoiceSettings=s;['businessName','address','phone','footer','invoicePrefix'].forEach(k=>{const el=document.getElementById('inv'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.value=s[k]||''});document.getElementById('invTax').value=s.taxPercent||0;document.getElementById('invService').value=s.servicePercent||0}catch(e){}}
+async function loadAdvancedAnalytics(){try{const d=await apiCall('/api/menu/analytics/advanced');const a=d.analytics||{};document.getElementById('advancedStats').innerHTML=[['امروز',a.revenueToday],['۷ روز',a.revenueWeek],['۳۰ روز',a.revenueMonth],['میانگین سفارش',a.avgOrder],['آیتم فروخته‌شده',a.itemsSold],['مشتری تکراری',a.repeatRate+'%']].map(x=>`<div class="feature-card"><b>${x[0]}</b><div class="big">${typeof x[1]==='number'?x[1].toLocaleString('fa-IR'):x[1]}</div></div>`).join('');const daily=a.daily||[],mx=Math.max(1,...daily.map(x=>x.revenue));document.getElementById('advancedDailyChart').innerHTML=daily.map(x=>`<i title="${x.date} · ${Number(x.revenue).toLocaleString('fa-IR')}" style="height:${Math.max(3,Math.round(x.revenue/mx*100))}%"></i>`).join('');document.getElementById('advancedInsights').innerHTML=(a.hourPeak||[]).slice(0,5).map(x=>`<div class="feature-row"><div class="meta"><div class="name">ساعت ${x.hour}:۰۰</div><div class="sub">${x.orders} سفارش</div></div><b>${Number(x.revenue).toLocaleString('fa-IR')} تومان</b></div>`).join('')||'<div class="sub">داده کافی نیست.</div>'}catch(e){document.getElementById('advancedInsights').innerHTML='<div class="sub">'+escapeHtml(e.message)+'</div>'}}
+
+document.getElementById('refreshReservations')?.addEventListener('click',loadReservations);document.getElementById('refreshCRM')?.addEventListener('click',loadCRM);document.getElementById('crmSearch')?.addEventListener('input',()=>loadCRM());document.getElementById('refreshReviews')?.addEventListener('click',loadOwnerReviews);document.getElementById('refreshAdvancedAnalytics')?.addEventListener('click',loadAdvancedAnalytics);document.getElementById('notificationBell')?.addEventListener('click',()=>{document.getElementById('notificationsCard')?.scrollIntoView({behavior:'smooth'});loadNotifications()});document.getElementById('markAllNotifications')?.addEventListener('click',async()=>{await apiCall('/api/menu/notifications/read',{all:true});loadNotifications()});document.getElementById('addStaffBtn')?.addEventListener('click',async()=>{const name=document.getElementById('staffName').value.trim();if(!name){showMsg('staffMsg','نام کارمند را وارد کن.','err');return}try{await apiCall('/api/menu/employees',{name,phone:document.getElementById('staffPhone').value.trim(),role:document.getElementById('staffRole').value,notes:document.getElementById('staffNotes').value.trim()});['staffName','staffPhone','staffNotes'].forEach(id=>document.getElementById(id).value='');hideMsg('staffMsg');loadEmployees()}catch(e){showMsg('staffMsg',e.message,'err')}});document.getElementById('saveInvoiceSettings')?.addEventListener('click',async()=>{try{await apiCall('/api/menu/invoice-settings',{businessName:document.getElementById('invBusinessName').value,address:document.getElementById('invAddress').value,phone:document.getElementById('invPhone').value,taxPercent:Number(document.getElementById('invTax').value)||0,servicePercent:Number(document.getElementById('invService').value)||0,invoicePrefix:document.getElementById('invPrefix').value,footer:document.getElementById('invFooter').value});showMsg('invoiceMsg','تنظیمات فاکتور ذخیره شد.','ok')}catch(e){showMsg('invoiceMsg',e.message,'err')}});
+const oldAfterAuth=afterAuth; afterAuth=async function(){await oldAfterAuth.apply(this,arguments);setTimeout(loadBusinessSuite,200)}; if(BytelabAuth.isLoggedIn()) setTimeout(loadBusinessSuite,300);
+</script>
 </body>
 </html>
