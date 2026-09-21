@@ -236,6 +236,8 @@
       <button class="active" data-global="home">📊 داشبورد</button>
       <button data-global="users">👥 کاربران</button>
       <button data-global="cafes">☕ کافه‌ها و منوها</button>
+      <button data-global="search">🔎 جستجوی سراسری</button>
+      <button data-global="operations">⚡ عملیات زنده</button>
       <button data-global="activity">🧾 لاگ فعالیت</button>
       <button data-global="health">🛡️ سلامت سیستم</button>
       <button data-global="export">📦 پشتیبان و خروجی</button>
@@ -293,6 +295,23 @@
         <tbody id="cafesBody"><tr><td colspan="6" class="loading">در حال بارگذاری...</td></tr></tbody>
       </table>
     </div>
+    </section>
+
+    <section class="global-section" id="global-search">
+      <div class="hero"><h2>جستجوی سراسری</h2><p>یک جستجو در کاربران، کافه‌ها، محصولات و سفارش‌ها.</p></div>
+      <div class="toolbar"><input class="wide" id="globalSearchInput" placeholder="حداقل ۲ حرف: نام، موبایل، محصول، شماره سفارش..."/><button class="btn-sm" id="globalSearchBtn">جستجو</button></div>
+      <div class="panel-card"><div id="globalSearchResults" class="empty">عبارت جستجو را وارد کن.</div></div>
+    </section>
+
+    <section class="global-section" id="global-operations">
+      <div class="hero"><h2>⚡ عملیات زنده</h2><p>سفارش‌ها و درخواست‌های باز همه کافه‌ها در یک صفحه.</p></div>
+      <div class="global-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card"><div class="number" id="opNew">—</div><div class="label">سفارش جدید</div></div>
+        <div class="stat-card"><div class="number" id="opPreparing">—</div><div class="label">در حال آماده‌سازی</div></div>
+        <div class="stat-card"><div class="number" id="opReady">—</div><div class="label">آماده تحویل</div></div>
+        <div class="stat-card"><div class="number" id="opCalls">—</div><div class="label">درخواست گارسون</div></div>
+      </div>
+      <div class="panel-card"><div id="operationsList" class="empty">در حال بارگذاری...</div></div>
     </section>
 
     <section class="global-section" id="global-activity">
@@ -909,6 +928,8 @@
     if(name==="home") loadOverview();
     if(name==="users") loadUsers();
     if(name==="activity") loadActivity();
+    if(name==="search") document.getElementById("globalSearchInput")?.focus();
+    if(name==="operations") loadOperations();
   }
   document.querySelectorAll(".global-nav button").forEach(b=>b.addEventListener("click",()=>showGlobal(b.dataset.global)));
   async function loadOverview(){
@@ -932,10 +953,14 @@
   async function toggleUser(phone,status){try{await gapi("/api/admin/global/users/status",{method:"POST",body:JSON.stringify({phone,status})});toast("وضعیت کاربر تغییر کرد");loadUsers();}catch(e){toast(e.message,true)}}
   async function resetUser(phone){const p=prompt("رمز جدید (حداقل ۶ کاراکتر):");if(p===null)return;try{const d=await gapi("/api/admin/global/users/reset-password",{method:"POST",body:JSON.stringify({phone,newPassword:p})});prompt("رمز جدید کاربر:",d.newPassword);toast("رمز تغییر کرد");}catch(e){toast(e.message,true)}}
   async function deleteUser(phone){if(!confirm("حساب این کاربر حذف شود؟"))return;try{await gapi("/api/admin/global/users/delete",{method:"POST",body:JSON.stringify({phone})});toast("کاربر حذف شد");loadUsers();}catch(e){toast(e.message,true)}}
+  async function globalSearch(){const q=document.getElementById('globalSearchInput').value.trim();if(q.length<2){document.getElementById('globalSearchResults').innerHTML='<div class="empty">حداقل ۲ حرف وارد کن.</div>';return;}try{const d=await gapi('/api/admin/global/search?q='+encodeURIComponent(q));const rows=d.results||[];document.getElementById('globalSearchResults').innerHTML=rows.length?rows.map(x=>'<div class="list-item"><div class="info"><div class="t1">'+esc2(x.title||'—')+'</div><div class="t2">'+esc2(x.subtitle||'')+' · '+esc2(x.type||'')+'</div></div></div>').join(''):'<div class="empty">نتیجه‌ای پیدا نشد.</div>'}catch(e){toast(e.message,true)}}
+  async function loadOperations(){try{const d=await gapi('/api/admin/global/operations');const c=d.counts||{};['opNew','opPreparing','opReady','opCalls'].forEach((id,i)=>document.getElementById(id).textContent=fa2([c.new,c.preparing,c.ready,c.calls][i]||0));const rows=d.openOrders||[];document.getElementById('operationsList').innerHTML=rows.length?rows.map(o=>'<div class="list-item"><div class="info"><div class="t1">'+esc2(o.cafeName)+' · '+esc2(o.customerName||'درخواست سرویس')+'</div><div class="t2">میز '+esc2(o.tableNumber||'—')+' · '+fa2(o.total)+' تومان · '+new Date(o.createdAt||0).toLocaleString('fa-IR')+'</div></div><div class="actions"><span class="badge badge-'+esc2(o.status)+'">'+esc2(o.type==='call-waiter'?'درخواست گارسون':o.status)+'</span></div></div>').join(''):'<div class="empty">عملیات بازی وجود ندارد.</div>'}catch(e){toast(e.message,true)}}
   async function loadActivity(){try{const d=await gapi("/api/admin/global/activity"), rows=d.activities||[];document.getElementById("activityList").innerHTML=rows.length?rows.map(x=>`<div class="list-item"><div class="info"><div class="t1">${esc2(x.action)}</div><div class="t2">${new Date(x.createdAt).toLocaleString("fa-IR")} · ${esc2(JSON.stringify(x.meta||{}))}</div></div></div>`).join(""):'<div class="empty">لاگی ثبت نشده</div>'}catch(e){toast(e.message,true)}}
   async function health(){try{const d=await gapi("/api/admin/global/health");document.getElementById("healthList").innerHTML=(d.checks||[]).map(x=>`<div class="health-row"><span><span class="dot ${x.ok?"ok":""}"></span>${esc2(x.name)}</span><span>${x.ok?"سالم":"خطا"} ${x.detail?"· "+esc2(x.detail):""}${x.error?"· "+esc2(x.error):""}</span></div>`).join("")}catch(e){toast(e.message,true)}}
   async function exportAll(){try{document.getElementById("exportStatus").textContent="در حال ساخت خروجی...";const d=await gapi("/api/admin/global/export");const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="menuproai-global-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);document.getElementById("exportStatus").textContent="خروجی با موفقیت ساخته شد.";toast("فایل خروجی آماده شد ✅")}catch(e){toast(e.message,true);document.getElementById("exportStatus").textContent=e.message}}
   document.getElementById("globalUserRefresh").addEventListener("click",loadUsers);
+  document.getElementById("globalSearchBtn").addEventListener("click",globalSearch);
+  document.getElementById("globalSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")globalSearch()});
   document.getElementById("globalUserSearch").addEventListener("input",()=>{clearTimeout(window.__gsearch);window.__gsearch=setTimeout(loadUsers,300)});
   document.getElementById("healthBtn").addEventListener("click",health);
   document.getElementById("exportBtn").addEventListener("click",exportAll);

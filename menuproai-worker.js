@@ -132,7 +132,7 @@ async function handleAuthRegister(request, env) {
   const key = "auth:user:" + phone;
   if (await env.MENU_KV.get(key)) return json({ error: "این شماره قبلاً ثبت شده است. وارد حساب شو." }, 409);
   const hp = await hashPassword(password);
-  const user = { phone, name, email, passwordHash: hp.hash, salt: hp.salt, createdAt: new Date().toISOString() };
+  const user = { phone, name, email, passwordHash: hp.hash, salt: hp.salt, status: "active", createdAt: new Date().toISOString(), lastLoginAt: null };
   await env.MENU_KV.put(key, JSON.stringify(user));
   const token = await issueLocalSession(phone, env);
   return json({ ok: true, token, user: { phone, name, email } }, 201);
@@ -146,6 +146,9 @@ async function handleAuthLogin(request, env) {
   const raw = await env.MENU_KV.get("auth:user:" + phone);
   if (!raw) return json({ error: "حسابی با این شماره پیدا نشد. اگر حساب قدیمی داری، session قدیمی باید هنوز فعال باشد؛ در غیر این صورت دوباره ثبت‌نام کن." }, 401);
   const user = JSON.parse(raw);
+  if (user.status === "blocked") return json({ error: "این حساب توسط مدیریت مسدود شده است." }, 403);
+  user.lastLoginAt = new Date().toISOString();
+  await env.MENU_KV.put(key, JSON.stringify(user));
   const hp = await hashPassword(password, user.salt);
   if (hp.hash !== user.passwordHash) return json({ error: "شماره یا رمز عبور اشتباه است." }, 401);
   const token = await issueLocalSession(phone, env);
@@ -1546,6 +1549,159 @@ async function handleAdminGetAnalytics(request, env) {
   return json({ ok: true, analytics: buildAnalytics(orders) }, 200);
 }
 
+
+// ============================================================
+// Global Super Admin V7 — مدیریت سراسری بدون حذف APIهای قبلی
+// ============================================================
+async function globalLog(env, action, meta = {}) {
+  try {
+    const id = Date.now() + ':' + Math.random().toString(36).slice(2, 8);
+    await env.MENU_KV.put('global:activity:' + id, JSON.stringify({
+      id, action, meta, createdAt: new Date().toISOString()
+    }));
+  } catch (_) {}
+}
+
+async function listAllKeys(env, prefix) {
+  const out=[]; let cursor;
+  do {
+    const page=await env.MENU_KV.list({prefix, cursor});
+    out.push(...(page.keys||[]).map(k=>k.name));
+    cursor=page.list_complete?undefined:page.cursor;
+  } while(cursor);
+  return out;
+}
+
+async function getGlobalUsers(env) {
+  const keys=await listAllKeys(env,'auth:user:');
+  const users=[];
+  for(const key of keys){
+    const raw=await env.MENU_KV.get(key); if(!raw) continue;
+    try { users.push(JSON.parse(raw)); } catch (_) {}
+  }
+  return users;
+}
+
+async function handleGlobalOverview(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const users=await getGlobalUsers(env);
+  const idxRaw=await env.MENU_KV.get('slug_index');
+  const slugs=idxRaw?JSON.parse(idxRaw):[];
+  let totalOrders=0,totalRevenue=0,revenueWeek=0,products=0,activeCafes=0;
+  const recentOrders=[]; const cafeMap={};
+  const weekCut=Date.now()-7*86400000;
+  for(const slug of slugs){
+    const raw=await env.MENU_KV.get('menu:'+slug); if(!raw) continue;
+    let menu; try{menu=JSON.parse(raw)}catch{continue}
+    cafeMap[menu.ownerPhone]=menu;
+    if(menu.active!==false) activeCafes++;
+    products += Array.isArray(menu.items)?menu.items.length:0;
+    const orders=await loadOrders(slug,env);
+    totalOrders+=orders.length;
+    for(const o of orders){
+      const total=Number(o.total)||0; totalRevenue+=total;
+      const ts=Date.parse(o.createdAt||''); if(ts>=weekCut) revenueWeek+=total;
+      recentOrders.push({...o,cafeName:menu.cafeName||slug,slug});
+    }
+  }
+  recentOrders.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0));
+  const recentUsers=[...users].sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0)).slice(0,8);
+  const newUsers7=users.filter(u=>Date.parse(u.createdAt||0)>=weekCut).length;
+  return json({ok:true,stats:{users:users.length,cafes:slugs.length,activeCafes,totalOrders,totalRevenue,revenueWeek,products,newUsers7},recentOrders:recentOrders.slice(0,8),recentUsers});
+}
+
+async function handleGlobalUsers(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const url=new URL(request.url); const q=String(url.searchParams.get('q')||'').trim().toLowerCase();
+  const users=await getGlobalUsers(env);
+  const idxRaw=await env.MENU_KV.get('slug_index'); const slugs=idxRaw?JSON.parse(idxRaw):[];
+  const menus=[]; for(const slug of slugs){const raw=await env.MENU_KV.get('menu:'+slug);if(raw)try{menus.push(JSON.parse(raw))}catch{}}
+  const rows=users.map(u=>{const menu=menus.find(m=>m.ownerPhone===u.phone);return {...u,cafeName:menu?.cafeName||'',slug:menu?.slug||''}})
+    .filter(u=>!q || [u.name,u.phone,u.email,u.cafeName,u.slug].some(v=>String(v||'').toLowerCase().includes(q)))
+    .sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0));
+  return json({ok:true,users:rows});
+}
+
+async function handleGlobalUserStatus(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const phone=normalizePhone(body.phone), status=body.status==='blocked'?'blocked':'active';
+  const key='auth:user:'+phone, raw=await env.MENU_KV.get(key); if(!raw)return json({error:'کاربر پیدا نشد.'},404);
+  const u=JSON.parse(raw); u.status=status; u.updatedAt=new Date().toISOString(); await env.MENU_KV.put(key,JSON.stringify(u));
+  await globalLog(env,'تغییر وضعیت کاربر',{phone,status}); return json({ok:true,user:{phone,status}});
+}
+
+async function handleGlobalUserReset(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const phone=normalizePhone(body.phone), password=String(body.newPassword||'');
+  if(password.length<6)return json({error:'رمز باید حداقل ۶ کاراکتر باشد.'},400);
+  const key='auth:user:'+phone, raw=await env.MENU_KV.get(key); if(!raw)return json({error:'کاربر پیدا نشد.'},404);
+  const u=JSON.parse(raw); const hp=await hashPassword(password); u.passwordHash=hp.hash;u.salt=hp.salt;u.updatedAt=new Date().toISOString();await env.MENU_KV.put(key,JSON.stringify(u));
+  await globalLog(env,'ریست رمز کاربر',{phone}); return json({ok:true,newPassword:password});
+}
+
+async function handleGlobalUserDelete(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  let body;try{body=await request.json()}catch{return json({error:'بدنه نامعتبر است.'},400)}
+  const phone=normalizePhone(body.phone); const key='auth:user:'+phone; if(!await env.MENU_KV.get(key))return json({error:'کاربر پیدا نشد.'},404);
+  await env.MENU_KV.delete(key);
+  const sessions=await listAllKeys(env,'auth:session:'); for(const sk of sessions){if((await env.MENU_KV.get(sk))===phone)await env.MENU_KV.delete(sk)}
+  await globalLog(env,'حذف کاربر',{phone}); return json({ok:true});
+}
+
+async function handleGlobalActivity(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const keys=await listAllKeys(env,'global:activity:'); const rows=[];
+  for(const k of keys){const raw=await env.MENU_KV.get(k);if(raw)try{rows.push(JSON.parse(raw))}catch{}}
+  rows.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0)); return json({ok:true,activities:rows.slice(0,200)});
+}
+
+async function handleGlobalHealth(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const checks=[];
+  try{await env.MENU_KV.put('health:probe',new Date().toISOString(),{expirationTtl:60});checks.push({name:'MENU_KV',ok:true,detail:'خواندن/نوشتن فعال'})}catch(e){checks.push({name:'MENU_KV',ok:false,error:String(e.message||e)})}
+  checks.push({name:'USERS_KV',ok:!!env.USERS_KV,detail:env.USERS_KV?'Binding موجود است':'Binding موجود نیست'});
+  try{const n=(await listAllKeys(env,'menu:')).length;checks.push({name:'Menu Data',ok:true,detail:n+' رکورد منو'})}catch(e){checks.push({name:'Menu Data',ok:false,error:String(e.message||e)})}
+  try{const n=(await listAllKeys(env,'orders:')).length;checks.push({name:'Orders Data',ok:true,detail:n+' کلید سفارش'})}catch(e){checks.push({name:'Orders Data',ok:false,error:String(e.message||e)})}
+  return json({ok:checks.every(x=>x.ok),checks});
+}
+
+
+async function handleGlobalSearch(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const q=String(new URL(request.url).searchParams.get('q')||'').trim().toLowerCase();
+  if(q.length<2) return json({ok:true,results:[]});
+  const idxRaw=await env.MENU_KV.get('slug_index'); const slugs=idxRaw?JSON.parse(idxRaw):[];
+  const users=await getGlobalUsers(env); const results=[];
+  for(const u of users){if([u.name,u.phone,u.email].some(v=>String(v||'').toLowerCase().includes(q)))results.push({type:'user',title:u.name||u.phone,subtitle:u.phone,phone:u.phone});}
+  for(const slug of slugs){
+    const raw=await env.MENU_KV.get('menu:'+slug); if(!raw)continue; let m;try{m=JSON.parse(raw)}catch{continue}
+    if([m.cafeName,m.tagline,m.slug,m.ownerPhone].some(v=>String(v||'').toLowerCase().includes(q)))results.push({type:'cafe',title:m.cafeName||slug,subtitle:slug,phone:m.ownerPhone});
+    for(const it of (m.items||[])) if([it.name,it.nameEn,it.desc,it.tags].some(v=>String(v||'').toLowerCase().includes(q))) results.push({type:'product',title:it.name,subtitle:(m.cafeName||slug)+' · '+(it.price||0)+' تومان',slug});
+    const orders=await loadOrders(slug,env);
+    for(const o of orders) if([o.id,o.customerName,o.customerPhone,o.tableNumber,o.note].some(v=>String(v||'').toLowerCase().includes(q))) results.push({type:'order',title:o.customerName||o.id,subtitle:(m.cafeName||slug)+' · '+(o.total||0)+' تومان',slug,orderId:o.id,status:o.status});
+  }
+  return json({ok:true,results:results.slice(0,100)});
+}
+
+async function handleGlobalOperations(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const idxRaw=await env.MENU_KV.get('slug_index'); const slugs=idxRaw?JSON.parse(idxRaw):[]; const open=[];
+  for(const slug of slugs){const raw=await env.MENU_KV.get('menu:'+slug);if(!raw)continue;let m;try{m=JSON.parse(raw)}catch{continue};const orders=await loadOrders(slug,env);for(const o of orders){if(['new','seen','preparing','ready'].includes(o.status))open.push({...o,cafeName:m.cafeName||slug,slug});}}
+  open.sort((a,b)=>Date.parse(a.createdAt||0)-Date.parse(b.createdAt||0));
+  return json({ok:true,openOrders:open.slice(0,200),counts:{new:open.filter(o=>o.status==='new').length,preparing:open.filter(o=>o.status==='preparing').length,ready:open.filter(o=>o.status==='ready').length,calls:open.filter(o=>o.type==='call-waiter').length}});
+}
+
+async function handleGlobalExport(request, env) {
+  const denied=await requireAdminOr401(request,env); if(denied) return denied;
+  const idxRaw=await env.MENU_KV.get('slug_index'); const slugs=idxRaw?JSON.parse(idxRaw):[];
+  const users=await getGlobalUsers(env); const safeUsers=users.map(({passwordHash,salt,...u})=>u);
+  const cafes=[]; for(const slug of slugs){const raw=await env.MENU_KV.get('menu:'+slug);if(raw)try{const menu=JSON.parse(raw);cafes.push({menu,orders:await loadOrders(slug,env)})}catch{}}
+  await globalLog(env,'ساخت Backup سراسری',{cafes:cafes.length,users:safeUsers.length});
+  return json({ok:true,generatedAt:new Date().toISOString(),users:safeUsers,cafes});
+}
+
 // ============================================================
 // روتر اصلی
 // ============================================================
@@ -1718,6 +1874,17 @@ export default {
       if (url.pathname === "/api/menu/admin/orders/status" && request.method === "POST") {
         return await handleAdminUpdateOrderStatus(request, env);
       }
+
+      if (url.pathname === "/api/admin/global/overview" && request.method === "GET") return await handleGlobalOverview(request, env);
+      if (url.pathname === "/api/admin/global/users" && request.method === "GET") return await handleGlobalUsers(request, env);
+      if (url.pathname === "/api/admin/global/users/status" && request.method === "POST") return await handleGlobalUserStatus(request, env);
+      if (url.pathname === "/api/admin/global/users/reset-password" && request.method === "POST") return await handleGlobalUserReset(request, env);
+      if (url.pathname === "/api/admin/global/users/delete" && request.method === "POST") return await handleGlobalUserDelete(request, env);
+      if (url.pathname === "/api/admin/global/activity" && request.method === "GET") return await handleGlobalActivity(request, env);
+      if (url.pathname === "/api/admin/global/health" && request.method === "GET") return await handleGlobalHealth(request, env);
+      if (url.pathname === "/api/admin/global/export" && request.method === "GET") return await handleGlobalExport(request, env);
+      if (url.pathname === "/api/admin/global/search" && request.method === "GET") return await handleGlobalSearch(request, env);
+      if (url.pathname === "/api/admin/global/operations" && request.method === "GET") return await handleGlobalOperations(request, env);
 
       return json({ error: "not found" }, 404);
     } catch (err) {
