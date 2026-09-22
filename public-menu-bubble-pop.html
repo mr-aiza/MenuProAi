@@ -673,6 +673,33 @@
 const MENUPROAI_API = "https://menuproai-api.bytelab.workers.dev";
 const AI_WORKER_URL = "https://menuproai-ai.bytelab.workers.dev";
 
+
+function mpNormalizeMenu(raw){
+  const text=(v)=>{
+    if(v==null) return '';
+    if(Array.isArray(v)) return v.map(text).filter(Boolean).join('، ');
+    if(typeof v==='object'){
+      return text(v.name ?? v.title ?? v.label ?? v.text ?? v.value ?? v.id ?? v.key ?? v.src ?? v.url ?? '');
+    }
+    return String(v);
+  };
+  const arr=(v)=>Array.isArray(v)?v.map(text).filter(Boolean):[];
+  const m=(raw&&typeof raw==='object')?raw:{};
+  m.cafeName=text(m.cafeName)||'مجموعه';
+  m.tagline=text(m.tagline);
+  m.categories=Array.isArray(m.categories)?m.categories.map((c,i)=>({
+    ...(c&&typeof c==='object'?c:{}),
+    id:text(c?.id)||('cat-'+(i+1)),
+    title:text(c?.title ?? c?.name)||('دسته '+(i+1))
+  })):[];
+  m.items=Array.isArray(m.items)?m.items.map((it,i)=>{
+    const x=(it&&typeof it==='object')?it:{};
+    const recipe=x.recipe&&typeof x.recipe==='object'?{...x.recipe,ingredients:arr(x.recipe.ingredients),steps:arr(x.recipe.steps)}:null;
+    return {...x, id:text(x.id)||('item-'+(i+1)), name:text(x.name)||'محصول', desc:text(x.desc), tags:arr(x.tags), ingredients:arr(x.ingredients), price:Math.max(0,Number(x.price)||0), calories:Math.max(0,Number(x.calories)||0), image:text(x.image), category:text(x.category), recipe};
+  }):[];
+  return m;
+}
+
 function detectSlug(){
   const pathMatch = location.pathname.match(/\/USERS\/([^/]+)\/menu\.html/i);
   if (pathMatch) return decodeURIComponent(pathMatch[1]);
@@ -712,7 +739,7 @@ async function loadMenu(){
     const res = await fetch(MENUPROAI_API + '/api/menu/public/' + encodeURIComponent(slug), { cache: 'no-store' });
     const data = await res.json();
     if (!res.ok || !data.menu) throw new Error(data.error || 'منو پیدا نشد');
-    MENU = data.menu;
+    MENU = mpNormalizeMenu(data.menu);
     window.MENU = MENU;
   }catch(e){
     document.getElementById('menuRoot').innerHTML =
@@ -737,7 +764,7 @@ async function loadMenu(){
 function renderNav(){
   const nav = document.getElementById('catsNav');
   nav.innerHTML = MENU.categories.map((c,i) =>
-    `<a href="#cat-${c.id}" class="${i===0?'active':''}" data-cat="${c.id}">${c.title}</a>`
+    `<a href="#cat-${c.id}" class="${i===0?'active':''}" data-cat="${c.id}">${mpSafeText(c.title)}</a>`
   ).join('');
   nav.querySelectorAll('a').forEach(a=>{
     a.addEventListener('click', ()=>{
@@ -782,7 +809,7 @@ function runMenuSearch(query){
   const results = MENU.items.filter(it =>
     (it.name || '').toLowerCase().includes(q) ||
     (it.desc || '').toLowerCase().includes(q) ||
-    (it.tags || []).some(t => t.toLowerCase().includes(q))
+    (it.tags || []).some(t => mpSafeText(t).toLowerCase().includes(q))
   );
 
   if (!results.length){
@@ -1205,7 +1232,21 @@ async function applyDiscountCode(){
 
 /* ---------------------- ثبت سفارش (تیکت برای صاحب کافه) ---------------------- */
 async function submitOrder(){
-  const identity = getIdentity() || {};
+  const auth = window.__mpCustomerAuth;
+  const currentUser = auth && auth.user ? auth.user() : null;
+  const currentToken = auth && auth.token ? auth.token() : '';
+  if(!currentUser || !currentToken){
+    if(window.requireIdentity){
+      window.requireIdentity('order', ()=>submitOrder());
+      return;
+    }
+    const btn0=document.getElementById('submitOrderBtn');
+    if(btn0) btn0.disabled=false;
+    const box0=document.getElementById('orderConfirmBox');
+    if(box0) box0.innerHTML='<p class="order-confirmed" style="color:var(--rust);">برای ثبت سفارش ابتدا وارد حساب مشتری شو.</p>';
+    return;
+  }
+  const identity = currentUser || getIdentity() || {};
   const btn = document.getElementById('submitOrderBtn');
   btn.disabled = true;
   btn.textContent = 'در حال ارسال…';
@@ -1582,7 +1623,7 @@ updateCartBadge();
   async function me(){const t=token();if(!t)return null;try{const r=await fetch(API+'/api/customer/me',{headers:authHeaders(),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.authenticated){clearUser();return null}const u=d.user||{};saveUser(u);return u}catch{return user()}}
   async function loyalty(u){if(!u||!window.MENU||!MENU.slug)return null;try{const r=await fetch(API+'/api/menu/loyalty/profile?slug='+encodeURIComponent(MENU.slug)+'&phone='+encodeURIComponent(u.phone||''),{headers:authHeaders(),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)return null;return d}catch{return null}}
   function renderLogin(purpose){body.innerHTML='<div class="mp-ca-switch"><button id="mpCaLoginTab" class="active" type="button">ورود</button><button id="mpCaRegTab" type="button">ثبت‌نام</button></div><div class="mp-ca-sub">برای ثبت سفارش، سفارش‌های قبلی و امتیازهای باشگاه، وارد حساب خودت شو.</div><div id="mpCaForm"></div>';const loginTab=document.getElementById('mpCaLoginTab'),regTab=document.getElementById('mpCaRegTab');const draw=(reg)=>{document.getElementById('mpCaForm').innerHTML=(reg?'<label class="mp-ca-label">نام و نام خانوادگی</label><input class="mp-ca-input" id="mpCaName" placeholder="مثلاً علی رضایی">':'')+'<label class="mp-ca-label">شماره موبایل</label><input class="mp-ca-input" id="mpCaPhone" dir="ltr" inputmode="tel" placeholder="09xxxxxxxxx"><label class="mp-ca-label">رمز عبور</label><input class="mp-ca-input" id="mpCaPassword" type="password" autocomplete="current-password" placeholder="حداقل ۶ کاراکتر"><div class="mp-ca-error" id="mpCaError"></div><div class="mp-ca-actions"><button class="mp-ca-primary" id="mpCaSubmit" type="button">'+(reg?'ساخت حساب':'ورود به حساب')+'</button><button class="mp-ca-secondary" id="mpCaCancel" type="button">انصراف</button></div>';document.getElementById('mpCaSubmit').onclick=async()=>{const err=document.getElementById('mpCaError'),btn=document.getElementById('mpCaSubmit');const phone=document.getElementById('mpCaPhone').value.replace(/\s/g,'');const password=document.getElementById('mpCaPassword').value;const nameEl=document.getElementById('mpCaName');const name=nameEl?nameEl.value.trim():'';if(!/^0?9\d{9}$/.test(phone)||phone.length<10){err.textContent='شماره موبایل معتبر نیست.';return}if(password.length<6){err.textContent='رمز عبور باید حداقل ۶ کاراکتر باشد.';return}if(reg&&name.length<2){err.textContent='نام را وارد کن.';return}btn.disabled=true;btn.textContent='در حال بررسی…';try{const r=await fetch(API+(reg?'/api/customer/register':'/api/customer/login'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg?{name,phone,password}:{phone,password})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'عملیات ناموفق بود.');saveUser(d.user,d.token);overlay.classList.remove('show');if(window.__mpCustomerReady)window.__mpCustomerReady(d.user);window.__mpCustomerReady=null;await refreshAccountBar()}catch(e){err.textContent=e.message;btn.disabled=false;btn.textContent=reg?'ساخت حساب':'ورود به حساب'}};document.getElementById('mpCaCancel').onclick=()=>{overlay.classList.remove('show');window.__mpCustomerReady=null}};loginTab.onclick=()=>{loginTab.classList.add('active');regTab.classList.remove('active');draw(false)};regTab.onclick=()=>{regTab.classList.add('active');loginTab.classList.remove('active');draw(true)};draw(false)}
-  async function renderAccount(u){const d=await loyalty(u);const c=d&&d.customer||{};const pts=Number(c.points||0);const orders=Number(c.orders||0);body.innerHTML='<div class="mp-ca-welcome"><strong>سلام '+esc(u.name||'دوست عزیز')+' 👋</strong><div class="mp-ca-muted" style="margin-top:4px">'+esc(u.phone||'')+' · حساب مشتری MenuProAI</div></div><div class="mp-ca-account"><div class="mp-ca-stat"><b>'+pts.toLocaleString('fa-IR')+'</b><span>امتیاز</span></div><div class="mp-ca-stat"><b>'+esc(c.tierName||c.tier||'برنزی')+'</b><span>سطح</span></div><div class="mp-ca-stat"><b>'+orders.toLocaleString('fa-IR')+'</b><span>سفارش</span></div></div>'+(d&&d.nextTier?'<div class="mp-ca-muted" style="margin-bottom:14px">تا سطح '+esc(d.nextTier.name)+'، '+Number(d.nextTier.remaining||0).toLocaleString('fa-IR')+' امتیاز دیگر لازم است.</div>':'')+'<button class="mp-ca-logout" id="mpCaLogout" type="button">خروج از حساب</button>';document.getElementById('mpCaLogout').onclick=async()=>{try{if(token())await fetch(API+'/api/customer/logout',{method:'POST',headers:authHeaders()})}catch{}clearUser();overlay.classList.remove('show');window.__mpCustomerReady=null}}
+  async function renderAccount(u){const d=await loyalty(u);const c=d&&d.customer||{};const pts=Number(c.points||0);const orders=Number(c.orders||0);body.innerHTML='<div class="mp-ca-welcome"><strong>سلام '+esc(u.name||'دوست عزیز')+' 👋</strong><div class="mp-ca-muted" style="margin-top:4px">'+esc(u.phone||'')+' · حساب مشتری MenuProAI</div></div><div class="mp-ca-account"><div class="mp-ca-stat"><b>'+(d?pts.toLocaleString('fa-IR'):'—')+'</b><span>امتیاز</span></div><div class="mp-ca-stat"><b>'+esc(c.tierName||c.tier||'برنزی')+'</b><span>سطح</span></div><div class="mp-ca-stat"><b>'+orders.toLocaleString('fa-IR')+'</b><span>سفارش</span></div></div>'+(d&&d.nextTier?'<div class="mp-ca-muted" style="margin-bottom:14px">تا سطح '+esc(d.nextTier.name)+'، '+Number(d.nextTier.remaining||0).toLocaleString('fa-IR')+' امتیاز دیگر لازم است.</div>':'')+'<button class="mp-ca-logout" id="mpCaLogout" type="button">خروج از حساب</button>';document.getElementById('mpCaLogout').onclick=async()=>{try{if(token())await fetch(API+'/api/customer/logout',{method:'POST',headers:authHeaders()})}catch{}clearUser();overlay.classList.remove('show');window.__mpCustomerReady=null}}
   async function refreshAccountBar(){const u=await me();if(u){const d=await loyalty(u);if(d&&d.customer){u.points=Number(d.customer.points||0);u.tier=d.customer.tierName||d.customer.tier||'';saveUser(u)}}updateBar(u);return u}
   async function openAccount(){const u=await refreshAccountBar();overlay.classList.add('show');if(u)renderAccount(u);else renderLogin('account')}
   window.__mpCustomerAuth={token,user,authHeaders,refreshAccountBar,openAccount,clearUser};
@@ -1605,17 +1646,81 @@ updateCartBadge();
 <div class="mpbiz-overlay" id="mpReserveOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>📅 رزرو میز</h3><button class="mpbiz-close" id="mpReserveClose">بستن</button></div><p class="mpbiz-muted">زمان دلخواهت را انتخاب کن؛ رزرو بعد از تأیید مجموعه قطعی می‌شود.</p><input class="mpbiz-input" id="mpResName" placeholder="نام و نام خانوادگی"><input class="mpbiz-input" id="mpResPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="mpbiz-input" id="mpResDate" type="date"><input class="mpbiz-input" id="mpResTime" type="time"></div><input class="mpbiz-input" id="mpResGuests" type="number" min="1" max="30" value="2" placeholder="تعداد نفرات"><textarea class="mpbiz-input" id="mpResNote" placeholder="توضیحات (اختیاری)"></textarea><button class="mpbiz-submit" id="mpResSubmit">ثبت درخواست رزرو</button><div id="mpResMsg" class="mpbiz-muted" style="margin-top:8px"></div></div></div>
 <div class="mpbiz-overlay" id="mpReviewOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>⭐ نظر شما</h3><button class="mpbiz-close" id="mpReviewClose">بستن</button></div><p class="mpbiz-muted">برای ثبت نظر، شماره موبایل و شماره سفارش را وارد کن.</p><input class="mpbiz-input" id="mpRevPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><input class="mpbiz-input" id="mpRevOrder" placeholder="شماره سفارش" dir="ltr"><input class="mpbiz-input" id="mpRevName" placeholder="نام"><div id="mpRevStars" style="margin:8px 0">${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-star="${n}">★</button>`).join('')}</div><textarea class="mpbiz-input" id="mpRevText" placeholder="نظرت درباره تجربه‌ات..."></textarea><button class="mpbiz-submit" id="mpRevSubmit">ثبت نظر</button><div id="mpRevMsg" class="mpbiz-muted" style="margin-top:8px"></div><hr style="border:0;border-top:1px solid #273642;margin:18px 0"><h4>آخرین نظرات</h4><div id="mpPublicReviews" style="margin-top:8px"></div></div></div>
 <script>
-(function(){const api=window.MENUPROAI_API||'https://menuproai-api.bytelab.workers.dev';const boot=()=>{const slug=window.MENU&&MENU.slug;if(!slug){setTimeout(boot,80);return;}const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function show(id){$(id).classList.add('show')}function hide(id){$(id).classList.remove('show')}
-$('mpReserveBtn').onclick=()=>{show('mpReserveOverlay');const d=new Date(Date.now()+86400000);$('mpResDate').value=d.toISOString().slice(0,10)};$('mpReserveClose').onclick=()=>hide('mpReserveOverlay');$('mpReserveOverlay').onclick=e=>{if(e.target.id==='mpReserveOverlay')hide('mpReserveOverlay')};
-$('mpResSubmit').onclick=async()=>{const msg=$('mpResMsg');msg.textContent='در حال ثبت…';try{const b={slug,name:$('mpResName').value.trim(),phone:$('mpResPhone').value.trim(),date:$('mpResDate').value,time:$('mpResTime').value,guests:Number($('mpResGuests').value),note:$('mpResNote').value.trim()};const r=await fetch(api+'/api/menu/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}),d=await r.json();if(!r.ok)throw new Error(d.error||'ثبت نشد');msg.textContent='درخواست رزرو ثبت شد. منتظر تأیید مجموعه باش.';setTimeout(()=>hide('mpReserveOverlay'),1400)}catch(e){msg.textContent=e.message}};
-let rating=5;document.querySelectorAll('[data-star]').forEach(b=>b.onclick=()=>{rating=Number(b.dataset.star);document.querySelectorAll('[data-star]').forEach(x=>x.classList.toggle('on',Number(x.dataset.star)<=rating))});document.querySelectorAll('[data-star]').forEach(x=>x.classList.add('on'));
-$('mpReviewBtn').onclick=()=>{show('mpReviewOverlay');loadReviews()};$('mpReviewClose').onclick=()=>hide('mpReviewOverlay');$('mpReviewOverlay').onclick=e=>{if(e.target.id==='mpReviewOverlay')hide('mpReviewOverlay')};
-$('mpRevSubmit').onclick=async()=>{const msg=$('mpRevMsg');msg.textContent='در حال ثبت…';try{const r=await fetch(api+'/api/menu/reviews',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug,phone:$('mpRevPhone').value.trim(),orderId:$('mpRevOrder').value.trim(),name:$('mpRevName').value.trim(),rating,text:$('mpRevText').value.trim()})}),d=await r.json();if(!r.ok)throw new Error(d.error||'ثبت نشد');msg.textContent='نظر شما ثبت شد. ممنون ❤️';loadReviews()}catch(e){msg.textContent=e.message}};
-async function loadReviews(){try{const r=await fetch(api+'/api/menu/reviews?slug='+encodeURIComponent(slug),{cache:'no-store'}),d=await r.json();$('mpPublicReviews').innerHTML=(d.reviews||[]).slice(0,8).map(x=>`<div class="mpbiz-review"><div class="mpbiz-stars">${'★'.repeat(Number(x.rating||0))}${'☆'.repeat(5-Number(x.rating||0))}</div><b>${esc(x.name||'مشتری')}</b><div class="mpbiz-muted">${esc(x.text||'بدون متن')}</div></div>`).join('')||'<div class="mpbiz-muted">هنوز نظری ثبت نشده.</div>'}catch(e){$('mpPublicReviews').innerHTML='<div class="mpbiz-muted">نظرات فعلاً در دسترس نیست.</div>'}}
-};boot();
+(function(){
+  const api=window.MENUPROAI_API||'https://menuproai-api.bytelab.workers.dev';
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const getSlug=()=>window.MENU&&String(window.MENU.slug||'');
+  const auth=()=>window.__mpCustomerAuth||null;
+  const currentUser=()=>{const a=auth();return a&&a.user?a.user():null};
+  const currentToken=()=>{const a=auth();return a&&a.token?a.token():''};
+  const headers=()=>{const a=auth();return a&&a.authHeaders?a.authHeaders({'Content-Type':'application/json'}):{'Content-Type':'application/json'}};
+  const show=id=>{const e=$(id);if(e)e.classList.add('show')};
+  const hide=id=>{const e=$(id);if(e)e.classList.remove('show')};
+  const waitForMenu=(fn,tries=0)=>{if(getSlug()) return fn(); if(tries>100) return; setTimeout(()=>waitForMenu(fn,tries+1),100)};
+
+  waitForMenu(()=>{
+    const reserveBtn=$('mpReserveBtn'),reviewBtn=$('mpReviewBtn');
+    if(reserveBtn) reserveBtn.onclick=()=>{
+      const u=currentUser();
+      if(u){ $('mpResName').value=u.name||''; $('mpResPhone').value=u.phone||''; }
+      show('mpReserveOverlay');
+      const d=new Date(Date.now()+86400000); $('mpResDate').value=d.toISOString().slice(0,10);
+    };
+    if($('mpReserveClose')) $('mpReserveClose').onclick=()=>hide('mpReserveOverlay');
+    if($('mpReserveOverlay')) $('mpReserveOverlay').onclick=e=>{if(e.target.id==='mpReserveOverlay')hide('mpReserveOverlay')};
+    if($('mpResSubmit')) $('mpResSubmit').onclick=async()=>{
+      const msg=$('mpResMsg'); if(!msg)return; msg.textContent='در حال ثبت…';
+      const u=currentUser();
+      const name=$('mpResName').value.trim(), phone=$('mpResPhone').value.trim();
+      if(!name||!phone){msg.textContent='نام و شماره موبایل را وارد کن.';return}
+      const b={slug:getSlug(),name,phone,date:$('mpResDate').value,time:$('mpResTime').value,guests:Number($('mpResGuests').value),note:$('mpResNote').value.trim()};
+      try{
+        const r=await fetch(api+'/api/menu/reservations',{method:'POST',headers:headers(),body:JSON.stringify(b)});
+        const d=await r.json().catch(()=>({})); if(!r.ok)throw new Error(d.error||'ثبت نشد');
+        msg.textContent='درخواست رزرو ثبت شد. منتظر تأیید مجموعه باش.';
+        setTimeout(()=>hide('mpReserveOverlay'),1400);
+      }catch(e){msg.textContent=e.message||'خطا در ثبت رزرو.'}
+    };
+
+    let rating=5;
+    document.querySelectorAll('[data-star]').forEach(b=>b.onclick=()=>{rating=Math.max(1,Math.min(5,Number(b.dataset.star)||5));document.querySelectorAll('[data-star]').forEach(x=>x.classList.toggle('on',Number(x.dataset.star)<=rating))});
+    document.querySelectorAll('[data-star]').forEach(x=>x.classList.add('on'));
+    if(reviewBtn) reviewBtn.onclick=()=>{const u=currentUser();if(u){$('mpRevPhone').value=u.phone||'';$('mpRevName').value=u.name||''}show('mpReviewOverlay');loadReviews()};
+    if($('mpReviewClose')) $('mpReviewClose').onclick=()=>hide('mpReviewOverlay');
+    if($('mpReviewOverlay')) $('mpReviewOverlay').onclick=e=>{if(e.target.id==='mpReviewOverlay')hide('mpReviewOverlay')};
+    if($('mpRevSubmit')) $('mpRevSubmit').onclick=async()=>{
+      const msg=$('mpRevMsg'); if(!msg)return; msg.textContent='در حال ثبت…';
+      const u=currentUser(); const phone=(u&&u.phone)||$('mpRevPhone').value.trim(); const name=(u&&u.name)||$('mpRevName').value.trim();
+      if(!currentToken()){msg.textContent='برای ثبت نظر ابتدا وارد حساب مشتری شو.';if(window.__mpCustomerAuth?.openAccount)window.__mpCustomerAuth.openAccount();return}
+      try{
+        const r=await fetch(api+'/api/menu/reviews',{method:'POST',headers:headers(),body:JSON.stringify({slug:getSlug(),phone,orderId:$('mpRevOrder').value.trim(),name,rating,text:$('mpRevText').value.trim()})});
+        const d=await r.json().catch(()=>({})); if(!r.ok)throw new Error(d.error||'ثبت نشد');
+        msg.textContent='نظر شما ثبت شد. ممنون ❤️'; loadReviews();
+      }catch(e){msg.textContent=e.message||'خطا در ثبت نظر.'}
+    };
+    async function loadReviews(){
+      try{const r=await fetch(api+'/api/menu/reviews?slug='+encodeURIComponent(getSlug()),{cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'خطا');
+      const rows=Array.isArray(d.reviews)?d.reviews:[];
+      $('mpPublicReviews').innerHTML=rows.slice(0,8).map(x=>{const n=Math.max(0,Math.min(5,Number(x.rating)||0));return '<div class="mpbiz-review"><div class="mpbiz-stars">'+('★'.repeat(n))+('☆'.repeat(5-n))+'</div><b>'+esc(x.name||'مشتری')+'</b><div class="mpbiz-muted">'+esc(x.text||'بدون متن')+'</div></div>'}).join('')||'<div class="mpbiz-muted">هنوز نظری ثبت نشده.</div>';
+      }catch(e){if($('mpPublicReviews'))$('mpPublicReviews').innerHTML='<div class="mpbiz-muted">نظرات فعلاً در دسترس نیست.</div>'}
+    }
+  });
 })();
 </script>
 
+
+<style>
+/* MenuProAI final mobile hardening */
+#mpCustomerAccountBar{max-width:calc(100vw - 16px);}
+#mpCustomerAccountBtn{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:560px){
+  #mpCustomerAccountBtn{padding:7px 10px;font-size:11px;max-width:155px;}
+  #mpCustomerAccountLabel{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mpbiz-actions{right:10px;bottom:calc(76px + env(safe-area-inset-bottom));}
+  #mpLoyaltyBtn{bottom:calc(76px + env(safe-area-inset-bottom));left:10px;max-width:calc(100vw - 20px);}
+  .mpbiz-btn{max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+}
+</style>
 </body>
 </html>

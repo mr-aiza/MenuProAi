@@ -1140,7 +1140,9 @@ async function handleCreateReservation(request, env){
   const reservations=await loadArrayKV("reservations:"+slug,env);
   const active=reservations.filter(r=>!['cancelled','rejected'].includes(r.status) && r.date===date && r.time===time);
   if(active.length>=20)return json({error:"ظرفیت این ساعت فعلاً تکمیل شده است."},409);
-  const r={id:randomId("res"),name,phone,date,time,guests,note,status:"pending",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  const authedPhone=await getCustomerPhone(request,env);
+  if(authedPhone && authedPhone!==phone) return json({error:"شماره رزرو باید با شماره حساب مشتری یکی باشد."},403);
+  const r={id:randomId("res"),name,phone,date,time,guests,note,customerPhone:authedPhone||phone,status:"pending",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
   reservations.push(r); await saveArrayKV("reservations:"+slug,reservations,env,500);
   await addActivity(slug,env,"رزرو جدید",`${name} — ${guests} نفر — ${date} ${time}`);
   await pushNotification(slug,env,"reservation","رزرو جدید 📅",`${name} — ${guests} نفر — ${date} ${time}`,r.id);
@@ -1188,13 +1190,16 @@ async function handleCRM(request,env){
 async function handleCreateReview(request,env){
   let body;try{body=await request.json()}catch(e){return json({error:"بدنه درخواست نامعتبر است."},400)}
   const slug=slugify(body.slug||""); if(!slug)return json({error:"منو مشخص نیست."},400);
-  const orderId=String(body.orderId||""), phone=normalizePhone(body.phone||""), rating=Math.max(1,Math.min(5,Number(body.rating)||0)), text=String(body.text||"").trim().slice(0,500);
+  const authedPhone=await getCustomerPhone(request,env); if(!authedPhone)return json({error:"برای ثبت نظر ابتدا وارد حساب مشتری شو."},401);
+  const orderId=String(body.orderId||""), phone=normalizePhone(body.phone||authedPhone), rating=Math.max(1,Math.min(5,Number(body.rating)||0)), text=String(body.text||"").trim().slice(0,500);
+  if(phone!==authedPhone)return json({error:"شماره نظر با حساب مشتری یکسان نیست."},403);
   if(!orderId||!/^09\d{9}$/.test(phone)||!rating)return json({error:"سفارش، شماره و امتیاز الزامی است."},400);
   const orders=await loadOrders(slug,env), order=orders.find(o=>o.id===orderId); if(!order)return json({error:"سفارش پیدا نشد."},404);
-  if(normalizePhone(order.customerPhone||"")!==phone)return json({error:"این سفارش متعلق به این شماره نیست."},403);
+  if(normalizePhone(order.customerPhone||"")!==phone)return json({error:"این سفارش متعلق به این حساب نیست."},403);
   if(order.status!=="done")return json({error:"بعد از تکمیل سفارش می‌توانی نظر ثبت کنی."},409);
   const reviews=await loadArrayKV("reviews:"+slug,env); if(reviews.some(r=>r.orderId===orderId))return json({error:"برای این سفارش قبلاً نظر ثبت شده است."},409);
-  const r={id:randomId("rev"),orderId,phone,name:String(body.name||order.customerName||"مشتری").trim().slice(0,60),rating,text,status:"published",createdAt:new Date().toISOString()};
+  const rawUser=await env.MENU_KV.get(customerUserKey(phone)); let accountName="مشتری"; try{accountName=JSON.parse(rawUser||"{}").name||accountName}catch{}
+  const r={id:randomId("rev"),orderId,phone,name:String(accountName||body.name||order.customerName||"مشتری").trim().slice(0,60),rating,text,status:"published",createdAt:new Date().toISOString()};
   reviews.push(r); await saveArrayKV("reviews:"+slug,reviews,env,500);
   await addActivity(slug,env,"ثبت نظر مشتری",`${r.name} — ${rating}/5`); await pushNotification(slug,env,"review","نظر جدید ⭐",`${r.name} — امتیاز ${rating}/5`,r.id);
   return json({ok:true,review:r},200);
@@ -1437,12 +1442,15 @@ async function handleUpdateOrderStatus(request, env) {
 // GET /api/menu/order/status/:slug/:id — عمومی، بدون لاگین
 // مشتری با این، وضعیت سفارش خودش رو بعد از ثبت پیگیری می‌کنه
 // ============================================================
-async function handleGetOrderStatus(slug, id, env) {
+async function handleGetOrderStatus(slug, id, env, request) {
   const cleanSlug = slugify(slug);
   if (!cleanSlug || !id) return json({ error: "پارامتر نامعتبر است." }, 400);
+  const customerPhone = await getCustomerPhone(request, env);
+  if(!customerPhone) return json({error:"برای پیگیری سفارش ابتدا وارد حساب مشتری شو."},401);
   const orders = await loadOrders(cleanSlug, env);
-  const order = orders.find((o) => o.id === id);
+  const order = orders.find(o => o.id === id);
   if (!order) return json({ error: "سفارش پیدا نشد." }, 404);
+  if(normalizePhone(order.customerPhone||"")!==customerPhone) return json({error:"دسترسی به این سفارش مجاز نیست."},403);
   return json({ ok: true, status: order.status, updatedAt: order.updatedAt || order.createdAt }, 200);
 }
 
@@ -2238,7 +2246,7 @@ export default {
       }
       if (url.pathname.startsWith("/api/menu/order/status/") && request.method === "GET") {
         const parts = url.pathname.replace("/api/menu/order/status/", "").split("/");
-        return await handleGetOrderStatus(parts[0], parts[1], env);
+        return await handleGetOrderStatus(parts[0], parts[1], env, request);
       }
       if (url.pathname === "/api/menu/reservations" && request.method === "GET") return await handleGetReservations(request, env);
       if (url.pathname === "/api/menu/reservations" && request.method === "POST") return await handleCreateReservation(request, env);
