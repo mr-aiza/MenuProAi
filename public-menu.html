@@ -726,6 +726,7 @@ async function loadMenu(){
     const data = await res.json();
     if (!res.ok || !data.menu) throw new Error(data.error || 'منو پیدا نشد');
     MENU = data.menu;
+    window.MENU = MENU;
   }catch(e){
     document.getElementById('menuRoot').innerHTML =
       '<p style="text-align:center;color:var(--chalk-dim);padding-top:40px;">این منو پیدا نشد یا فعلاً در دسترس نیست.</p>';
@@ -806,34 +807,41 @@ if (menuSearchInput){
   menuSearchInput.addEventListener('input', (e) => runMenuSearch(e.target.value));
 }
 
+function mpSafeText(value){
+  if(value == null) return '';
+  if(Array.isArray(value)) return value.map(mpSafeText).filter(Boolean).join('، ');
+  if(typeof value === 'object') return mpSafeText(value.name ?? value.title ?? value.label ?? value.text ?? '');
+  return String(value);
+}
+
 function renderItem(it){
   const recipeHtml = it.recipe ? `
       <details class="recipe">
         <summary>نمایش رسپی</summary>
         <div class="recipe-body">
           <b>مواد لازم:</b>
-          <ul>${it.recipe.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <ul>${it.recipe.ingredients.map(i=>`<li>${mpSafeText(i)}</li>`).join('')}</ul>
           <b>طرز تهیه:</b>
-          <ol>${it.recipe.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+          <ol>${it.recipe.steps.map(s=>`<li>${mpSafeText(s)}</li>`).join('')}</ol>
         </div>
       </details>` : '';
   const ingredientsHtml = (it.ingredients && it.ingredients.length)
-    ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.join('، ')}</div>` : '';
+    ? `<div class="ingredients-line"><b>ترکیبات:</b> ${it.ingredients.map(mpSafeText).join('، ')}</div>` : '';
   return `
     <div class="item${it.available === false ? ' sold-out' : ''}" id="item-${it.id}">
       <div class="item-inner">
-        ${it.image ? `<img class="item-thumb" src="${it.image}" alt="${it.name}" loading="lazy">` : ''}
+        ${it.image ? `<img class="item-thumb" src="${it.image}" alt="${mpSafeText(it.name)}" loading="lazy">` : ''}
         <div class="item-content">
           <div class="item-row">
-            <span class="item-name">${it.name}</span>
+            <span class="item-name">${mpSafeText(it.name)}</span>
             <span class="leader"></span>
             ${it.calories ? `<span class="cal-badge">🔥 ${it.calories} کالری</span>` : ''}
             <span class="price">${it.price.toLocaleString('fa-IR')} تومان</span>
             <button class="fav-btn${isFavorite(it.id) ? ' active' : ''}" data-fav="${it.id}" aria-label="علاقه‌مندی">♥</button>
             ${it.available === false ? '<span class="soldout-badge">ناموجود</span>' : `<button class="add-btn" data-add="${it.id}" aria-label="افزودن به سبد">+</button>`}
           </div>
-          <p class="item-desc">${it.desc || ''}</p>
-          <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <p class="item-desc">${mpSafeText(it.desc)}</p>
+          <div class="tags">${(it.tags||[]).map(t=>`<span class="tag">${mpSafeText(t)}</span>`).join('')}</div>
           ${ingredientsHtml}
           ${recipeHtml}
         </div>
@@ -965,7 +973,7 @@ function addSuggestions(list){
     const item = itemsById[s.id];
     if(!item) return;
     const box = document.createElement('div');
-    box.innerHTML = renderItem(item) + (s.reason ? `<p class="sugg-reason">💬 ${s.reason}</p>` : '');
+    box.innerHTML = renderItem(item) + (s.reason ? `<p class="sugg-reason">💬 ${mpSafeText(s.reason)}</p>` : '');
     // چون این آیتم داخل چت تکرار می‌شود، شناسه اصلی را برای اسکرول نگه می‌داریم
     box.querySelector('.item').id = 'sugg-item-' + item.id;
     box.querySelector('.item').addEventListener('click', (e)=>{
@@ -1574,6 +1582,7 @@ updateCartBadge();
 #mpCustomerAccountBtn{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.16);background:rgba(12,18,24,.92);backdrop-filter:blur(12px);color:#fff;border-radius:999px;padding:8px 12px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.22);font:inherit;font-size:12px;font-weight:800}
 #mpCustomerAccountBtn .mp-ca-dot{width:9px;height:9px;border-radius:50%;background:#4df0c9;box-shadow:0 0 0 4px rgba(77,240,201,.12)}
 #mpCustomerAccountBtn .mp-ca-points{color:#4df0c9;font-size:10px}
+#mpCustomerAccountLabel{display:block;min-width:0;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #mpCustomerAccountOverlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.68);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:14px;direction:rtl}
 #mpCustomerAccountOverlay.show{display:flex}
 .mp-ca-modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:#101820;color:#eef4f6;border:1px solid #293744;border-radius:24px;padding:20px;font-family:inherit;box-shadow:0 20px 70px rgba(0,0,0,.45)}
@@ -1582,7 +1591,7 @@ updateCartBadge();
 .mp-ca-actions{display:flex;gap:8px;margin-top:8px}.mp-ca-primary{flex:1;background:#4df0c9;color:#06120f;border:0;border-radius:999px;padding:12px;font-weight:900;cursor:pointer;font-family:inherit}.mp-ca-secondary{background:#18232d;color:#fff;border:1px solid #293744;border-radius:999px;padding:12px 16px;cursor:pointer;font-family:inherit}
 .mp-ca-switch{display:flex;gap:6px;background:#151f29;padding:4px;border-radius:999px;margin-bottom:14px}.mp-ca-switch button{flex:1;border:0;background:transparent;color:#91a0aa;border-radius:999px;padding:9px;font:inherit;cursor:pointer}.mp-ca-switch button.active{background:#24343e;color:#4df0c9;font-weight:800}
 .mp-ca-error{color:#ff8d8d;font-size:12px;min-height:18px;margin-top:6px}.mp-ca-account{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.mp-ca-stat{background:#151f29;border:1px solid #273642;border-radius:14px;padding:12px;text-align:center}.mp-ca-stat b{display:block;font-size:19px;color:#4df0c9}.mp-ca-stat span{font-size:10px;color:#91a0aa}.mp-ca-welcome{background:linear-gradient(135deg,#14252a,#151f29);border:1px solid #29423f;border-radius:16px;padding:14px;margin-bottom:12px}.mp-ca-welcome strong{font-size:17px}.mp-ca-muted{color:#91a0aa;font-size:12px}.mp-ca-logout{width:100%;background:#18232d;color:#fff;border:1px solid #394854;border-radius:999px;padding:11px;font-family:inherit;font-weight:800;cursor:pointer}
-@media(max-width:560px){#mpCustomerAccountBar{top:8px;right:8px}.mp-ca-modal{padding:16px;border-radius:20px}.mp-ca-account{grid-template-columns:repeat(3,1fr)}#mpCustomerAccountBtn{padding:7px 10px;font-size:11px}}
+@media(max-width:560px){#mpCustomerAccountBar{top:8px;right:8px}#mpCustomerAccountLabel{max-width:145px}.mp-ca-modal{padding:16px;border-radius:20px}.mp-ca-account{grid-template-columns:repeat(3,1fr)}#mpCustomerAccountBtn{padding:7px 10px;font-size:11px}}
 </style>
 <div id="mpCustomerAccountBar"><button id="mpCustomerAccountBtn" type="button"><span class="mp-ca-dot"></span><span id="mpCustomerAccountLabel">ورود / ثبت‌نام</span></button></div>
 <div id="mpCustomerAccountOverlay">
