@@ -107,16 +107,27 @@
   .premium-card,.card,.category{min-width:0;}
   .premium-img img,.card-preview img{object-fit:contain!important;}
 }
+
+/* Image-only cinematic hero: no overlay text, responsive, screenshot-inspired arrows. */
+.hero.container{width:100%;max-width:none;padding:0;margin:0 auto}
+.hero-slider{border:0;border-radius:0;box-shadow:none;background:#07111e}
+.hero-slide,.hero-slide.active{aspect-ratio:1460/589!important;height:auto!important;min-height:0!important}
+.hero-slide img,.hero-slide.active img{position:relative!important;width:100%!important;height:auto!important;max-width:100%!important;object-fit:contain!important;transform:none!important}
+.hero-slide::after,.hero-badges,.hero-float{display:none!important}
+.hero-controls{left:0;right:0;bottom:auto;top:50%;transform:translateY(-50%);justify-content:space-between;pointer-events:none;padding:0 16px}
+.hero-arrow{pointer-events:auto;width:48px;height:48px;background:#0b192bde;border:1px solid #4b8bb8;font-size:30px}
+.hero-dots{bottom:12px}
+@media(max-width:600px){.hero.container{width:100%!important;padding:0!important}.hero-slider{border-radius:0!important}.hero-controls{padding:0 5px!important;left:0!important;right:0!important;bottom:auto!important;top:50%}.hero-arrow{width:29px;height:29px;font-size:21px}.hero-dots{bottom:4px!important}.hero-dot{width:6px;height:6px}.hero-dot.active{width:16px}}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="container nav"><a class="brand" href="index.html"><span class="brand-mark">M</span><span>MenuProAI<small>منوی دیجیتال حرفه‌ای</small></span></a><nav class="nav-links"><a class="nav-link" href="#categories">دسته‌بندی‌ها</a><a class="nav-link" href="#premium">قالب‌های ویژه</a><a class="nav-link" href="#templates">همه قالب‌ها</a><a class="nav-cta" href="dashboard.html">ورود / ساخت منو</a></nav></div></header>
 <main>
 <section class="hero container" aria-label="معرفی MenuProAI"><div class="hero-slider" id="heroSlider"><div class="hero-viewport"><div class="hero-track" id="heroTrack">
-  <article class="hero-slide active"><img src="assets/hero-slide-1.png" alt="MenuProAI و منوی دیجیتال حرفه‌ای" draggable="false"><div class="hero-badges"><span class="hero-badge one">📅 <b>رزرو میز</b> چند کلیک</span><span class="hero-badge two">⭐ <b>ثبت نظر</b> و امتیازدهی</span><span class="hero-badge three">👑 <b>باشگاه مشتریان</b></span></div></article>
-  <article class="hero-slide"><img src="assets/hero-slide-2.png" alt="قالب‌های ویژه و امکانات حرفه‌ای MenuProAI" draggable="false"><div class="hero-badges"><span class="hero-badge one">👑 <b>قالب‌های Premium</b></span><span class="hero-badge two">📊 <b>تحلیل فروش</b></span><span class="hero-badge three">⚡ <b>منوی سریع</b></span></div></article>
-  <article class="hero-slide"><img src="assets/hero-slide-3.png" alt="رشد کسب‌وکار با MenuProAI" draggable="false"><div class="hero-badges"><span class="hero-badge one">🔔 <b>اعلان‌ها</b></span><span class="hero-badge two">🧾 <b>فاکتور حرفه‌ای</b></span><span class="hero-badge three">👥 <b>مدیریت مشتریان</b></span></div></article>
-</div></div><div class="hero-controls"><button class="hero-arrow" id="prevHero" aria-label="اسلاید قبلی">‹</button><button class="hero-arrow" id="nextHero" aria-label="اسلاید بعدی">›</button></div><div class="hero-dots" id="heroDots"><button class="hero-dot active" aria-label="اسلاید ۱"></button><button class="hero-dot" aria-label="اسلاید ۲"></button><button class="hero-dot" aria-label="اسلاید ۳"></button></div><div class="hero-float">✨ طراحی زنده و تعاملی</div></div></section>
+  <article class="hero-slide active"><img src="assets/hero-slide-showcase.png" alt="MenuProAI و منوی دیجیتال حرفه‌ای" draggable="false"></article>
+  <article class="hero-slide"><img src="assets/hero-slide-2.png" alt="قالب‌های ویژه و امکانات حرفه‌ای MenuProAI" draggable="false"></article>
+  <article class="hero-slide"><img src="assets/hero-slide-3.png" alt="رشد کسب‌وکار با MenuProAI" draggable="false"></article>
+</div></div><div class="hero-controls"><button class="hero-arrow" id="prevHero" aria-label="اسلاید قبلی">‹</button><button class="hero-arrow" id="nextHero" aria-label="اسلاید بعدی">›</button></div><div class="hero-dots" id="heroDots"><button class="hero-dot active" aria-label="اسلاید ۱"></button><button class="hero-dot" aria-label="اسلاید ۲"></button><button class="hero-dot" aria-label="اسلاید ۳"></button></div></div></section>
 
 <section class="section container" id="categories"><div class="section-head"><div class="section-title"><h2>قالب بر اساس نوع کسب‌وکار</h2><p>دسته مناسب کسب‌وکارت را انتخاب کن.</p></div></div><div class="categories" id="categoryCards"></div></section>
 
