@@ -1,9 +1,10 @@
-# اصلاح اتصال ربات MenuProAI
+# رفع خطای 404 ربات MenuProAI
 
-1. فایل worker.js را جایگزین کد Worker با نام menuproai-telegram کنید و Deploy بزنید.
-2. متغیر API_BASE باید https://menuproai-api.bytelab.workers.dev باشد. BOT_TOKEN را تغییر ندهید.
-3. https://menuproai-telegram.bytelab.workers.dev/diagnostics را باز کنید. این نسخه apiBase و healthUrl را هم نشان می‌دهد.
-4. اگر upstream برابر ok بود، Mini App را مجدداً از داخل ربات باز کنید.
-5. اگر همچنان 404 بود، مقدار apiBase و healthUrl و upstreamStatus را بدون توکن ارسال کنید.
+1. در Cloudflare به Workers & Pages > menuproai-telegram > Settings > Bindings بروید.
+2. Add binding > Service را انتخاب کنید. Variable name: `MENU_API` و Service: `menuproai-api` (Production). ذخیره کنید.
+3. در Edit code فایل `worker.js` همین بسته را به‌طور کامل جایگزین کد فعلی کنید و Deploy بزنید.
+4. Secret فعلی `BOT_TOKEN` را نگه دارید. متغیر `API_BASE` می‌تواند همان `https://menuproai-api.bytelab.workers.dev` بماند.
+5. آدرس `https://menuproai-telegram.bytelab.workers.dev/diagnostics` را باز کنید؛ باید `transport: service_binding` و `upstream: ok` باشد.
+6. از تلگرام ربات را باز کنید، `/start` بزنید و Mini App را دوباره امتحان کنید.
 
-نکته: این تغییر فقط Worker تلگرام است و API اصلی را تغییر نمی‌دهد. این نسخه اتصال واقعی به سرویس‌های منتشرشده را تضمین نمی‌کند.
+نکته: اگر transport برابر public_fetch بود، Binding در Worker درست ثبت نشده است. اگر upstream خطا داشت، لاگ‌های Worker اصلی و دسترسی‌های API را بررسی کنید. توکن و رمز را برای دیگران ارسال نکنید.
