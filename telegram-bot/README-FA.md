@@ -1,10 +1,16 @@
-# رفع خطای 404 ربات MenuProAI
+# MenuProAI Telegram — نبض کسب‌وکار
 
-1. در Cloudflare به Workers & Pages > menuproai-telegram > Settings > Bindings بروید.
-2. Add binding > Service را انتخاب کنید. Variable name: `MENU_API` و Service: `menuproai-api` (Production). ذخیره کنید.
-3. در Edit code فایل `worker.js` همین بسته را به‌طور کامل جایگزین کد فعلی کنید و Deploy بزنید.
-4. Secret فعلی `BOT_TOKEN` را نگه دارید. متغیر `API_BASE` می‌تواند همان `https://menuproai-api.bytelab.workers.dev` بماند.
-5. آدرس `https://menuproai-telegram.bytelab.workers.dev/diagnostics` را باز کنید؛ باید `transport: service_binding` و `upstream: ok` باشد.
-6. از تلگرام ربات را باز کنید، `/start` بزنید و Mini App را دوباره امتحان کنید.
+این نسخه دکمه‌های مدیریت داخل چت را حذف می‌کند. فقط دو لینک «بایت‌لب» و «ورود به منو» در پیام /start نمایش داده می‌شود. Mini App از دکمه منوی دائمی ربات با عنوان «نبض کسب‌وکار» باز می‌شود.
 
-نکته: اگر transport برابر public_fetch بود، Binding در Worker درست ثبت نشده است. اگر upstream خطا داشت، لاگ‌های Worker اصلی و دسترسی‌های API را بررسی کنید. توکن و رمز را برای دیگران ارسال نکنید.
+## نصب
+۱. کد `worker.js` را کامل در Worker فعلی `menuproai-telegram` جایگزین و Deploy کنید.
+۲. Secret با نام `BOT_TOKEN` و Service Binding با نام `MENU_API` متصل به `menuproai-api` را حفظ کنید.
+۳. برای اجرای مجدد setWebhook، setChatMenuButton و setMyCommands، آدرس `https://menuproai-telegram.bytelab.workers.dev/` را یک بار باز کنید.
+۴. در BotFather در صورت وجود دکمه منوی قدیمی، منوی ربات را بررسی کنید؛ فرمان /start را مجدد بفرستید.
+۵. داخل چت فقط دو لینک سایت دیده می‌شود؛ Mini App از منوی دائمی تلگرام باز می‌شود.
+
+## اطلاعات خلاصه
+سفارش‌های امروز، فروش ثبت‌شده امروز (به‌جز لغوشده)، رزروهای امروز، محصولات، سفارش‌های باز، رزروهای منتظر تأیید و سه سفارش آخر. آمار بر اساس پاسخ API فعلی است و اگر API فقط بخشی از تاریخچه را برگرداند، آمار نیز مربوط به همان بخش است. روز بر اساس ساعت تهران محاسبه می‌شود.
+
+## امنیت
+ورود با رمز فقط داخل Mini App انجام می‌شود؛ نشست در کوکی HttpOnly ذخیره می‌شود؛ داده‌های تلگرام در سرور اعتبارسنجی می‌شوند. توکن را در کد قرار ندهید.
