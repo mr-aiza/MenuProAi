@@ -574,6 +574,7 @@
   #pdfInvoice .pv-summary .line.total{ font-weight:800; color:#1a1a1a; border-top:1px solid #1a1a1a; margin-top:6px; padding-top:6px; font-size:13px; }
   #pdfInvoice .pv-footer{ margin-top:18px; padding-top:10px; border-top:1px solid #e5e7eb; font-size:10.5px; color:#6b7280; text-align:center; }
 </style>
+<link rel="stylesheet" href="assets/mp-ux-fixes.css?v=20260927b">
 </head>
 <body>
 
@@ -1065,6 +1066,15 @@ hintChips.addEventListener('click', (e)=>{
 let cart = {}; // { itemId: quantity }
 let appliedDiscount = null; // { code, discountAmount, total } یا null
 try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
+// Normalize legacy carts, including object quantities and Luna's {cart,meta} wrapper.
+if(!cart || typeof cart!=='object' || Array.isArray(cart)) cart={};
+for(const [key,stored] of Object.entries(cart)){
+  const value=stored && typeof stored==='object' ? (stored.qty ?? stored.quantity ?? stored.count ?? 0) : stored;
+  const quantity=Number(value);
+  if(!Number.isFinite(quantity)||quantity<=0) delete cart[key];
+  else cart[key]=Math.min(999,Math.floor(quantity));
+}
+
 
 const cartBtn = document.getElementById('cartBtn');
 const cartBadge = document.getElementById('cartBadge');
@@ -1083,7 +1093,7 @@ function saveCart(){
 }
 
 function updateCartBadge(){
-  const count = Object.values(cart).reduce((a,b)=>a+b, 0);
+  const count = Object.values(cart).reduce((a,b)=>a+(Number(b)||0), 0);
   if(count > 0){
     cartBadge.style.display = 'flex';
     cartBadge.textContent = count;
@@ -1094,7 +1104,7 @@ function updateCartBadge(){
 
 function addToCart(id){
   if(!itemsById[id]) return;
-  cart[id] = (cart[id] || 0) + 1;
+  cart[id] = (Number(cart[id]) || 0) + 1;
   saveCart();
   if(cartPanel.classList.contains('open')) renderCart();
 }
@@ -1663,7 +1673,8 @@ updateCartBadge();
 <style>
 .mpbiz-actions{position:fixed;right:14px;bottom:82px;z-index:140;display:flex;gap:8px;flex-direction:column}.mpbiz-btn{border:1px solid rgba(77,240,201,.45);background:rgba(10,20,27,.96);color:#4df0c9;border-radius:999px;padding:10px 14px;font:800 12px inherit;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer}.mpbiz-overlay{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);z-index:150;display:none;align-items:flex-end;justify-content:center;padding:14px}.mpbiz-overlay.show{display:flex}.mpbiz-modal{width:min(560px,100%);max-height:88vh;overflow:auto;background:#101820;color:#eef4f6;border:1px solid #273744;border-radius:24px;padding:18px;font-family:inherit}.mpbiz-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.mpbiz-head h3{margin:0;color:#4df0c9}.mpbiz-close{background:#1a2430;color:#fff;border:1px solid #293744;padding:7px 11px}.mpbiz-input{width:100%;background:#151f29;border:1px solid #293744;color:#fff;border-radius:10px;padding:11px;margin:6px 0;font:inherit}.mpbiz-submit{width:100%;background:#4df0c9;color:#06120f;border:0;border-radius:999px;padding:12px;font-weight:900;margin-top:8px}.mpbiz-review{padding:12px;background:#151f29;border:1px solid #273642;border-radius:14px;margin:8px 0}.mpbiz-stars{color:#ffd166;font-size:20px;letter-spacing:2px}.mpbiz-muted{color:#91a0aa;font-size:12px}
 </style>
-<div class="mpbiz-actions"><button class="mpbiz-btn" id="mpReserveBtn">📅 رزرو میز</button><button class="mpbiz-btn" id="mpReviewBtn">⭐ ثبت نظر</button></div>
+<div class="mpbiz-actions" role="group" aria-label="خدمات مجموعه"><button class="mpbiz-btn" id="mpReserveBtn">📅 رزرو میز</button><button class="mpbiz-btn" id="mpReviewBtn">⭐ ثبت نظر</button></div>
+<script>(function(){const bar=document.querySelector('.mpbiz-actions');const header=document.querySelector('header.top,header');if(bar&&header)header.insertAdjacentElement('afterend',bar);})();</script>
 <div class="mpbiz-overlay" id="mpReserveOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>📅 رزرو میز</h3><button class="mpbiz-close" id="mpReserveClose">بستن</button></div><p class="mpbiz-muted">زمان دلخواهت را انتخاب کن؛ رزرو بعد از تأیید مجموعه قطعی می‌شود.</p><input class="mpbiz-input" id="mpResName" placeholder="نام و نام خانوادگی"><input class="mpbiz-input" id="mpResPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="mpbiz-input" id="mpResDate" type="date"><input class="mpbiz-input" id="mpResTime" type="time"></div><input class="mpbiz-input" id="mpResGuests" type="number" min="1" max="30" value="2" placeholder="تعداد نفرات"><textarea class="mpbiz-input" id="mpResNote" placeholder="توضیحات (اختیاری)"></textarea><button class="mpbiz-submit" id="mpResSubmit">ثبت درخواست رزرو</button><div id="mpResMsg" class="mpbiz-muted" style="margin-top:8px"></div></div></div>
 <div class="mpbiz-overlay" id="mpReviewOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>⭐ نظر شما</h3><button class="mpbiz-close" id="mpReviewClose">بستن</button></div><p class="mpbiz-muted">برای ثبت نظر، شماره موبایل و شماره سفارش را وارد کن.</p><input class="mpbiz-input" id="mpRevPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><input class="mpbiz-input" id="mpRevOrder" placeholder="شماره سفارش" dir="ltr"><input class="mpbiz-input" id="mpRevName" placeholder="نام"><div id="mpRevStars" style="margin:8px 0">${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-star="${n}">★</button>`).join('')}</div><textarea class="mpbiz-input" id="mpRevText" placeholder="نظرت درباره تجربه‌ات..."></textarea><button class="mpbiz-submit" id="mpRevSubmit">ثبت نظر</button><div id="mpRevMsg" class="mpbiz-muted" style="margin-top:8px"></div><hr style="border:0;border-top:1px solid #273642;margin:18px 0"><h4>آخرین نظرات</h4><div id="mpPublicReviews" style="margin-top:8px"></div></div></div>
 <script>
@@ -1743,5 +1754,6 @@ updateCartBadge();
   .mpbiz-btn{max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 }
 </style>
+<script defer src="assets/mp-ux-fixes.js?v=20260927b"></script>
 </body>
 </html>

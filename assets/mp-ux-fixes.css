@@ -1,0 +1,19 @@
+/* MenuProAI shared mobile/modal accessibility fixes */
+html{scroll-padding-top:90px}body{overflow-x:clip}
+.mpbiz-overlay{overscroll-behavior:contain;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))!important}
+.mpbiz-modal{box-sizing:border-box;max-height:min(88dvh,850px)!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable}
+.mpbiz-modal .mpbiz-input{box-sizing:border-box;min-width:0;max-width:100%;font-size:16px}
+.mpbiz-modal button:focus-visible,.mpbiz-actions button:focus-visible{outline:3px solid #5af2d5;outline-offset:3px}
+.mpbiz-modal .mpbiz-submit:disabled{opacity:.55;cursor:wait}
+.mpbiz-actions{max-width:calc(100vw - 24px);transition:opacity .15s}
+.mpbiz-actions .mpbiz-btn{font-family:inherit!important;white-space:nowrap}
+body.mp-dialog-open{overflow:hidden!important}
+body.mp-dialog-open .mpbiz-actions,body.mp-cart-open .mpbiz-actions{display:none!important}
+@media(max-width:600px){.mpbiz-modal{width:100%;max-height:calc(100dvh - 24px)!important;border-radius:20px 20px 12px 12px!important;padding:16px!important}.mpbiz-actions{right:10px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important}.mpbiz-actions .mpbiz-btn{padding:9px 12px!important;font-size:12px!important}}
+@media(prefers-reduced-motion:reduce){.mpbiz-actions{transition:none!important}}
+
+/* v2: Reserve/review actions belong to document flow, never float over invoice or bottom navigation. */
+.mpbiz-actions{position:relative!important;inset:auto!important;right:auto!important;bottom:auto!important;z-index:1!important;display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;max-width:680px!important;margin:14px auto 6px;padding:0 16px;box-sizing:border-box;pointer-events:auto!important}
+.mpbiz-actions .mpbiz-btn{flex:1 1 135px;max-width:290px;min-height:44px;padding:11px 16px!important;white-space:nowrap}
+body:has(#cartPanel.open) .mpbiz-actions,body:has(#cartOverlay.open) .mpbiz-actions,body:has(.mpbiz-overlay.show) .mpbiz-actions,body:has(#mpCustomerAccountOverlay.show) .mpbiz-actions{display:none!important}
+@media(max-width:600px){.mpbiz-actions{position:relative!important;right:auto!important;bottom:auto!important;margin:12px auto 6px!important}.mpbiz-actions .mpbiz-btn{font-size:13px!important}}
