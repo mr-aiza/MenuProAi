@@ -1066,6 +1066,14 @@ hintChips.addEventListener('click', (e)=>{
 let cart = {}; // { itemId: quantity }
 let appliedDiscount = null; // { code, discountAmount, total } یا null
 try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
+// Migrate legacy cart entries that were saved as objects instead of quantities.
+if(!cart||typeof cart!=='object'||Array.isArray(cart))cart={};
+for(const [id,value] of Object.entries(cart)){
+ const raw=(value&&typeof value==='object')?(value.qty??value.quantity??value.count):value;
+ const qty=Number(raw);
+ if(!Number.isFinite(qty)||qty<=0)delete cart[id];else cart[id]=Math.min(999,Math.floor(qty));
+}
+localStorage.setItem('bolut_cart',JSON.stringify(cart));
 
 const cartBtn = document.getElementById('cartBtn');
 const cartBadge = document.getElementById('cartBadge');
@@ -1084,7 +1092,7 @@ function saveCart(){
 }
 
 function updateCartBadge(){
-  const count = Object.values(cart).reduce((a,b)=>a+b, 0);
+  const count = Object.values(cart).reduce((a,b)=>a+(Number(b)||0), 0);
   if(count > 0){
     cartBadge.style.display = 'flex';
     cartBadge.textContent = count;

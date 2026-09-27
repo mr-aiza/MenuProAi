@@ -80,6 +80,33 @@
   .hero-slide{aspect-ratio:1600/650!important;height:auto!important;}
   .hero-slide img{width:100%!important;height:auto!important;object-fit:contain!important;transform:none!important;}
 }
+
+/* Mobile layout repairs 2026-09: keep cards, toolbar and hero controls inside the viewport. */
+@media(max-width:700px){
+  .hero{width:min(100% - 24px,1240px)!important;margin-inline:auto;}
+  .hero-slider{border-radius:20px!important;}
+  .hero-slide{aspect-ratio:1600/650!important;}
+  .hero-slide img{width:100%!important;height:auto!important;object-fit:contain!important;}
+  .hero-controls{left:10px!important;bottom:8px!important;gap:5px;}
+  .hero-arrow{width:31px;height:31px;font-size:15px;}
+  .hero-dots{bottom:12px!important;}
+  .hero-float,.hero-badges{display:none!important;}
+  .toolbar{position:relative!important;top:auto!important;z-index:2;grid-template-columns:minmax(0,1fr)!important;margin-top:15px;}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;overflow:visible;}
+  .filters .filter{flex:1 1 calc(50% - 6px);min-width:0;white-space:nowrap;}
+  #templates .section-head{align-items:flex-start;gap:8px;}
+  #templates .section-head>div:last-child{flex-shrink:0;}
+  .why{grid-template-columns:minmax(0,1fr)!important;}
+  .why-visual{min-height:230px!important;}
+  .why-visual img{display:none!important;}
+  .why-visual{min-height:135px!important;background:radial-gradient(circle at 65% 35%,rgba(66,239,208,.13),transparent 60%),#0b1525;}
+  .why-copy{inset:12px!important;display:flex;flex-direction:column;justify-content:center;padding:12px;border-radius:14px;background:rgba(4,9,17,.86);}
+  .why-copy h3{font-size:15px;line-height:1.6;}
+  .why-copy p{font-size:11px;}
+  .premium-grid,.grid,.categories,.benefits{min-width:0;}
+  .premium-card,.card,.category{min-width:0;}
+  .premium-img img,.card-preview img{object-fit:contain!important;}
+}
 </style>
 </head>
 <body>
@@ -95,7 +122,7 @@
 
 <section class="section container" id="premium"><div class="section-head"><div class="section-title"><h2>قالب‌های ویژه <span class="gold">👑</span></h2><p>قالب‌های Premium با طراحی لوکس و نمایش کامل تصویر.</p></div><a class="view-all" href="#templates">مشاهده همه ←</a></div><div class="premium-wrap reveal"><div class="premium-grid" id="premiumGrid"></div></div></section>
 
-<section class="section container" id="templates"><div class="section-head"><div class="section-title"><h2>همه قالب‌ها</h2><p>قالب‌های عادی در این بخش نمایش داده می‌شوند و با Premium قاطی نیستند.</p></div><div style="display:flex;align-items:center;gap:10px"><button class="view-all" id="showAll" type="button">نمایش همه ←</button><span class="view-all" id="resultCount">۰ قالب</span></div></div><div class="toolbar"><label class="search"><span class="search-icon">⌕</span><input id="templateSearch" type="search" placeholder="جستجوی قالب؛ کافه، رستوران، فروشگاه..." autocomplete="off"></label><div class="filters" id="filters"><button class="filter" data-filter="cafe">☕ کافه</button><button class="filter" data-filter="restaurant">🍽️ رستوران</button><button class="filter" data-filter="shop">🎁 فروشگاه</button><button class="filter" data-filter="salon">💇 سالن</button></div></div><div class="grid" id="templateGrid"></div><div class="empty" id="emptyState">قالبی با این جستجو پیدا نشد. عبارت دیگری امتحان کن.</div></section>
+<section class="section container" id="templates"><div class="section-head"><div class="section-title"><h2>همه قالب‌ها</h2><p>قالب‌های عادی در این بخش نمایش داده می‌شوند و با Premium قاطی نیستند.</p></div><div style="display:flex;align-items:center;gap:10px"><button class="view-all" id="showAll" type="button" hidden>نمایش همه</button><span class="view-all" id="resultCount">۰ قالب</span></div></div><div class="toolbar"><label class="search"><span class="search-icon">⌕</span><input id="templateSearch" type="search" placeholder="جستجوی قالب؛ کافه، رستوران، فروشگاه..." autocomplete="off"></label><div class="filters" id="filters"><button class="filter" data-filter="cafe">☕ کافه</button><button class="filter" data-filter="restaurant">🍽️ رستوران</button><button class="filter" data-filter="shop">🎁 فروشگاه</button><button class="filter" data-filter="salon">💇 سالن</button></div></div><div class="grid" id="templateGrid"></div><div class="empty" id="emptyState">قالبی با این جستجو پیدا نشد. عبارت دیگری امتحان کن.</div></section>
 
 <section class="section container" id="why"><div class="section-head"><div class="section-title"><h2>چرا MenuProAI؟</h2><p>ابزارهایی که منوی دیجیتال را به یک سیستم رشد کسب‌وکار تبدیل می‌کنند.</p></div></div><div class="why"><div class="why-visual reveal"><img src="portfolio/templates/ultra-gold/ultra-gold.png" alt="نمونه قالب لوکس MenuProAI" loading="lazy"><div class="why-copy"><h3>یک منوی سریع، حرفه‌ای و آماده رشد 🚀</h3><p>از نمایش منو تا رزرو، نظر مشتری و تحلیل فروش.</p></div></div><div class="benefits"><article class="benefit reveal"><div class="benefit-icon">⚡</div><h3>منوی سریع</h3><p>راه‌اندازی سریع و تجربه روان در موبایل.</p></article><article class="benefit reveal"><div class="benefit-icon">📊</div><h3>تحلیل فروش</h3><p>تصمیم‌های بهتر با داده‌های قابل فهم.</p></article><article class="benefit reveal"><div class="benefit-icon">⭐</div><h3>باشگاه مشتریان</h3><p>تبدیل مشتری یک‌بار مصرف به مشتری وفادار.</p></article><article class="benefit reveal"><div class="benefit-icon">📅</div><h3>رزرو آنلاین</h3><p>رزرو میز ساده و سریع، بدون دردسر.</p></article></div></div></section>
 
@@ -147,7 +174,7 @@ function card(t){const premium=t.tier==='premium';return `<article class="card r
 function renderCategories(){document.getElementById('categoryCards').innerHTML=categoryData.map(categoryCard).join('');document.querySelectorAll('.category').forEach(x=>x.addEventListener('click',()=>{activeFilter=x.dataset.cat;document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.filter===activeFilter));render();setTimeout(()=>document.getElementById('templates').scrollIntoView({behavior:'smooth',block:'start'}),0)}))}
 function renderPremium(){const list=TEMPLATES.filter(t=>t.tier==='premium');premiumGrid.innerHTML=list.map(premiumCard).join('');premiumGrid.querySelectorAll('.premium-card').forEach(x=>x.addEventListener('click',()=>openPreview(x.dataset.id)))}
 function render(){const q=search.value.trim();const list=TEMPLATES.filter(t=>t.tier!=='premium'&&matches(t,q));grid.innerHTML=list.map(card).join('');empty.classList.toggle('show',!list.length);count.textContent=`${toFa(list.length)} قالب`;grid.querySelectorAll('.preview-btn').forEach(b=>b.addEventListener('click',()=>openPreview(b.dataset.id)));observeReveals()}
-document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));btn.classList.add('active');activeFilter=btn.dataset.filter;render()}));document.getElementById('showAll').addEventListener('click',()=>{activeFilter='all';document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));render()});search.addEventListener('input',render);
+document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));btn.classList.add('active');activeFilter=btn.dataset.filter;document.getElementById('showAll').hidden=false;render()}));document.getElementById('showAll').addEventListener('click',()=>{activeFilter='all';document.getElementById('showAll').hidden=true;document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));render()});search.addEventListener('input',render);
 /* preview modal */
 const modal=document.getElementById('previewModal'),modalImage=document.getElementById('modalImage'),modalTitle=document.getElementById('modalTitle'),modalDesc=document.getElementById('modalDesc'),modalMeta=document.getElementById('modalMeta'),livePreview=document.getElementById('livePreview'),useTemplate=document.getElementById('useTemplate');
 function openPreview(id){const t=TEMPLATES.find(x=>x.id===id);if(!t)return;modalImage.src=t.img;modalImage.alt=`پیش‌نمایش ${t.name}`;modalTitle.textContent=t.name;modalDesc.textContent=t.desc;modalMeta.innerHTML=`<span>${t.typeLabel}</span><span>⭐ ۴.۸</span>${t.tier==='premium'?'<span style="color:var(--gold)">👑 Premium</span>':''}`;livePreview.href=`portfolio/templates/${t.id}/menu.html`;useTemplate.href=`dashboard.html?template=${encodeURIComponent(t.id)}`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}

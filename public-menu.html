@@ -1050,6 +1050,15 @@ hintChips.addEventListener('click', (e)=>{
 let cart = {}; // { itemId: quantity }
 let appliedDiscount = null; // { code, discountAmount, total } یا null
 try{ cart = JSON.parse(localStorage.getItem('bolut_cart') || '{}'); }catch(e){ cart = {}; }
+// Repair legacy/corrupt localStorage values before using them as numeric quantities.
+if(!cart || typeof cart!=='object' || Array.isArray(cart)) cart={};
+for(const [id,value] of Object.entries(cart)){
+  const raw=(value && typeof value==='object') ? (value.qty ?? value.quantity ?? value.count) : value;
+  const qty=Number(raw);
+  if(!Number.isFinite(qty)||qty<=0) delete cart[id];
+  else cart[id]=Math.min(999,Math.floor(qty));
+}
+localStorage.setItem('bolut_cart',JSON.stringify(cart));
 
 const cartBtn = document.getElementById('cartBtn');
 const cartBadge = document.getElementById('cartBadge');
@@ -1068,7 +1077,7 @@ function saveCart(){
 }
 
 function updateCartBadge(){
-  const count = Object.values(cart).reduce((a,b)=>a+b, 0);
+  const count = Object.values(cart).reduce((a,b)=>a+(Number(b)||0), 0);
   if(count > 0){
     cartBadge.style.display = 'flex';
     cartBadge.textContent = count;
@@ -1680,7 +1689,7 @@ updateCartBadge();
 </style>
 <div class="mpbiz-actions"><button class="mpbiz-btn" id="mpReserveBtn">📅 رزرو میز</button><button class="mpbiz-btn" id="mpReviewBtn">⭐ ثبت نظر</button></div>
 <div class="mpbiz-overlay" id="mpReserveOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>📅 رزرو میز</h3><button class="mpbiz-close" id="mpReserveClose">بستن</button></div><p class="mpbiz-muted">زمان دلخواهت را انتخاب کن؛ رزرو بعد از تأیید مجموعه قطعی می‌شود.</p><input class="mpbiz-input" id="mpResName" placeholder="نام و نام خانوادگی"><input class="mpbiz-input" id="mpResPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="mpbiz-input" id="mpResDate" type="date"><input class="mpbiz-input" id="mpResTime" type="time"></div><input class="mpbiz-input" id="mpResGuests" type="number" min="1" max="30" value="2" placeholder="تعداد نفرات"><textarea class="mpbiz-input" id="mpResNote" placeholder="توضیحات (اختیاری)"></textarea><button class="mpbiz-submit" id="mpResSubmit">ثبت درخواست رزرو</button><div id="mpResMsg" class="mpbiz-muted" style="margin-top:8px"></div></div></div>
-<div class="mpbiz-overlay" id="mpReviewOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>⭐ نظر شما</h3><button class="mpbiz-close" id="mpReviewClose">بستن</button></div><p class="mpbiz-muted">برای ثبت نظر، شماره موبایل و شماره سفارش را وارد کن.</p><input class="mpbiz-input" id="mpRevPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><input class="mpbiz-input" id="mpRevOrder" placeholder="شماره سفارش" dir="ltr"><input class="mpbiz-input" id="mpRevName" placeholder="نام"><div id="mpRevStars" style="margin:8px 0">${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-star="${n}">★</button>`).join('')}</div><textarea class="mpbiz-input" id="mpRevText" placeholder="نظرت درباره تجربه‌ات..."></textarea><button class="mpbiz-submit" id="mpRevSubmit">ثبت نظر</button><div id="mpRevMsg" class="mpbiz-muted" style="margin-top:8px"></div><hr style="border:0;border-top:1px solid #273642;margin:18px 0"><h4>آخرین نظرات</h4><div id="mpPublicReviews" style="margin-top:8px"></div></div></div>
+<div class="mpbiz-overlay" id="mpReviewOverlay"><div class="mpbiz-modal"><div class="mpbiz-head"><h3>⭐ نظر شما</h3><button class="mpbiz-close" id="mpReviewClose">بستن</button></div><p class="mpbiz-muted">برای ثبت نظر، شماره موبایل و شماره سفارش را وارد کن.</p><input class="mpbiz-input" id="mpRevPhone" placeholder="شماره موبایل" inputmode="tel" dir="ltr"><input class="mpbiz-input" id="mpRevOrder" placeholder="شماره سفارش" dir="ltr"><input class="mpbiz-input" id="mpRevName" placeholder="نام"><div id="mpRevStars" style="margin:8px 0"><button type="button" class="star-btn" data-star="1">★</button><button type="button" class="star-btn" data-star="2">★</button><button type="button" class="star-btn" data-star="3">★</button><button type="button" class="star-btn" data-star="4">★</button><button type="button" class="star-btn" data-star="5">★</button></div><textarea class="mpbiz-input" id="mpRevText" placeholder="نظرت درباره تجربه‌ات..."></textarea><button class="mpbiz-submit" id="mpRevSubmit">ثبت نظر</button><div id="mpRevMsg" class="mpbiz-muted" style="margin-top:8px"></div><hr style="border:0;border-top:1px solid #273642;margin:18px 0"><h4>آخرین نظرات</h4><div id="mpPublicReviews" style="margin-top:8px"></div></div></div>
 <script>
 (function(){
   const api=window.MENUPROAI_API||'https://menuproai-api.bytelab.workers.dev';
@@ -1695,6 +1704,16 @@ updateCartBadge();
   const hide=id=>{const e=$(id);if(e)e.classList.remove('show')};
   const waitForMenu=(fn,tries=0)=>{if(getSlug()) return fn(); if(tries>100) return; setTimeout(()=>waitForMenu(fn,tries+1),100)};
 
+  const floating=$('mpReserveBtn')?.parentElement;
+  if(floating){
+    const syncFloating=()=>{
+      const blocked=Boolean(document.querySelector('#cartPanel.open,#cartOverlay.open,.mpbiz-overlay.show,#mpCustomerAccountOverlay.show'));
+      floating.style.display=blocked?'none':'';
+    };
+    const observer=new MutationObserver(syncFloating);
+    ['cartPanel','cartOverlay','mpReserveOverlay','mpReviewOverlay','mpCustomerAccountOverlay'].forEach(id=>{const el=$(id);if(el)observer.observe(el,{attributes:true,attributeFilter:['class']})});
+    syncFloating();
+  }
   waitForMenu(()=>{
     const reserveBtn=$('mpReserveBtn'),reviewBtn=$('mpReviewBtn');
     if(reserveBtn) reserveBtn.onclick=()=>{
@@ -1756,6 +1775,24 @@ updateCartBadge();
   .mpbiz-actions{right:10px;bottom:calc(76px + env(safe-area-inset-bottom));}
   #mpLoyaltyBtn{bottom:calc(76px + env(safe-area-inset-bottom));left:10px;max-width:calc(100vw - 20px);}
   .mpbiz-btn{max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+}
+
+/* Shared menu: floating actions never cover checkout, receipt, or bottom navigation. */
+.mpbiz-actions{position:fixed;right:12px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:75;max-width:calc(100vw - 24px);pointer-events:none;}
+.mpbiz-actions .mpbiz-btn{pointer-events:auto;font-family:inherit;font-size:12px;line-height:1.4;}
+body:has(#cartPanel.open) .mpbiz-actions,
+body:has(#cartOverlay.open) .mpbiz-actions,
+body:has(.mpbiz-overlay.show) .mpbiz-actions,
+body:has(#mpCustomerAccountOverlay.show) .mpbiz-actions{display:none!important;}
+.mpbiz-overlay{z-index:1000!important;}
+.mpbiz-modal{box-sizing:border-box;max-height:min(85dvh,740px);padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+.mpbiz-modal .star-btn{background:transparent;border:0;color:#f3c75e;font-size:26px;padding:3px;opacity:.48;cursor:pointer;}
+.mpbiz-modal .star-btn.on{opacity:1;}
+@media(max-width:560px){
+ .mpbiz-actions{right:10px!important;bottom:calc(78px + env(safe-area-inset-bottom))!important;}
+ .mpbiz-btn{padding:9px 12px!important;}
+ .mpbiz-overlay{padding:8px;}
+ .mpbiz-modal{max-height:88dvh;width:100%;}
 }
 </style>
 </body>
