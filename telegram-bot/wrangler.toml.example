@@ -1,0 +1,17 @@
+# نمونه تنظیمات؛ مقادیر واقعی را از Cloudflare خودتان وارد کنید
+name = "menuproai-telegram"
+main = "worker.js"
+compatibility_date = "2026-09-27"
+
+[[services]]
+binding = "MENU_API"
+service = "menuproai-api"
+
+# برای فعال‌سازی اعلان‌ها، شناسه KV واقعی را وارد کنید
+# [[kv_namespaces]]
+# binding = "NOTIFY_KV"
+# id = "YOUR_KV_NAMESPACE_ID"
+
+# برای اعلان‌های هر دو دقیقه
+# [triggers]
+# crons = ["*/2 * * * *"]
